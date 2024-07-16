@@ -2,3 +2,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import 'variables';
+
+@font-face {
+  font-family: 'Engschrift';
+  src: url('/assets/fonts/DIN 1451 Std Engschrift.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Engshrift', sans-serif;
+}
