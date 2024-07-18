@@ -4,32 +4,29 @@
 
 .card {
   max-width: 550px;
+  display: grid;
   border: 0;
   width: 100%;
   margin-inline: auto;
   z-index: 0;
+  background: #fff;
+  border-top-left-radius: 2rem;
+  border-bottom-left-radius: 2rem;
+  box-shadow: var(--card-shadow);
 }
 
 .container-card {
   position: relative;
-  border: 2px solid transparent;
-  background: #fff;
   background-clip: padding-box;
-  border-top-left-radius: 2rem;
-  border-bottom-left-radius: 2rem;
-  padding: 1.5rem 0 1.5rem 1.5rem;
+  padding: 1.5rem 0 0 1.5rem;
   position: relative;
   display: grid;
   grid-template-rows: auto;
   grid-template-columns: 1fr 5rem;
   grid-template-areas:
-    'header header'
-    'title time';
-  //   box-shadow: rgba(255, 255, 255, 0.1) 0px 4px 12px;
-  //   box-shadow: rgba(255, 255, 255, 0.24) 0px 3px 8px;
-  box-shadow:
-    rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
-    rgba(255, 255, 255, 0.3) 0px 30px 60px -30px;
+    'header time'
+    'title time'
+    'exercises time';
 }
 
 .next-session {
@@ -55,21 +52,28 @@
 .session-time {
   grid-area: time;
   justify-self: end;
-  display: grid;
-  justify-items: center;
-  align-items: center;
   padding: 1rem 0.5rem 1rem 1rem;
   background-color: var(--accent-color);
   color: var(--light-font-color);
   font-weight: bold;
   border-top-left-radius: 2rem;
   border-bottom-left-radius: 2rem;
+  height: fit-content;
 }
 
-.card-description {
-  font-weight: 600;
-  line-height: 32px;
-  color: hsla(0, 0%, 100%, 0.5);
-  font-size: 16px;
-  max-width: 470px;
+.start-session-button {
+  margin-top: 1rem;
+  background-color: var(--accent-color);
+  color: var(--light-font-color);
+  width: 75%;
+  border-top-left-radius: 2rem;
+  padding: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-left: auto;
+  text-transform: uppercase;
+}
+
+.exercises-list-container {
+  grid-area: exercises;
 }

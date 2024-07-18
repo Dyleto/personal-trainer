@@ -1,5 +1,9 @@
 <div class="container">
+  <app-head-title text="Bonjour Corentin," [showBackArrow]="false" />
   <div class="session-card-container">
-    <app-session-card />
+    <app-session-card [nextSession]="true" />
   </div>
+  <button class="choose-session" (click)="onClickChooseSession()">
+    Choisir une séance
+  </button>
 </div>

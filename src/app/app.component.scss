@@ -1,5 +1,42 @@
 .container {
   width: 100vw;
   height: 100vh;
-  background-color: var(--primary-color);
 }
+
+.transition-container-outer {
+  width: 100%;
+  z-index: 100;
+  position: fixed;
+  height: 100vh;
+  //border: 2px solid rgba(0, 255, 0, 0.5);
+}
+
+.transition-container-inner {
+  height: 100vh;
+  overflow: hidden;
+  //border: 4px solid rgba(0, 0, 255, 0.5);
+}
+
+.transition-cover {
+  position: relative;
+  width: 150vw;
+  height: 150vw;
+
+  background: #fff;
+  animation: transition 3s infinite;
+  animation-timing-function: linear;
+
+  //border: 25px solid rgba(255, 0, 0, 0.5);
+}
+
+// @keyframes transition {
+//   0% {
+//     transform: skewY(45deg) translate(0, 5000px);
+//   }
+//   50% {
+//     transform: skewY(45deg) translate(0, 0);
+//   }
+//   100% {
+//     transform: skewY(45deg) translate(0, -5000px);
+//   }
+// }
