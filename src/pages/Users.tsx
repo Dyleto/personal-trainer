@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Heading,
   Table,
@@ -10,6 +9,7 @@ import {
   Td,
   Spinner,
 } from "@chakra-ui/react";
+import api from "../api";
 
 type User = {
   _id: string;
@@ -22,7 +22,7 @@ const Users: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
+    api
       .get<User[]>("/api/users")
       .then((res) => setUsers(res.data))
       .catch((err) => console.error(err))
