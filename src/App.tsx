@@ -7,8 +7,12 @@ function App() {
   return (
     <Flex direction="column" minH="100vh">
       <Box bg="blue.600" color="white" p={4}>
-        <Button as={Link} to="/" colorScheme="blue" mr={2}>Dashboard</Button>
-        <Button as={Link} to="/users" colorScheme="blue">Users</Button>
+        <Button as={Link} to="/" colorScheme="blue" mr={2}>
+          Dashboard
+        </Button>
+        <Button as={Link} to="/users" colorScheme="blue">
+          Users
+        </Button>
       </Box>
       <Box flex="1" p={4}>
         <Routes>

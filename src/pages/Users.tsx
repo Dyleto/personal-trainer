@@ -11,13 +11,19 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 
-function Users() {
-  const [users, setUsers] = useState([]);
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+};
+
+const Users: React.FC = () => {
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
-      .get("/api/users")
+      .get<User[]>("/api/users")
       .then((res) => setUsers(res.data))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -46,6 +52,6 @@ function Users() {
       </Table>
     </>
   );
-}
+};
 
 export default Users;
