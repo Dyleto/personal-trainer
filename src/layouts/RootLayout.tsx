@@ -5,8 +5,8 @@ import { Box, Grid } from "@chakra-ui/react";
 const RootLayout: React.FC = () => {
   return (
     <Grid
-      bg={"blackAlpha.800"}
-      color={"whiteAlpha.900"}
+      bg={"bg.muted"}
+      color={"fg"}
       templateAreas={{ base: `'content' ` }}
       gridTemplateRows={{ base: "1fr" }}
       minH="100vh"

@@ -1,14 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Heading,
-  Table,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
-  Spinner,
-} from "@chakra-ui/react";
+import { Heading, Spinner } from "@chakra-ui/react";
 import api from "../api";
 
 type User = {
@@ -34,22 +25,6 @@ const Users: React.FC = () => {
   return (
     <>
       <Heading>Users</Heading>
-      <Table mt={4}>
-        <Thead>
-          <Tr>
-            <Th>Name</Th>
-            <Th>Email</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {users.map((user) => (
-            <Tr key={user._id}>
-              <Td>{user.name}</Td>
-              <Td>{user.email}</Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
     </>
   );
 };
