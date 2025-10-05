@@ -1,12 +1,26 @@
-import { Heading, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Card,
+  Container,
+  Heading,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import React from "react";
 
 const Dashboard: React.FC = () => {
   return (
-    <>
-      <Heading>ERP Dashboard</Heading>
-      <Text mt={2}>Bienvenue dans ton ERP minimal 🚀</Text>
-    </>
+    <Container>
+      <Heading mt="6">Bonjour Corentin,</Heading>
+
+      <SimpleGrid columns={{ base: 1, md: 3 }} mt="6">
+        <Card.Root>
+          <Card.Header />
+          <Card.Body />
+          <Card.Footer />
+        </Card.Root>
+      </SimpleGrid>
+    </Container>
   );
 };
 
