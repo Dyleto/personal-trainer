@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import { Box, Grid } from "@chakra-ui/react";
 
 const RootLayout: React.FC = () => {

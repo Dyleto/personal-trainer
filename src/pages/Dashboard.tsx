@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Container,
+  Grid,
   Heading,
   HStack,
   SimpleGrid,
@@ -20,148 +21,84 @@ const Dashboard: React.FC = () => {
         Bonjour Corentin,
       </Heading>
 
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} mt="6" gap="4">
-        <Card.Root width="320px" bg="bg.inverted" color="fg.inverted">
+      <Grid
+        gridTemplateColumns={{
+          base: "320px",
+          md: "320px 320px",
+          lg: "320px 320px 320px",
+        }}
+        justifyContent={"center"}
+        alignItems={"center"}
+        mt="6"
+        gap="4"
+      >
+        <Card.Root
+          bg="transparent"
+          borderColor={"yellow.400"}
+          borderStyle={"dashed"}
+          _hover={{ bg: "yellow.400", color: "fg.inverted", cursor: "pointer" }}
+        >
           <Card.Header>
-            <Heading fontWeight="semibold">Séance Jambes</Heading>
-            <Text color="fg.subtle" textStyle="sm">
-              Jeu. 20/05
+            <Heading fontWeight="bold">Prochaine séance</Heading>
+            <Text textStyle="sm" mt="1">
+              Séance Jambes
             </Text>
           </Card.Header>
-          <HStack mt="5" gap="0">
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderRight="1px solid"
-                borderTopEndRadius="0"
-                borderBottomEndRadius="0"
-              >
-                Ressentis
-              </Button>
-            </Stack>
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderTopStartRadius="0"
-                borderBottomStartRadius="0"
-              >
-                Retours
-              </Button>
-            </Stack>
-          </HStack>
-        </Card.Root>
-        <Card.Root width="320px" bg="bg.inverted" color="fg.inverted">
-          <Card.Header>
-            <Heading fontWeight="semibold">Séance Jambes</Heading>
-            <Text color="fg.subtle" textStyle="sm">
-              Jeu. 20/05
+          <Stack w="100%" mt="5" mb="3" textAlign="center">
+            <Text textAlign="center" fontWeight="semibold">
+              Voir la séance
             </Text>
-          </Card.Header>
-          <HStack mt="5" gap="0">
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderRight="1px solid"
-                borderTopEndRadius="0"
-                borderBottomEndRadius="0"
-              >
-                Ressentis
-              </Button>
-            </Stack>
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderTopStartRadius="0"
-                borderBottomStartRadius="0"
-              >
-                Retours
-              </Button>
-            </Stack>
-          </HStack>
+          </Stack>
         </Card.Root>
-        <Card.Root width="320px" bg="bg.inverted" color="fg.inverted">
-          <Card.Header>
-            <Heading fontWeight="semibold">Séance Jambes</Heading>
-            <Text color="fg.subtle" textStyle="sm">
-              Jeu. 20/05
-            </Text>
-          </Card.Header>
-          <HStack mt="5" gap="0">
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderRight="1px solid"
-                borderTopEndRadius="0"
-                borderBottomEndRadius="0"
-              >
-                Ressentis
-              </Button>
-            </Stack>
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderTopStartRadius="0"
-                borderBottomStartRadius="0"
-              >
-                Retours
-              </Button>
-            </Stack>
-          </HStack>
-        </Card.Root>
-        <Card.Root width="320px" bg="bg.inverted" color="fg.inverted">
-          <Card.Header>
-            <Heading fontWeight="semibold">Séance Jambes</Heading>
-            <Text color="fg.subtle" textStyle="sm">
-              Jeu. 20/05
-            </Text>
-          </Card.Header>
-          <HStack mt="5" gap="0">
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderRight="1px solid"
-                borderTopEndRadius="0"
-                borderBottomEndRadius="0"
-              >
-                Ressenti
-              </Button>
-            </Stack>
-            <Stack w="100%" textAlign="center">
-              <Button
-                variant="outline"
-                bg="yellow.400"
-                color="fg.inverted"
-                border="none"
-                borderTopStartRadius="0"
-                borderBottomStartRadius="0"
-              >
-                Retour
-              </Button>
-            </Stack>
-          </HStack>
-        </Card.Root>
-      </SimpleGrid>
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <Box key={idx}>
+            <Card.Root
+              bg="bg.inverted"
+              color="fg.inverted"
+              borderColor={"yellow.400"}
+              borderStyle={"dashed"}
+              _hover={{
+                bg: "yellow.400",
+                color: "fg.inverted",
+                cursor: "pointer",
+              }}
+            >
+              <Card.Header>
+                <Heading fontWeight="bold">Séance Jambes</Heading>
+                <Text textStyle="sm" mt="1">
+                  Jeu. 20/05
+                </Text>
+              </Card.Header>
+              <Stack w="100%" mt="5" mb="3" textAlign="center">
+                <Text textAlign="center" fontWeight="semibold">
+                  Voir la séance
+                </Text>
+              </Stack>
+            </Card.Root>
+
+            {/* <Card.Root bg="bg.inverted" color="fg.inverted">
+              <Card.Header>
+                <Heading fontWeight="semibold">Séance Jambes</Heading>
+                <Text color="fg.subtle" textStyle="sm">
+                  Jeu. 20/05
+                </Text>
+              </Card.Header>
+              <Stack w="100%" mt="5" textAlign="center">
+                <Button
+                  variant="outline"
+                  bg="yellow.400"
+                  color="fg.inverted"
+                  border="none"
+                  borderTopStartRadius="0"
+                  borderTopEndRadius="0"
+                >
+                  Voir la séance
+                </Button>
+              </Stack>
+            </Card.Root> */}
+          </Box>
+        ))}
+      </Grid>
     </Container>
   );
 };
