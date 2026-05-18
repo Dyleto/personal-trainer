@@ -15,7 +15,7 @@ export const formatDuration = (seconds: number): string => {
   // Si moins d'une heure
   if (totalMinutes < 60) {
     if (remainingSeconds > 0) {
-      return `${totalMinutes}min${remainingSeconds}`;
+      return `${totalMinutes}min${remainingSeconds}s`;
     }
     return `${totalMinutes}min`;
   }
