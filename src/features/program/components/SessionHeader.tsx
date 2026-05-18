@@ -13,10 +13,8 @@ export const SessionHeader = ({ order, duration }: SessionHeaderProps) => {
 
   return (
     <HStack justify="space-between" align="center" p={{ base: 4, md: 6 }}>
-      {/* Spacer gauche pour centrer le numéro (desktop uniquement) */}
       <Box w="80px" display={{ base: "none", md: "block" }} />
 
-      {/* Numéro stylisé */}
       <Box
         px={4}
         py={2}
@@ -46,7 +44,6 @@ export const SessionHeader = ({ order, duration }: SessionHeaderProps) => {
         Séance {order}
       </Box>
 
-      {/* Temps à droite */}
       <HStack
         gap={2}
         color="gray.400"

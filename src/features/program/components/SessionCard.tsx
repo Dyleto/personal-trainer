@@ -1,8 +1,8 @@
 import { BlockExercise, BlockType, Session, SessionBlock } from "@/types";
 import { calculateSessionDuration } from "@/utils/sessionUtils";
 import { useThemeColors } from "@/hooks/useThemeColors";
-import { Box, Button, HStack, IconButton, Textarea, Text, VStack } from "@chakra-ui/react";
-import { LuArrowRight, LuPlus, LuTrash } from "react-icons/lu";
+import { Box, Button, HStack, Separator, Textarea, Text, VStack } from "@chakra-ui/react";
+import { LuArrowRight, LuPlus, LuTrash2 } from "react-icons/lu";
 import { Card } from "@/components/Card";
 import { SessionHeader } from "./SessionHeader";
 import { BlockCard } from "./BlockCard";
@@ -50,31 +50,8 @@ export const SessionCard = ({
   const duration = calculateSessionDuration(session);
 
   return (
-    <Box position="relative" w="full">
-      {/* Delete session button */}
-      {isEditing && (
-        <IconButton
-          aria-label="Supprimer la séance"
-          size="xs"
-          variant="solid"
-          bg={`${colors.error}/60`}
-          _hover={{ bg: colors.error }}
-          rounded="full"
-          position="absolute"
-          top="-10px"
-          right="-10px"
-          zIndex={2}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemoveSession?.();
-          }}
-        >
-          <LuTrash />
-        </IconButton>
-      )}
-
-      <Card p={0} accentColor={colors.primary} hoverEffect={interactive ? "both" : "none"}>
-        <VStack align="stretch" gap={0}>
+    <Card p={0} accentColor={colors.primary} hoverEffect={interactive ? "both" : "none"}>
+      <VStack align="stretch" gap={0}>
           {/* Header */}
           <SessionHeader order={session.order} duration={duration} />
 
@@ -204,6 +181,27 @@ export const SessionCard = ({
             )}
           </VStack>
 
+          {/* Delete session (edit mode) */}
+          {isEditing && (
+            <>
+              <Separator borderColor="whiteAlpha.100" />
+              <Button
+                variant="ghost"
+                size="sm"
+                color="gray.600"
+                _hover={{ color: "red.400", bg: "red.400/8" }}
+                onClick={onRemoveSession}
+                w="full"
+                borderRadius={0}
+                py={4}
+                gap={2}
+              >
+                <LuTrash2 size={14} />
+                Supprimer la séance
+              </Button>
+            </>
+          )}
+
           {/* Complete button (client view) */}
           {onComplete && (
             <Box px={4} pb={4} pt={2}>
@@ -221,7 +219,6 @@ export const SessionCard = ({
             </Box>
           )}
         </VStack>
-      </Card>
-    </Box>
+    </Card>
   );
 };

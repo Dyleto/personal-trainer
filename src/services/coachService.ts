@@ -1,29 +1,11 @@
 import api from "@/config/api";
 import {
-  BlockExercise,
   Client,
   ClientWithDetails,
   CompletedSession,
   Exercise,
   ExerciseStats,
-  Session,
-  SessionBlock,
 } from "@/types";
-
-type RawBlockExercise = Omit<BlockExercise, "exercise"> & { exerciseId: Exercise };
-type RawBlock = Omit<SessionBlock, "exercises"> & { exercises: RawBlockExercise[] };
-type RawSession = Omit<Session, "blocks"> & { blocks: RawBlock[] };
-
-const transformSession = (session: RawSession): Session => ({
-  ...session,
-  blocks: session.blocks.map((block) => ({
-    ...block,
-    exercises: block.exercises.map(({ exerciseId, ...rest }) => ({
-      ...rest,
-      exercise: exerciseId,
-    })),
-  })),
-});
 
 export const coachService = {
   getClients: async () => {
@@ -35,13 +17,6 @@ export const coachService = {
     const { data } = await api.get<ClientWithDetails>(
       `/api/coach/clients/${clientId}`,
     );
-
-    if (data.program?.sessions) {
-      data.program.sessions = (data.program.sessions as unknown as RawSession[]).map(
-        transformSession,
-      ) as unknown as Session[];
-    }
-
     return data;
   },
 

@@ -2,6 +2,7 @@ import { BlockExercise, BlockType, Exercise, SessionBlock } from "@/types";
 import {
   blockSupportsSets,
   getBlockColor,
+  getBlockDescription,
   getBlockLabel,
 } from "@/constants/blockTypes";
 import {
@@ -31,7 +32,12 @@ const NumField = ({
   onChange: (v: number) => void;
 }) => (
   <VStack align="start" gap={1} flex={1}>
-    <Text fontSize="2xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">
+    <Text
+      fontSize="2xs"
+      color="gray.500"
+      textTransform="uppercase"
+      letterSpacing="wider"
+    >
       {label}
     </Text>
     <NumberInput.Root
@@ -94,15 +100,10 @@ const BlockConfig = ({
             onChange={(v) => onUpdate({ intervalMinutes: v })}
           />
           <NumField
-            label="Répétitions"
+            label="Tours"
             value={block.rounds}
             min={1}
             onChange={(v) => onUpdate({ rounds: v })}
-          />
-          <NumField
-            label="Repos entre (s)"
-            value={block.restBetweenRounds}
-            onChange={(v) => onUpdate({ restBetweenRounds: v })}
           />
         </HStack>
       );
@@ -118,13 +119,13 @@ const BlockConfig = ({
             onChange={(v) => onUpdate({ rounds: v })}
           />
           <NumField
-            label={block.type === "tabata" ? "Travail (s)" : "On (s)"}
+            label={block.type === "tabata" ? "Travail (sec)" : "On (sec)"}
             value={block.workDuration}
             min={1}
             onChange={(v) => onUpdate({ workDuration: v })}
           />
           <NumField
-            label={block.type === "tabata" ? "Repos (s)" : "Off (s)"}
+            label={block.type === "tabata" ? "Repos (sec)" : "Off (sec)"}
             value={block.restDuration}
             onChange={(v) => onUpdate({ restDuration: v })}
           />
@@ -137,7 +138,12 @@ const BlockConfig = ({
       return (
         <VStack align="stretch" gap={2}>
           <VStack align="start" gap={1}>
-            <Text fontSize="2xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">
+            <Text
+              fontSize="2xs"
+              color="gray.500"
+              textTransform="uppercase"
+              letterSpacing="wider"
+            >
               Paliers (ex: 5, 10, 15, 20)
             </Text>
             <Input
@@ -157,13 +163,22 @@ const BlockConfig = ({
             />
           </VStack>
           <NumField
-            label="Repos entre paliers (s)"
+            label="Repos entre paliers (sec)"
             value={block.restBetweenRounds}
             onChange={(v) => onUpdate({ restBetweenRounds: v })}
           />
         </VStack>
       );
     }
+
+    case "chipper":
+      return (
+        <NumField
+          label="Time cap (min, 0 = sans limite)"
+          value={block.durationMinutes ?? 0}
+          onChange={(v) => onUpdate({ durationMinutes: v || undefined })}
+        />
+      );
 
     default:
       return null;
@@ -203,37 +218,54 @@ export const BlockEditor = ({
     >
       {/* Header */}
       <Box px={4} py={3} bg={`${color}18`}>
-        <HStack justify="space-between" gap={2}>
-          <HStack gap={2} flex={1}>
-            <Box w="8px" h="8px" borderRadius="full" bg={color} flexShrink={0} />
-            <Text fontSize="xs" fontWeight="bold" color={color} textTransform="uppercase" letterSpacing="wider">
-              {getBlockLabel(block.type)}
-            </Text>
-            <Input
+        <VStack align="stretch" gap={1}>
+          <HStack justify="space-between" gap={2}>
+            <HStack gap={2} flex={1} minW={0}>
+              <Box
+                w="8px"
+                h="8px"
+                borderRadius="full"
+                bg={color}
+                flexShrink={0}
+              />
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                color={color}
+                textTransform="uppercase"
+                letterSpacing="wider"
+                flexShrink={0}
+              >
+                {getBlockLabel(block.type)}
+              </Text>
+              <Input
+                size="xs"
+                value={block.label || ""}
+                onChange={(e) => onUpdate({ label: e.target.value })}
+                placeholder="Nom personnalisé (optionnel)"
+                bg="blackAlpha.300"
+                borderColor="whiteAlpha.100"
+                _focus={{ borderColor: `${color}50` }}
+                borderRadius="md"
+                fontSize="xs"
+                color="gray.300"
+              />
+            </HStack>
+            <IconButton
+              aria-label="Supprimer le bloc"
               size="xs"
-              value={block.label || ""}
-              onChange={(e) => onUpdate({ label: e.target.value })}
-              placeholder="Nom du bloc (optionnel)"
-              bg="blackAlpha.300"
-              borderColor="whiteAlpha.100"
-              _focus={{ borderColor: `${color}50` }}
-              borderRadius="md"
-              maxW="200px"
-              fontSize="xs"
-              color="gray.300"
-            />
+              variant="ghost"
+              color="gray.500"
+              _hover={{ color: "red.400" }}
+              onClick={onRemove}
+            >
+              <LuTrash2 size={14} />
+            </IconButton>
           </HStack>
-          <IconButton
-            aria-label="Supprimer le bloc"
-            size="xs"
-            variant="ghost"
-            color="gray.500"
-            _hover={{ color: "red.400" }}
-            onClick={onRemove}
-          >
-            <LuTrash2 size={14} />
-          </IconButton>
-        </HStack>
+          <Text fontSize="2xs" color="gray.500" lineHeight="shorter">
+            {getBlockDescription(block.type)}
+          </Text>
+        </VStack>
       </Box>
 
       <VStack align="stretch" gap={0} p={3}>
@@ -256,24 +288,22 @@ export const BlockEditor = ({
         )}
 
         {/* Add exercise */}
-        {!(["tabata", "onoff"].includes(block.type) && block.exercises.length >= 1) && (
-          <Button
-            size="sm"
-            variant="ghost"
-            color={color}
-            borderWidth="1px"
-            borderColor={`${color}30`}
-            borderStyle="dashed"
-            borderRadius="lg"
-            mt={block.exercises.length > 0 ? 3 : 3}
-            onClick={onAddExercise}
-            _hover={{ bg: `${color}10` }}
-            w="full"
-          >
-            <LuPlus size={14} />
-            Ajouter un exercice
-          </Button>
-        )}
+        <Button
+          size="sm"
+          variant="ghost"
+          color={color}
+          borderWidth="1px"
+          borderColor={`${color}30`}
+          borderStyle="dashed"
+          borderRadius="lg"
+          mt={block.exercises.length > 0 ? 3 : 3}
+          onClick={onAddExercise}
+          _hover={{ bg: `${color}10` }}
+          w="full"
+        >
+          <LuPlus size={14} />
+          Ajouter un exercice
+        </Button>
       </VStack>
     </Box>
   );

@@ -2,6 +2,7 @@ import { BlockExercise, BlockType, SessionBlock } from "@/types";
 import {
   getBlockColor,
   getBlockConfigSummary,
+  getBlockDescription,
   getBlockLabel,
 } from "@/constants/blockTypes";
 import { Box, HStack, Separator, Text, VStack } from "@chakra-ui/react";
@@ -14,6 +15,7 @@ interface BlockCardProps {
 export const BlockCard = ({ block }: BlockCardProps) => {
   const color = getBlockColor(block.type);
   const label = block.label || getBlockLabel(block.type);
+  const description = getBlockDescription(block.type);
   const summary = getBlockConfigSummary(block);
 
   return (
@@ -25,24 +27,24 @@ export const BlockCard = ({ block }: BlockCardProps) => {
     >
       {/* Header */}
       <Box px={4} py={2.5} bg={`${color}15`}>
-        <HStack justify="space-between" gap={2}>
-          <HStack gap={2}>
-            <Box
-              w="8px"
-              h="8px"
-              borderRadius="full"
-              bg={color}
-              flexShrink={0}
-            />
-            <Text
-              fontSize="xs"
-              fontWeight="bold"
-              color={color}
-              textTransform="uppercase"
-              letterSpacing="wider"
-            >
-              {label}
-            </Text>
+        <HStack justify="space-between" gap={2} align="start">
+          <HStack gap={2} align="start">
+            <Box w="8px" h="8px" borderRadius="full" bg={color} flexShrink={0} mt="3px" />
+            <Box>
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                color={color}
+                textTransform="uppercase"
+                letterSpacing="wider"
+                lineHeight="shorter"
+              >
+                {label}
+              </Text>
+              <Text fontSize="2xs" color="gray.500" lineHeight="shorter" mt="2px">
+                {description}
+              </Text>
+            </Box>
           </HStack>
           {summary && (
             <Text fontSize="xs" color="gray.500" flexShrink={0}>

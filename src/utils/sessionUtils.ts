@@ -21,11 +21,14 @@ const calculateBlockDuration = (block: BlockForDuration): number => {
       return (block.durationMinutes || 0) * 60;
 
     case "every":
+      // Le repos est implicite dans l'intervalle (temps restant après le travail)
       return (block.intervalMinutes || 0) * 60 * (block.rounds || 0);
 
     case "tabata":
-    case "onoff":
-      return (block.rounds || 0) * ((block.workDuration || 0) + (block.restDuration || 0));
+    case "onoff": {
+      const rounds = block.rounds || 0;
+      return rounds * (block.workDuration || 0) + Math.max(0, rounds - 1) * (block.restDuration || 0);
+    }
 
     case "pyramid":
     case "ladder": {
@@ -37,6 +40,15 @@ const calculateBlockDuration = (block: BlockForDuration): number => {
     }
 
     case "warmup":
+      return block.exercises.reduce((sum, ex) => {
+        const perEx = (ex as { duration?: number }).duration
+          ? (ex as { duration: number }).duration
+          : (ex as { reps?: number }).reps
+          ? (ex as { reps: number }).reps * 4
+          : 0;
+        return sum + perEx;
+      }, 0);
+
     case "classic": {
       return block.exercises.reduce((sum, ex) => {
         const sets = (ex as { sets?: number }).sets || 1;
@@ -53,7 +65,8 @@ const calculateBlockDuration = (block: BlockForDuration): number => {
       }, 0);
     }
 
-    case "chipper":
+    case "chipper": {
+      if (block.durationMinutes) return block.durationMinutes * 60;
       return block.exercises.reduce((sum, ex) => {
         if ((ex as { duration?: number }).duration)
           return sum + (ex as { duration: number }).duration;
@@ -62,6 +75,7 @@ const calculateBlockDuration = (block: BlockForDuration): number => {
         if ((ex as { customMetric?: unknown }).customMetric) return sum + 60;
         return sum;
       }, 0);
+    }
 
     default:
       return 0;

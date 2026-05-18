@@ -7,6 +7,7 @@ import {
   Heading,
   HStack,
   Input,
+  Text,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
@@ -45,8 +46,8 @@ export const ExerciseEditor = ({
     type: "workout",
     ...initialData,
   });
+  const [nameError, setNameError] = useState("");
 
-  // Mise à jour si les données initiales changent (ex: chargement asynchrone)
   useEffect(() => {
     if (initialData) {
       setFormData((prev) => ({ ...prev, ...initialData }));
@@ -55,6 +56,11 @@ export const ExerciseEditor = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name?.trim()) {
+      setNameError("Le nom est requis");
+      return;
+    }
+    setNameError("");
     onSave(formData);
   };
 
@@ -129,16 +135,23 @@ export const ExerciseEditor = ({
               <Field label="Nom de l'exercice" required>
                 <Input
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, name: e.target.value });
+                    if (nameError) setNameError("");
+                  }}
                   placeholder={
                     formData.type === "warmup"
                       ? "Ex: Cardio léger"
                       : "Ex: Squat goblet"
                   }
-                  required
+                  borderColor={nameError ? "red.400" : undefined}
+                  _focus={{ borderColor: nameError ? "red.400" : undefined }}
                 />
+                {nameError && (
+                  <Text fontSize="xs" color="red.400" mt={1}>
+                    {nameError}
+                  </Text>
+                )}
               </Field>
 
               {/* Description */}

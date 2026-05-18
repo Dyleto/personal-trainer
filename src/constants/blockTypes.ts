@@ -17,6 +17,23 @@ export const BLOCK_TYPE_CONFIG: Record<
   ladder:  { label: "Échelle",      color: "#8b5cf6" },
 };
 
+export const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
+  warmup:  "Échauffement libre",
+  classic: "Séries & reps classiques",
+  emom:    "Exos toutes les minutes",
+  every:   "Circuit toutes les X min",
+  amrap:   "Max de tours en temps limité",
+  timecap: "Terminer avant la limite",
+  chipper: "Liste à faire en 1 passe",
+  tabata:  "20s / 10s × N tours",
+  onoff:   "Xon / Xoff × N tours",
+  pyramid: "Reps qui montent et descendent",
+  ladder:  "Reps qui augmentent ou diminuent",
+};
+
+export const getBlockDescription = (type: BlockType): string =>
+  BLOCK_DESCRIPTIONS[type] ?? "";
+
 export const BLOCK_TYPES_ORDERED: BlockType[] = [
   "warmup", "classic", "emom", "every",
   "amrap", "timecap", "chipper",
@@ -24,7 +41,11 @@ export const BLOCK_TYPES_ORDERED: BlockType[] = [
 ];
 
 export const blockSupportsSets = (type: BlockType): boolean =>
-  type === "classic" || type === "warmup";
+  type === "classic";
+
+// Blocs où le timing est défini au niveau du bloc, pas de l'exercice
+export const blockDefinesOwnMetrics = (type: BlockType): boolean =>
+  ["pyramid", "ladder", "tabata", "onoff"].includes(type);
 
 export const getBlockColor = (type: BlockType): string =>
   BLOCK_TYPE_CONFIG[type]?.color ?? "#94a3b8";
@@ -59,6 +80,8 @@ export const getBlockConfigSummary = (block: SessionBlock): string => {
     case "pyramid":
     case "ladder":
       return block.repsScheme?.join("-") ?? "";
+    case "chipper":
+      return block.durationMinutes ? `${block.durationMinutes} min max` : "";
     default:
       return "";
   }

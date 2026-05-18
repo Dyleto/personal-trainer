@@ -1,5 +1,6 @@
 import { BlockExercise, BlockType } from "@/types";
 import {
+  blockDefinesOwnMetrics,
   blockSupportsSets,
   getBlockColor,
 } from "@/constants/blockTypes";
@@ -24,10 +25,10 @@ export const formatExerciseMetric = (
   const effort = ex.reps
     ? `${ex.reps} reps`
     : ex.duration
-    ? formatDuration(ex.duration)
-    : ex.customMetric
-    ? `${ex.customMetric.value} ${ex.customMetric.unit}`
-    : "";
+      ? formatDuration(ex.duration)
+      : ex.customMetric
+        ? `${ex.customMetric.value} ${ex.customMetric.unit}`
+        : "";
 
   if (!effort) return "";
   if (blockSupportsSets(blockType) && ex.sets && ex.sets > 1) {
@@ -133,13 +134,14 @@ export const BlockExerciseEdit = ({
   onRemove,
 }: EditProps) => {
   const supportsSets = blockSupportsSets(blockType);
+  const metricsDefinedByBlock = blockDefinesOwnMetrics(blockType);
   const color = getBlockColor(blockType);
 
   const currentMode: MetricMode = exercise.duration
     ? "duration"
     : exercise.customMetric
-    ? "custom"
-    : "reps";
+      ? "custom"
+      : "reps";
 
   const setMode = (mode: MetricMode) => {
     if (mode === "reps")
@@ -165,7 +167,13 @@ export const BlockExerciseEdit = ({
       <VStack align="stretch" gap={2}>
         {/* Exercise name + delete */}
         <HStack justify="space-between">
-          <Text fontSize="sm" color="gray.300" fontWeight="medium" lineClamp={1} flex={1}>
+          <Text
+            fontSize="sm"
+            color="gray.300"
+            fontWeight="medium"
+            lineClamp={1}
+            flex={1}
+          >
             {exercise.exercise.name}
           </Text>
           <IconButton
@@ -180,125 +188,140 @@ export const BlockExerciseEdit = ({
           </IconButton>
         </HStack>
 
-        {/* Metric mode toggle */}
-        <HStack
-          bg="blackAlpha.400"
-          p="2px"
-          borderRadius="md"
-          w="fit-content"
-          borderWidth="1px"
-          borderColor="whiteAlpha.100"
-          gap={0}
-        >
-          {(["reps", "duration", "custom"] as MetricMode[]).map((mode) => (
-            <Box
-              key={mode}
-              as="button"
-              px={2.5}
-              py={1}
-              borderRadius="sm"
-              bg={currentMode === mode ? "whiteAlpha.200" : "transparent"}
-              color={currentMode === mode ? "white" : "gray.500"}
-              fontSize="xs"
-              fontWeight="medium"
-              onClick={() => setMode(mode)}
-              _hover={{ bg: currentMode === mode ? "whiteAlpha.300" : "whiteAlpha.50" }}
-              transition="all 0.15s"
+        {/* Métriques — masquées si le bloc définit lui-même le timing */}
+        {!metricsDefinedByBlock && (
+          <>
+            <HStack
+              bg="blackAlpha.400"
+              p="2px"
+              borderRadius="md"
+              w="fit-content"
+              borderWidth="1px"
+              borderColor="whiteAlpha.100"
+              gap={0}
             >
-              {mode === "reps" ? "Reps" : mode === "duration" ? "Durée" : "Mesure"}
-            </Box>
-          ))}
-        </HStack>
-
-        {/* Metric inputs */}
-        <Flex gap={2} align="flex-end" flexWrap="wrap">
-          {supportsSets && (
-            <>
-              <NumInput
-                value={exercise.sets}
-                min={1}
-                label="séries"
-                onChange={(v) => onUpdate({ sets: v })}
-              />
-              <Text pb={4} color="gray.500" fontSize="sm">
-                ×
-              </Text>
-            </>
-          )}
-
-          {currentMode === "reps" && (
-            <NumInput
-              value={exercise.reps}
-              label="reps"
-              onChange={(v) => onUpdate({ reps: v })}
-            />
-          )}
-
-          {currentMode === "duration" && (
-            <NumInput
-              value={exercise.duration}
-              label="secondes"
-              w="72px"
-              onChange={(v) => onUpdate({ duration: v })}
-            />
-          )}
-
-          {currentMode === "custom" && (
-            <HStack gap={2} align="flex-end">
-              <NumInput
-                value={exercise.customMetric?.value}
-                label="valeur"
-                w="72px"
-                onChange={(v) =>
-                  onUpdate({
-                    customMetric: {
-                      value: v,
-                      unit: exercise.customMetric?.unit || "m",
-                    },
-                  })
-                }
-              />
-              <Box pb={4}>
-                <input
-                  value={exercise.customMetric?.unit || ""}
-                  onChange={(e) =>
-                    onUpdate({
-                      customMetric: {
-                        value: exercise.customMetric?.value || 0,
-                        unit: e.target.value,
-                      },
-                    })
-                  }
-                  placeholder="unité"
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "6px",
-                    color: "white",
-                    fontSize: "12px",
-                    padding: "4px 8px",
-                    width: "60px",
-                    height: "30px",
+              {(["reps", "duration", "custom"] as MetricMode[]).map((mode) => (
+                <Box
+                  key={mode}
+                  as="button"
+                  px={2.5}
+                  py={1}
+                  borderRadius="sm"
+                  bg={currentMode === mode ? "whiteAlpha.200" : "transparent"}
+                  color={currentMode === mode ? "white" : "gray.500"}
+                  fontSize="xs"
+                  fontWeight="medium"
+                  onClick={() => setMode(mode)}
+                  _hover={{
+                    bg:
+                      currentMode === mode ? "whiteAlpha.300" : "whiteAlpha.50",
                   }}
-                />
-              </Box>
+                  transition="all 0.15s"
+                >
+                  {mode === "reps"
+                    ? "Reps"
+                    : mode === "duration"
+                      ? "Durée"
+                      : "Mesure"}
+                </Box>
+              ))}
             </HStack>
-          )}
-        </Flex>
 
-        {/* Rest between sets */}
-        {supportsSets && (exercise.sets || 1) > 1 && (
-          <HStack gap={2} align="center" borderTopWidth="1px" borderColor="whiteAlpha.100" pt={2}>
-            <Text fontSize="xs" color="gray.500">
-              Repos entre séries :
-            </Text>
-            <NumInput
-              value={exercise.restBetweenSets}
-              label="s"
-              w="60px"
-              onChange={(v) => onUpdate({ restBetweenSets: v })}
-            />
-          </HStack>
+            <Flex gap={2} align="flex-end" flexWrap="wrap">
+              {supportsSets && (
+                <>
+                  <NumInput
+                    value={exercise.sets}
+                    min={1}
+                    label="séries"
+                    onChange={(v) => onUpdate({ sets: v })}
+                  />
+                  <Text pb={4} color="gray.500" fontSize="sm">
+                    ×
+                  </Text>
+                </>
+              )}
+
+              {currentMode === "reps" && (
+                <NumInput
+                  value={exercise.reps}
+                  label="reps"
+                  onChange={(v) => onUpdate({ reps: v })}
+                />
+              )}
+
+              {currentMode === "duration" && (
+                <NumInput
+                  value={exercise.duration}
+                  label="secondes"
+                  w="72px"
+                  onChange={(v) => onUpdate({ duration: v })}
+                />
+              )}
+
+              {currentMode === "custom" && (
+                <HStack gap={2} align="flex-end">
+                  <NumInput
+                    value={exercise.customMetric?.value}
+                    label="valeur"
+                    w="72px"
+                    onChange={(v) =>
+                      onUpdate({
+                        customMetric: {
+                          value: v,
+                          unit: exercise.customMetric?.unit || "m",
+                        },
+                      })
+                    }
+                  />
+                  <Box pb={4}>
+                    <input
+                      value={exercise.customMetric?.unit || ""}
+                      onChange={(e) =>
+                        onUpdate({
+                          customMetric: {
+                            value: exercise.customMetric?.value || 0,
+                            unit: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="unité"
+                      style={{
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "6px",
+                        color: "white",
+                        fontSize: "12px",
+                        padding: "4px 8px",
+                        width: "60px",
+                        height: "30px",
+                      }}
+                    />
+                  </Box>
+                </HStack>
+              )}
+            </Flex>
+
+            {supportsSets && (exercise.sets || 1) > 1 && (
+              <HStack
+                gap={2}
+                align="center"
+                borderTopWidth="1px"
+                borderColor="whiteAlpha.100"
+                pt={2}
+              >
+                <Text fontSize="xs" color="gray.500">
+                  Repos entre séries :
+                </Text>
+                <NumInput
+                  value={exercise.restBetweenSets}
+                  label="sec"
+                  w="60px"
+                  onChange={(v) => onUpdate({ restBetweenSets: v })}
+                />
+              </HStack>
+            )}
+          </>
         )}
 
         {/* Color accent line */}

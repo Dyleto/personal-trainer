@@ -10,13 +10,31 @@ export const useUpdateProgramSessions = (clientId: string) => {
   return useMutation({
     mutationFn: async (sessions: Session[]) => {
       const formattedSessions = sessions.map((session) => ({
-        ...session,
-        blocks: session.blocks.map((block) => ({
-          ...block,
-          exercises: block.exercises.map(({ exercise, ...rest }) => ({
-            ...rest,
-            exerciseId: exercise._id,
-          })),
+        _id: session._id,
+        notes: session.notes,
+        blocks: session.blocks.map((block, bi) => ({
+          type: block.type,
+          label: block.label || undefined,
+          order: bi + 1,
+          notes: block.notes,
+          durationMinutes: block.durationMinutes,
+          intervalMinutes: block.intervalMinutes,
+          rounds: block.rounds,
+          restBetweenRounds: block.restBetweenRounds,
+          workDuration: block.workDuration,
+          restDuration: block.restDuration,
+          repsScheme: block.repsScheme,
+          exercises: block.exercises
+            .filter((ex) => ex.exercise?._id)
+            .map((ex, ei) => ({
+              exerciseId: ex.exercise._id,
+              order: ei + 1,
+              sets: ex.sets,
+              reps: ex.reps,
+              duration: ex.duration,
+              restBetweenSets: ex.restBetweenSets,
+              customMetric: ex.customMetric,
+            })),
         })),
       }));
 

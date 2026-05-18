@@ -2,22 +2,9 @@ import { BlockType } from "@/types";
 import {
   BLOCK_TYPE_CONFIG,
   BLOCK_TYPES_ORDERED,
+  getBlockDescription,
 } from "@/constants/blockTypes";
-import { Box, Grid, Text, VStack } from "@chakra-ui/react";
-
-const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
-  warmup:  "Échauffement libre",
-  classic: "Séries & reps classiques",
-  emom:    "1 exo par minute",
-  every:   "Circuit toutes les X min",
-  amrap:   "Max de tours en temps limité",
-  timecap: "Terminer avant la limite",
-  chipper: "Liste à faire en 1 passe",
-  tabata:  "20s / 10s × N tours",
-  onoff:   "Xon / Xoff × N tours",
-  pyramid: "Reps qui montent et descendent",
-  ladder:  "Reps qui augmentent ou diminuent",
-};
+import { Box, Grid, HStack, Text, VStack } from "@chakra-ui/react";
 
 interface BlockTypeSelectorProps {
   onSelect: (type: BlockType) => void;
@@ -46,12 +33,14 @@ export const BlockTypeSelector = ({ onSelect }: BlockTypeSelectorProps) => (
           minH="72px"
         >
           <VStack align="start" gap={1}>
-            <Box w="8px" h="8px" borderRadius="full" bg={color} />
-            <Text fontSize="sm" fontWeight="bold" color={color} lineHeight="shorter">
-              {label}
-            </Text>
+            <HStack gap={2}>
+              <Box w="8px" h="8px" borderRadius="full" bg={color} flexShrink={0} />
+              <Text fontSize="sm" fontWeight="bold" color={color} lineHeight="shorter">
+                {label}
+              </Text>
+            </HStack>
             <Text fontSize="2xs" color="gray.500" lineHeight="shorter">
-              {BLOCK_DESCRIPTIONS[type]}
+              {getBlockDescription(type)}
             </Text>
           </VStack>
         </Box>
