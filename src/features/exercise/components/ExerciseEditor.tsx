@@ -8,10 +8,10 @@ import {
   HStack,
   Input,
   Text,
-  Textarea,
   VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
 import { LuFlame, LuDumbbell, LuTrash2 } from "react-icons/lu";
 import {
   NativeSelectField,
@@ -156,7 +156,7 @@ export const ExerciseEditor = ({
 
               {/* Description */}
               <Field label="Description">
-                <Textarea
+                <AutoResizeTextarea
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({
@@ -165,7 +165,6 @@ export const ExerciseEditor = ({
                     })
                   }
                   placeholder="Décrivez l'exercice, les consignes techniques, les points clés..."
-                  rows={5}
                 />
               </Field>
 

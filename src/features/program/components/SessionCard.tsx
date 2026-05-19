@@ -1,7 +1,8 @@
 import { BlockExercise, BlockType, Session, SessionBlock } from "@/types";
 import { calculateSessionDuration } from "@/utils/sessionUtils";
 import { useThemeColors } from "@/hooks/useThemeColors";
-import { Box, Button, HStack, Separator, Textarea, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, HStack, Separator, Text, VStack } from "@chakra-ui/react";
+import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
 import { LuArrowRight, LuPlus, LuTrash2 } from "react-icons/lu";
 import { Card } from "@/components/Card";
 import { SessionHeader } from "./SessionHeader";
@@ -59,7 +60,7 @@ export const SessionCard = ({
           {(isEditing || session.notes) && (
             <Box mx={4} mb={3}>
               {isEditing ? (
-                <Textarea
+                <AutoResizeTextarea
                   value={session.notes || ""}
                   onChange={(e) => onUpdateSessionNotes?.(e.target.value)}
                   placeholder="Notes pour cette séance..."
@@ -68,8 +69,6 @@ export const SessionCard = ({
                   borderColor={colors.primaryBorder}
                   _focus={{ borderColor: colors.primary }}
                   borderRadius="md"
-                  rows={2}
-                  resize="none"
                   fontSize="sm"
                 />
               ) : (

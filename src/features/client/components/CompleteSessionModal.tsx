@@ -7,10 +7,10 @@ import {
   Dialog,
   Separator,
   Text,
-  Textarea,
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
 import { METRICS_CONFIG } from "@/constants/metricsConfig";
 
 interface CompleteSessionModalProps {
@@ -39,6 +39,7 @@ export const CompleteSessionModal = ({
   const [notes, setNotes] = useState("");
   const handleSubmit = () => {
     onSubmit(metrics, notes);
+    handleClose();
   };
 
   const handleClose = () => {
@@ -89,7 +90,7 @@ export const CompleteSessionModal = ({
                 <Text fontSize="sm" color="gray.400" mb={2}>
                   Commentaire (facultatif)
                 </Text>
-                <Textarea
+                <AutoResizeTextarea
                   placeholder="Ex : bonne séance, un peu difficile sur les derniers rounds..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -97,8 +98,6 @@ export const CompleteSessionModal = ({
                   border="1px solid"
                   borderColor="whiteAlpha.200"
                   _focus={{ borderColor: colors.primaryBorder }}
-                  resize="none"
-                  rows={3}
                 />
               </Box>
             </VStack>

@@ -11,12 +11,12 @@ export const useUpdateProgramSessions = (clientId: string) => {
     mutationFn: async (sessions: Session[]) => {
       const formattedSessions = sessions.map((session) => ({
         _id: session._id,
-        notes: session.notes,
+        notes: session.notes?.trim(),
         blocks: session.blocks.map((block, bi) => ({
           type: block.type,
           label: block.label || undefined,
           order: bi + 1,
-          notes: block.notes,
+          notes: block.notes?.trim(),
           durationMinutes: block.durationMinutes,
           intervalMinutes: block.intervalMinutes,
           rounds: block.rounds,

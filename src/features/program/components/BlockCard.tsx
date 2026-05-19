@@ -69,6 +69,15 @@ export const BlockCard = ({ block }: BlockCardProps) => {
         </Box>
       )}
 
+      {/* Notes du bloc */}
+      {block.notes && (
+        <Box px={4} py={2.5} borderTopWidth="1px" borderColor="whiteAlpha.100">
+          <Text fontSize="xs" color="gray.500" whiteSpace="pre-wrap">
+            {block.notes}
+          </Text>
+        </Box>
+      )}
+
       {/* Reps scheme for pyramid/ladder */}
       {(block.type === "pyramid" || block.type === "ladder") &&
         block.repsScheme &&

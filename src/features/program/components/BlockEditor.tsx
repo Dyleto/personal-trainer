@@ -17,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { LuPlus, LuTrash2 } from "react-icons/lu";
 import { BlockExerciseEdit } from "./BlockExerciseCard";
+import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
 
 // ─── Block-level config inputs ────────────────────────────────────────────────
 
@@ -296,7 +297,7 @@ export const BlockEditor = ({
           borderColor={`${color}30`}
           borderStyle="dashed"
           borderRadius="lg"
-          mt={block.exercises.length > 0 ? 3 : 3}
+          mt={3}
           onClick={onAddExercise}
           _hover={{ bg: `${color}10` }}
           w="full"
@@ -304,6 +305,21 @@ export const BlockEditor = ({
           <LuPlus size={14} />
           Ajouter un exercice
         </Button>
+
+        {/* Notes du bloc */}
+        <AutoResizeTextarea
+          mt={3}
+          value={block.notes || ""}
+          onChange={(e) => onUpdate({ notes: e.target.value || undefined })}
+          placeholder="Notes pour ce bloc (consignes, tempo, intensité...)"
+          size="sm"
+          fontSize="xs"
+          bg="whiteAlpha.50"
+          borderColor="whiteAlpha.100"
+          _focus={{ borderColor: `${color}50` }}
+          borderRadius="md"
+          color="gray.300"
+        />
       </VStack>
     </Box>
   );
