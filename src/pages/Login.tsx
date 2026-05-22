@@ -2,7 +2,6 @@ import {
   Box,
   Container,
   Heading,
-  Separator,
   Spinner,
   Text,
   VStack,
@@ -37,14 +36,29 @@ const Login: React.FC = () => {
         <VStack gap={16} w="100%" maxW="md">
           {/* Header */}
           <VStack gap={4} textAlign="center">
-            <Heading size="7xl" fontWeight="bold" letterSpacing="10px">
+            <Heading
+              size="7xl"
+              fontWeight="bold"
+              letterSpacing="10px"
+              style={{
+                background: "linear-gradient(to bottom, #ffffff, rgba(255,255,255,0.72))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
               KETTLE
             </Heading>
-            <Separator
-              borderColor={colors.primary}
-              borderWidth="1px"
-              width="50vw"
+
+            <Box
+              h="1px"
+              w="50vw"
+              maxW="300px"
+              style={{
+                background: `linear-gradient(to right, transparent, ${colors.primaryHex}, transparent)`,
+              }}
             />
+
             <Text color="fg.muted" fontSize="md">
               Votre application de coaching personnel
             </Text>
