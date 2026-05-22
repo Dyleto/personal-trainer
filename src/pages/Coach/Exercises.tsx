@@ -11,18 +11,9 @@ import {
   HStack,
   Input,
   VStack,
-  IconButton,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import {
-  LuArrowLeft,
-  LuSearch,
-  LuFlame,
-  LuDumbbell,
-  LuChevronDown,
-  LuChevronUp,
-  LuLibrary,
-} from "react-icons/lu";
+import { LuArrowLeft, LuSearch, LuDumbbell, LuLibrary } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useExercises } from "@/features/exercise/hooks/useExercises";
 import { useExerciseFilter } from "@/features/exercise/hooks/useExerciseFilter";
@@ -34,15 +25,11 @@ const Exercises = () => {
   const colors = useThemeColors();
 
   const { data: exercises = [], isLoading, error } = useExercises();
-
   const [searchQuery, setSearchQuery] = useState("");
-  const [isWarmupExpanded, setIsWarmupExpanded] = useState(true);
-  const [isExerciseExpanded, setIsExerciseExpanded] = useState(true);
 
   useToastError(error, "Impossible de charger vos exercices");
 
-  const warmups = useExerciseFilter(exercises, searchQuery, "warmup");
-  const workouts = useExerciseFilter(exercises, searchQuery, "workout");
+  const filtered = useExerciseFilter(exercises, searchQuery);
 
   return (
     <SlidePanel onClose={() => navigate("/coach")}>
@@ -64,135 +51,49 @@ const Exercises = () => {
             </HStack>
 
             {/* Barre de recherche */}
-            <Box>
-              <HStack
-                w="100%"
-                bg="gray.800"
-                borderRadius="md"
-                borderWidth="1px"
-                borderColor="gray.700"
-                px={3}
-              >
-                <LuSearch color="gray" />
-                <Input
-                  placeholder="Rechercher un exercice..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  size="lg"
-                  border="none"
-                  _focus={{ boxShadow: "none" }}
-                />
-              </HStack>
-            </Box>
+            <HStack
+              w="100%"
+              bg="gray.800"
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="gray.700"
+              px={3}
+            >
+              <LuSearch color="gray" />
+              <Input
+                placeholder="Rechercher un exercice..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                size="lg"
+                border="none"
+                _focus={{ boxShadow: "none" }}
+              />
+            </HStack>
 
             {isLoading ? (
-              <Box w="100%">
-                <VStack gap={8} align="stretch">
-                  {/* Section Échauffements Skeleton */}
-                  <ExerciseSectionSkeleton titleWidth="250px" count={4} />
-
-                  {/* Section Exercices Skeleton */}
-                  <ExerciseSectionSkeleton titleWidth="250px" count={4} />
-                </VStack>
-              </Box>
+              <ExerciseSectionSkeleton titleWidth="250px" count={8} />
             ) : (
-              <>
-                {/* Section Échauffements */}
-                <Box>
-                  <HStack gap={3} mb={4} justify="space-between">
-                    <HStack gap={3}>
-                      <LuFlame size={24} color={colors.secondaryHex} />
-                      <Heading size="lg" color={colors.secondary}>
-                        Échauffements ({warmups.length})
-                      </Heading>
-                      <IconButton
-                        aria-label={isWarmupExpanded ? "Réduire" : "Déplier"}
-                        onClick={() => setIsWarmupExpanded(!isWarmupExpanded)}
-                        variant="ghost"
-                        color={colors.secondary}
-                      >
-                        {isWarmupExpanded ? (
-                          <LuChevronUp size={20} />
-                        ) : (
-                          <LuChevronDown size={20} />
-                        )}
-                      </IconButton>
-                    </HStack>
-                  </HStack>
+              <Box>
+                <HStack gap={3} mb={4}>
+                  <LuDumbbell size={24} color={colors.primaryHex} />
+                  <Heading size="lg" color={colors.primary}>
+                    Exercices ({filtered.length})
+                  </Heading>
+                </HStack>
 
-                  {isWarmupExpanded && (
-                    <Grid templateColumns={GRID_LAYOUTS.fourColumns} gap={4}>
-                      <CreateExerciseCard
-                        type="warmup"
-                        onClick={() =>
-                          navigate(`/coach/exercises/new?type=warmup`)
-                        }
-                      />
-
-                      {/* Liste des échauffements */}
-                      {warmups.map((exercise) => (
-                        <ExerciseLibraryCard
-                          key={exercise._id}
-                          exercise={exercise}
-                          onClick={() =>
-                            navigate(`/coach/exercises/${exercise._id}`)
-                          }
-                          type="warmup"
-                        />
-                      ))}
-                    </Grid>
-                  )}
-                </Box>
-
-                {/* Section Exercices */}
-                <Box>
-                  <HStack gap={3} mb={4} justify="space-between">
-                    <HStack gap={3}>
-                      <LuDumbbell size={24} color={colors.primaryHex} />
-                      <Heading size="lg" color={colors.primary}>
-                        Exercices ({workouts.length})
-                      </Heading>
-                      <IconButton
-                        aria-label={isExerciseExpanded ? "Réduire" : "Déplier"}
-                        onClick={() =>
-                          setIsExerciseExpanded(!isExerciseExpanded)
-                        }
-                        variant="ghost"
-                        color={colors.primary}
-                      >
-                        {isExerciseExpanded ? (
-                          <LuChevronUp size={20} />
-                        ) : (
-                          <LuChevronDown size={20} />
-                        )}
-                      </IconButton>
-                    </HStack>
-                  </HStack>
-
-                  {isExerciseExpanded && (
-                    <Grid templateColumns={GRID_LAYOUTS.fourColumns} gap={4}>
-                      <CreateExerciseCard
-                        type="workout"
-                        onClick={() =>
-                          navigate(`/coach/exercises/new?type=workout`)
-                        }
-                      />
-
-                      {/* Liste des exercices */}
-                      {workouts.map((exercise) => (
-                        <ExerciseLibraryCard
-                          key={exercise._id}
-                          exercise={exercise}
-                          onClick={() =>
-                            navigate(`/coach/exercises/${exercise._id}`)
-                          }
-                          type="workout"
-                        />
-                      ))}
-                    </Grid>
-                  )}
-                </Box>
-              </>
+                <Grid templateColumns={GRID_LAYOUTS.fourColumns} gap={4}>
+                  <CreateExerciseCard
+                    onClick={() => navigate("/coach/exercises/new")}
+                  />
+                  {filtered.map((exercise) => (
+                    <ExerciseLibraryCard
+                      key={exercise._id}
+                      exercise={exercise}
+                      onClick={() => navigate(`/coach/exercises/${exercise._id}`)}
+                    />
+                  ))}
+                </Grid>
+              </Box>
             )}
           </VStack>
         </Container>

@@ -1,4 +1,4 @@
-import { BlockType, ClientWithDetails, Exercise } from "@/types";
+import { ClientWithDetails, Exercise } from "@/types";
 import { useEffect, useState } from "react";
 import { useProgramEditor } from "@/features/program/hooks/useProgramEditor";
 import { useUpdateProgramSessions } from "@/features/program/hooks/useProgramMutations";
@@ -15,7 +15,6 @@ interface SelectorState {
   isOpen: boolean;
   sessionId: string | null;
   blockId: string | null;
-  blockType: BlockType;
 }
 
 interface Props {
@@ -32,7 +31,6 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
     isOpen: false,
     sessionId: null,
     blockId: null,
-    blockType: "classic",
   });
 
   useEffect(() => {
@@ -53,12 +51,8 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
     setIsEditing(false);
   };
 
-  const handleOpenSelector = (
-    sessionId: string,
-    blockId: string,
-    blockType: BlockType,
-  ) => {
-    setSelectorState({ isOpen: true, sessionId, blockId, blockType });
+  const handleOpenSelector = (sessionId: string, blockId: string) => {
+    setSelectorState({ isOpen: true, sessionId, blockId });
   };
 
   const handleSelectExercise = (exercise: Exercise) => {
@@ -122,8 +116,8 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
               onUpdateBlock={(blockId, updates) =>
                 actions.updateBlock(session._id, blockId, updates)
               }
-              onAddExercise={(blockId, blockType) =>
-                handleOpenSelector(session._id, blockId, blockType)
+              onAddExercise={(blockId) =>
+                handleOpenSelector(session._id, blockId)
               }
               onRemoveExercise={(blockId, index) =>
                 actions.removeExercise(session._id, blockId, index)
@@ -180,7 +174,6 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
         <ExerciseSelectorPanel
           isOpen={selectorState.isOpen}
           onClose={() => setSelectorState((prev) => ({ ...prev, isOpen: false }))}
-          blockType={selectorState.blockType}
           onSelect={handleSelectExercise}
         />
       )}

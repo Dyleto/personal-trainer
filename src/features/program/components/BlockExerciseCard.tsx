@@ -1,6 +1,7 @@
 import { BlockExercise, BlockType } from "@/types";
 import {
   blockDefinesOwnMetrics,
+  blockSupportsRepsOnly,
   blockSupportsSets,
   getBlockColor,
 } from "@/constants/blockTypes";
@@ -15,6 +16,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { LuTrash2 } from "react-icons/lu";
+import { useState, useEffect } from "react";
 
 // ─── Metric display helper ────────────────────────────────────────────────────
 
@@ -47,9 +49,15 @@ interface ViewProps {
 export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
   const metric = formatExerciseMetric(exercise, blockType);
   const color = getBlockColor(blockType);
+  const rest =
+    blockSupportsSets(blockType) &&
+    (exercise.sets ?? 1) > 1 &&
+    exercise.restBetweenSets
+      ? `${exercise.restBetweenSets}s repos`
+      : null;
 
   return (
-    <HStack justify="space-between" py={2} gap={3}>
+    <HStack justify="space-between" py={2} gap={3} align="center">
       <HStack gap={2} flex={1} minW={0}>
         <Box
           w="5px"
@@ -63,10 +71,19 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
           {exercise.exercise.name}
         </Text>
       </HStack>
-      {metric && (
-        <Text fontSize="sm" color="gray.500" flexShrink={0}>
-          {metric}
-        </Text>
+      {(metric || rest) && (
+        <VStack gap={0.5} align="end" flexShrink={0}>
+          {metric && (
+            <Text fontSize="sm" color="gray.500">
+              {metric}
+            </Text>
+          )}
+          {rest && (
+            <Text fontSize="xs" color="gray.600">
+              {rest}
+            </Text>
+          )}
+        </VStack>
       )}
     </HStack>
   );
@@ -95,37 +112,55 @@ const NumInput = ({
   onChange: (v: number) => void;
   w?: string;
   label?: string;
-}) => (
-  <VStack gap={0} align="center">
-    <NumberInput.Root
-      size="xs"
-      width={w}
-      value={value?.toString() || "0"}
-      min={min}
-      variant="subtle"
-      onValueChange={(e) => onChange(parseInt(e.value) || 0)}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <NumberInput.Input
-        textAlign="center"
-        bg="whiteAlpha.100"
-        _focus={{ bg: "whiteAlpha.200" }}
-        px={1}
-        h="30px"
-        borderRadius="md"
-      />
-      <NumberInput.Control>
-        <NumberInput.IncrementTrigger />
-        <NumberInput.DecrementTrigger />
-      </NumberInput.Control>
-    </NumberInput.Root>
-    {label && (
-      <Text fontSize="2xs" color="gray.600" mt={0.5}>
-        {label}
-      </Text>
-    )}
-  </VStack>
-);
+}) => {
+  const [local, setLocal] = useState(value != null ? String(value) : "");
+
+  useEffect(() => {
+    setLocal(value != null ? String(value) : "");
+  }, [value]);
+
+  return (
+    <VStack gap={0} align="center">
+      <NumberInput.Root
+        size="xs"
+        width={w}
+        value={local}
+        min={min}
+        variant="subtle"
+        onValueChange={(e) => {
+          setLocal(e.value);
+          const n = parseInt(e.value);
+          if (!isNaN(n)) onChange(n);
+        }}
+        onBlur={() => {
+          if (local === "" || isNaN(parseInt(local))) {
+            setLocal("0");
+            onChange(0);
+          }
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <NumberInput.Input
+          textAlign="center"
+          bg="whiteAlpha.100"
+          _focus={{ bg: "whiteAlpha.200" }}
+          px={1}
+          h="30px"
+          borderRadius="md"
+        />
+        <NumberInput.Control>
+          <NumberInput.IncrementTrigger />
+          <NumberInput.DecrementTrigger />
+        </NumberInput.Control>
+      </NumberInput.Root>
+      {label && (
+        <Text fontSize="2xs" color="gray.600" mt={0.5}>
+          {label}
+        </Text>
+      )}
+    </VStack>
+  );
+};
 
 export const BlockExerciseEdit = ({
   exercise,
@@ -135,20 +170,20 @@ export const BlockExerciseEdit = ({
 }: EditProps) => {
   const supportsSets = blockSupportsSets(blockType);
   const metricsDefinedByBlock = blockDefinesOwnMetrics(blockType);
+  const repsOnly = blockSupportsRepsOnly(blockType);
   const color = getBlockColor(blockType);
 
-  const currentMode: MetricMode = exercise.duration
-    ? "duration"
-    : exercise.customMetric
-      ? "custom"
-      : "reps";
+  const [mode, setModeState] = useState<MetricMode>(() =>
+    exercise.duration ? "duration" : exercise.customMetric ? "custom" : "reps",
+  );
 
-  const setMode = (mode: MetricMode) => {
-    if (mode === "reps")
+  const setMode = (newMode: MetricMode) => {
+    setModeState(newMode);
+    if (newMode === "reps")
       onUpdate({ reps: 10, duration: undefined, customMetric: undefined });
-    if (mode === "duration")
+    if (newMode === "duration")
       onUpdate({ duration: 30, reps: undefined, customMetric: undefined });
-    if (mode === "custom")
+    if (newMode === "custom")
       onUpdate({
         customMetric: { value: 100, unit: "m" },
         reps: undefined,
@@ -188,8 +223,22 @@ export const BlockExerciseEdit = ({
           </IconButton>
         </HStack>
 
-        {/* Métriques — masquées si le bloc définit lui-même le timing */}
-        {!metricsDefinedByBlock && (
+        {/* Reps cibles uniquement (tabata / onoff) */}
+        {repsOnly && (
+          <HStack gap={2} align="center">
+            <NumInput
+              value={exercise.reps}
+              label="reps"
+              onChange={(v) => onUpdate({ reps: v })}
+            />
+            <Text fontSize="xs" color="gray.500" pb={4}>
+              reps cibles
+            </Text>
+          </HStack>
+        )}
+
+        {/* Métriques complètes */}
+        {!metricsDefinedByBlock && !repsOnly && (
           <>
             <HStack
               bg="blackAlpha.400"
@@ -200,29 +249,24 @@ export const BlockExerciseEdit = ({
               borderColor="whiteAlpha.100"
               gap={0}
             >
-              {(["reps", "duration", "custom"] as MetricMode[]).map((mode) => (
+              {(["reps", "duration", "custom"] as MetricMode[]).map((m) => (
                 <Box
-                  key={mode}
+                  key={m}
                   as="button"
                   px={2.5}
                   py={1}
                   borderRadius="sm"
-                  bg={currentMode === mode ? "whiteAlpha.200" : "transparent"}
-                  color={currentMode === mode ? "white" : "gray.500"}
+                  bg={mode === m ? "whiteAlpha.200" : "transparent"}
+                  color={mode === m ? "white" : "gray.500"}
                   fontSize="xs"
                   fontWeight="medium"
-                  onClick={() => setMode(mode)}
+                  onClick={() => setMode(m)}
                   _hover={{
-                    bg:
-                      currentMode === mode ? "whiteAlpha.300" : "whiteAlpha.50",
+                    bg: mode === m ? "whiteAlpha.300" : "whiteAlpha.50",
                   }}
                   transition="all 0.15s"
                 >
-                  {mode === "reps"
-                    ? "Reps"
-                    : mode === "duration"
-                      ? "Durée"
-                      : "Mesure"}
+                  {m === "reps" ? "Reps" : m === "duration" ? "Durée" : "Mesure"}
                 </Box>
               ))}
             </HStack>
@@ -242,7 +286,7 @@ export const BlockExerciseEdit = ({
                 </>
               )}
 
-              {currentMode === "reps" && (
+              {mode === "reps" && (
                 <NumInput
                   value={exercise.reps}
                   label="reps"
@@ -250,7 +294,7 @@ export const BlockExerciseEdit = ({
                 />
               )}
 
-              {currentMode === "duration" && (
+              {mode === "duration" && (
                 <NumInput
                   value={exercise.duration}
                   label="secondes"
@@ -259,7 +303,7 @@ export const BlockExerciseEdit = ({
                 />
               )}
 
-              {currentMode === "custom" && (
+              {mode === "custom" && (
                 <HStack gap={2} align="flex-end">
                   <NumInput
                     value={exercise.customMetric?.value}

@@ -7,21 +7,16 @@ import {
   Heading,
   HStack,
   Skeleton,
-  SkeletonCircle,
   VStack,
 } from "@chakra-ui/react";
-import { LuDumbbell, LuFlame, LuArrowRight, LuLibrary } from "react-icons/lu";
+import { LuDumbbell, LuArrowRight, LuLibrary } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 
 export const ExercisesBlock = () => {
   const navigate = useNavigate();
   const colors = useThemeColors();
 
-  const {
-    data: { warmupCount = 0, workoutCount = 0 } = {},
-    isLoading,
-    error,
-  } = useExerciseStats();
+  const { data: { count = 0 } = {}, isLoading, error } = useExerciseStats();
 
   useToastError(error, "Impossible de charger le nombre d'exercices");
 
@@ -34,26 +29,8 @@ export const ExercisesBlock = () => {
               <Skeleton height="32px" width="70%" />
               <Skeleton height="20px" width="50%" />
             </VStack>
-            <SkeletonCircle size="8" />
           </HStack>
-
-          <HStack gap={6} mt={2}>
-            <HStack gap={2}>
-              <SkeletonCircle size="10" />
-              <VStack gap={1} align="start">
-                <Skeleton height="24px" width="40px" />
-                <Skeleton height="16px" width="80px" />
-              </VStack>
-            </HStack>
-
-            <HStack gap={2}>
-              <SkeletonCircle size="10" />
-              <VStack gap={1} align="start">
-                <Skeleton height="24px" width="40px" />
-                <Skeleton height="16px" width="80px" />
-              </VStack>
-            </HStack>
-          </HStack>
+          <Skeleton height="40px" width="80px" />
         </VStack>
       </ClickableCard>
     );
@@ -66,67 +43,35 @@ export const ExercisesBlock = () => {
       minW="50%"
     >
       <VStack gap={4} align="stretch">
-        {/* En-tête */}
         <HStack justify="space-between" align="start" gap={8}>
           <VStack align="start" gap={2}>
-            <Box fontSize="2xl" fontWeight="bold" color="fg">
-              <HStack gap={4}>
-                <LuLibrary size={28} color={colors.primaryHex} />
-                <Heading size="xl">Mes exercices</Heading>
-              </HStack>
-            </Box>
+            <HStack gap={4}>
+              <LuLibrary size={28} color={colors.primaryHex} />
+              <Heading size="xl">Mes exercices</Heading>
+            </HStack>
             <Box fontSize="md" color="gray.400">
-              Gérez mes échauffements et exercices
+              Gérez votre bibliothèque d'exercices
             </Box>
           </VStack>
-
-          {/* Icône flèche visible à droite */}
           <Box color={colors.primary} fontSize="2xl" flexShrink={0}>
             <LuArrowRight />
           </Box>
         </HStack>
 
-        {/* Statistiques */}
-        <HStack gap={6} mt={2}>
-          <HStack gap={2}>
-            <Box
-              p={2}
-              bg={colors.secondaryBg}
-              borderRadius="md"
-              borderWidth="1px"
-              borderColor={colors.secondaryBorder}
-            >
-              <LuFlame size={20} color={colors.secondaryHex} />
-            </Box>
-            <VStack gap={0} align="start">
-              <Box fontSize="xl" fontWeight="bold" color="white">
-                {warmupCount}
-              </Box>
-              <Box fontSize="xs" color="gray.400">
-                échauffements
-              </Box>
-            </VStack>
-          </HStack>
-
-          <HStack gap={2}>
-            <Box
-              p={2}
-              bg={colors.primaryBg}
-              borderRadius="md"
-              borderWidth="1px"
-              borderColor={colors.primaryBorder}
-            >
-              <LuDumbbell size={20} color={colors.primaryHex} />
-            </Box>
-            <VStack gap={0} align="start">
-              <Box fontSize="xl" fontWeight="bold" color="white">
-                {workoutCount}
-              </Box>
-              <Box fontSize="xs" color="gray.400">
-                exercices
-              </Box>
-            </VStack>
-          </HStack>
+        <HStack gap={2} mt={2}>
+          <Box
+            p={2}
+            bg={colors.primaryBg}
+            borderRadius="md"
+            borderWidth="1px"
+            borderColor={colors.primaryBorder}
+          >
+            <LuDumbbell size={20} color={colors.primaryHex} />
+          </Box>
+          <VStack gap={0} align="start">
+            <Box fontSize="xl" fontWeight="bold" color="white">{count}</Box>
+            <Box fontSize="xs" color="gray.400">exercices</Box>
+          </VStack>
         </HStack>
       </VStack>
     </ClickableCard>

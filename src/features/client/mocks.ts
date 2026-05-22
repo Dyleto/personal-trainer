@@ -16,7 +16,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e1",
                 name: "Sauts à la corde",
-                type: "warmup",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -30,7 +29,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e2",
                 name: "Mobilité hanches (90/90)",
-                type: "warmup",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -52,7 +50,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e3",
                 name: "Kettlebell Swing",
-                type: "workout",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -68,7 +65,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e4",
                 name: "Goblet Squat",
-                type: "workout",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -100,7 +96,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e5",
                 name: "KB Halos",
-                type: "warmup",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -122,7 +117,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e6",
                 name: "Strict Press unilatéral",
-                type: "workout",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -137,7 +131,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e7",
                 name: "Gorilla Row",
-                type: "workout",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -168,7 +161,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e8",
                 name: "Jumping Jacks",
-                type: "warmup",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -188,7 +180,6 @@ export const mockProgram: ClientProgram = {
               exercise: {
                 _id: "e9",
                 name: "Kettlebell Clean",
-                type: "workout",
                 createdBy: "c1",
                 createdAt: new Date(),
                 updatedAt: new Date(),

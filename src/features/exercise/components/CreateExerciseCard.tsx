@@ -3,14 +3,10 @@ import { Box, VStack } from "@chakra-ui/react";
 import { LuPlus } from "react-icons/lu";
 
 interface CreateExerciseCardProps {
-  type: "warmup" | "workout";
   onClick?: () => void;
 }
 
-export const CreateExerciseCard = ({
-  type,
-  onClick,
-}: CreateExerciseCardProps) => {
+export const CreateExerciseCard = ({ onClick }: CreateExerciseCardProps) => {
   const colors = useThemeColors();
 
   return (
@@ -18,7 +14,7 @@ export const CreateExerciseCard = ({
       p={6}
       borderWidth="2px"
       borderStyle="dashed"
-      borderColor={type === "workout" ? colors.primary : colors.secondary}
+      borderColor={colors.primary}
       borderRadius="xl"
       cursor={onClick ? "pointer" : "default"}
       transition="all 0.3s ease"
@@ -27,29 +23,25 @@ export const CreateExerciseCard = ({
       justifyContent="center"
       minH="200px"
       _hover={{
-        borderColor:
-          type === "workout" ? colors.primaryHover : colors.secondaryHover,
-        bg: type === "workout" ? colors.primaryBg : colors.secondaryBg,
+        borderColor: colors.primaryHover,
+        bg: colors.primaryBg,
         transform: "translateY(-2px)",
       }}
-      onClick={() => onClick && onClick()}
+      onClick={() => onClick?.()}
     >
-      <VStack
-        gap={3}
-        color={type === "workout" ? colors.primary : colors.secondary}
-      >
+      <VStack gap={3} color={colors.primary}>
         <Box
           p={3}
-          bg={type === "workout" ? colors.primaryBg : colors.secondaryBg}
+          bg={colors.primaryBg}
           borderRadius="full"
           borderWidth="2px"
           borderStyle="dashed"
-          borderColor={type === "workout" ? colors.primary : colors.secondary}
+          borderColor={colors.primary}
         >
           <LuPlus size={32} />
         </Box>
         <Box fontWeight="bold" fontSize="md" textAlign="center">
-          Ajouter un {type === "workout" ? "exercice" : "échauffement"}
+          Créer un exercice
         </Box>
       </VStack>
     </Box>

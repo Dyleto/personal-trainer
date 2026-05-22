@@ -14,29 +14,17 @@ export const useCreateExercise = () => {
     mutationFn: (data: Partial<Exercise>) =>
       api.post("/api/coach/exercises", data),
 
-    onSuccess: (response, variables) => {
-      const itemType =
-        variables.type === "warmup" ? "échauffement" : "exercice";
-
-      // Invalide le cache → Refetch automatique
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coach.exercises.all(),
       });
-
-      toaster.create({
-        title: "Succès",
-        description: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} créé avec succès`,
-        type: "success",
-      });
+      toaster.create({ title: "Exercice créé", type: "success" });
     },
 
-    onError: (error, variables) => {
-      const itemType =
-        variables.type === "warmup" ? "échauffement" : "exercice";
-
+    onError: () => {
       toaster.create({
         title: "Erreur",
-        description: `Une erreur est survenue lors de la création de l'${itemType}`,
+        description: "Impossible de créer l'exercice",
         type: "error",
       });
     },
@@ -54,31 +42,19 @@ export const useUpdateExercise = () => {
       api.put(`/api/coach/exercises/${id}`, data),
 
     onSuccess: (response, variables) => {
-      const itemType =
-        variables.data.type === "warmup" ? "échauffement" : "exercice";
-
-      // Invalide le cache
       queryClient.invalidateQueries({
         queryKey: queryKeys.coach.exercises.lists(),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.coach.exercises.detail(variables.id),
       });
-
-      toaster.create({
-        title: "Succès",
-        description: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} modifié avec succès`,
-        type: "success",
-      });
+      toaster.create({ title: "Exercice modifié", type: "success" });
     },
 
-    onError: (error, variables) => {
-      const itemType =
-        variables.data.type === "warmup" ? "échauffement" : "exercice";
-
+    onError: () => {
       toaster.create({
         title: "Erreur",
-        description: `Une erreur est survenue lors de la modification de l'${itemType}`,
+        description: "Impossible de modifier l'exercice",
         type: "error",
       });
     },

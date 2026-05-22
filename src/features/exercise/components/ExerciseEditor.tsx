@@ -12,11 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
-import { LuFlame, LuDumbbell, LuTrash2 } from "react-icons/lu";
-import {
-  NativeSelectField,
-  NativeSelectRoot,
-} from "@/components/ui/native-select";
+import { LuDumbbell, LuTrash2 } from "react-icons/lu";
 import VideoPlayer from "@/components/VideoPlayer";
 import { Exercise } from "@/types";
 
@@ -43,7 +39,6 @@ export const ExerciseEditor = ({
     name: "",
     description: "",
     videoUrl: "",
-    type: "workout",
     ...initialData,
   });
   const [nameError, setNameError] = useState("");
@@ -64,14 +59,6 @@ export const ExerciseEditor = ({
     onSave(formData);
   };
 
-  const typeColor =
-    formData.type === "warmup" ? colors.secondaryHex : colors.primaryHex;
-  const TypeIcon = formData.type === "warmup" ? LuFlame : LuDumbbell;
-  const typeBg =
-    formData.type === "warmup" ? colors.secondaryBg : colors.primaryBg;
-  const typeBorder =
-    formData.type === "warmup" ? colors.secondaryBorder : colors.primaryBorder;
-
   return (
     <form onSubmit={handleSubmit}>
       <VStack gap={6} align="stretch">
@@ -81,16 +68,15 @@ export const ExerciseEditor = ({
             <HStack gap={3}>
               <Box
                 p={3}
-                bg={typeBg}
+                bg={colors.primaryBg}
                 borderRadius="md"
                 borderWidth="1px"
-                borderColor={typeBorder}
+                borderColor={colors.primaryBorder}
               >
-                <TypeIcon size={32} color={typeColor} />
+                <LuDumbbell size={32} color={colors.primaryHex} />
               </Box>
               <Heading size="xl">
-                {isEditing ? "Modifier" : "Créer"}{" "}
-                {formData.type === "warmup" ? "un échauffement" : "un exercice"}
+                {isEditing ? "Modifier l'exercice" : "Créer un exercice"}
               </Heading>
             </HStack>
           </Card.Body>
@@ -100,37 +86,6 @@ export const ExerciseEditor = ({
         <Card.Root>
           <Card.Body>
             <VStack gap={5} align="stretch">
-              {/* Type */}
-              <Field label="Type" required>
-                <NativeSelectRoot>
-                  <NativeSelectField
-                    value={formData.type}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        type: e.target.value as "warmup" | "workout",
-                      })
-                    }
-                    items={[
-                      {
-                        value: "warmup",
-                        label: "Échauffement",
-                        icon: <LuFlame size={20} color={colors.secondaryHex} />,
-                        color: colors.secondary,
-                      },
-                      {
-                        value: "workout",
-                        label: "Exercice",
-                        icon: (
-                          <LuDumbbell size={20} color={colors.primaryHex} />
-                        ),
-                        color: colors.primary,
-                      },
-                    ]}
-                  />
-                </NativeSelectRoot>
-              </Field>
-
               {/* Nom */}
               <Field label="Nom de l'exercice" required>
                 <Input
@@ -139,11 +94,7 @@ export const ExerciseEditor = ({
                     setFormData({ ...formData, name: e.target.value });
                     if (nameError) setNameError("");
                   }}
-                  placeholder={
-                    formData.type === "warmup"
-                      ? "Ex: Cardio léger"
-                      : "Ex: Squat goblet"
-                  }
+                  placeholder="Ex: Kettlebell Swing"
                   borderColor={nameError ? "red.400" : undefined}
                   _focus={{ borderColor: nameError ? "red.400" : undefined }}
                 />
@@ -159,12 +110,9 @@ export const ExerciseEditor = ({
                 <AutoResizeTextarea
                   value={formData.description}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      description: e.target.value,
-                    })
+                    setFormData({ ...formData, description: e.target.value })
                   }
-                  placeholder="Décrivez l'exercice, les consignes techniques, les points clés..."
+                  placeholder="Consignes techniques, points clés..."
                 />
               </Field>
 
@@ -174,24 +122,15 @@ export const ExerciseEditor = ({
                   type="url"
                   value={formData.videoUrl}
                   onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      videoUrl: e.target.value,
-                    })
+                    setFormData({ ...formData, videoUrl: e.target.value })
                   }
                   placeholder="https://youtube.com/watch?v=..."
                 />
               </Field>
 
-              {/* Preview vidéo */}
               {formData.videoUrl && (
                 <Box>
-                  <Box
-                    fontSize="sm"
-                    fontWeight="medium"
-                    mb={2}
-                    color="fg.muted"
-                  >
+                  <Box fontSize="sm" fontWeight="medium" mb={2} color="fg.muted">
                     Aperçu de la vidéo
                   </Box>
                   <VideoPlayer url={formData.videoUrl} />
@@ -221,7 +160,7 @@ export const ExerciseEditor = ({
           )}
           <Button
             type="submit"
-            bg={typeColor}
+            bg={colors.primary}
             color="gray.900"
             fontWeight="bold"
             loading={isLoading}

@@ -2,7 +2,7 @@ import { SlidePanel } from "@/components/SlidePanel";
 import { Container, Button, VStack, Box, Spinner } from "@chakra-ui/react";
 import { useToastError } from "@/hooks/useToastError";
 import { LuArrowLeft } from "react-icons/lu";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useExercise } from "@/features/exercise/hooks/useExercise";
 import {
   useCreateExercise,
@@ -15,15 +15,10 @@ import { ExerciseEditor } from "@/features/exercise/components/ExerciseEditor";
 const ExerciseForm = () => {
   const { exerciseId } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const isEditMode = !!exerciseId;
 
-  const {
-    data: exercise,
-    isLoading: fetching,
-    error,
-  } = useExercise(exerciseId);
+  const { data: exercise, isLoading: fetching, error } = useExercise(exerciseId);
   const createMutation = useCreateExercise();
   const updateMutation = useUpdateExercise();
   const deleteMutation = useDeleteExercise();
@@ -34,9 +29,7 @@ const ExerciseForm = () => {
     if (isEditMode) {
       updateMutation.mutate(
         { id: exerciseId!, data },
-        {
-          onSuccess: () => navigate("/coach/exercises"),
-        },
+        { onSuccess: () => navigate("/coach/exercises") },
       );
     } else {
       createMutation.mutate(data, {
@@ -47,31 +40,14 @@ const ExerciseForm = () => {
 
   const handleDelete = async () => {
     if (!exercise) return;
-
-    const itemType = exercise.type === "warmup" ? "échauffement" : "exercice";
-
-    if (
-      !globalThis.confirm(
-        `Êtes-vous sûr de vouloir supprimer cet ${itemType} ?`,
-      )
-    ) {
-      return;
-    }
-
+    if (!globalThis.confirm("Êtes-vous sûr de vouloir supprimer cet exercice ?")) return;
     deleteMutation.mutate(exerciseId!, {
       onSuccess: () => navigate("/coach/exercises"),
     });
   };
 
-  // Loading state for actions
   const isSavingOrDeleting =
-    createMutation.isPending ||
-    updateMutation.isPending ||
-    deleteMutation.isPending;
-
-  // Valeur par défaut pour le type si on crée
-  const defaultType =
-    (searchParams.get("type") as "warmup" | "workout") || "workout";
+    createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
   return (
     <SlidePanel onClose={() => navigate("/coach/exercises")}>
@@ -83,18 +59,12 @@ const ExerciseForm = () => {
             </Box>
           ) : (
             <VStack gap={6} align="stretch">
-              {/* Bouton retour */}
-              <Button
-                variant="ghost"
-                onClick={handleClose}
-                alignSelf="flex-start"
-              >
+              <Button variant="ghost" onClick={handleClose} alignSelf="flex-start">
                 <LuArrowLeft />
                 Retour
               </Button>
-
               <ExerciseEditor
-                initialData={isEditMode ? exercise : { type: defaultType }}
+                initialData={isEditMode ? exercise : undefined}
                 isEditing={isEditMode}
                 isLoading={isSavingOrDeleting}
                 onSave={handleSave}

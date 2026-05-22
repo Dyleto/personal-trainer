@@ -40,15 +40,13 @@ export interface Exercise {
   name: string;
   description?: string;
   videoUrl?: string;
-  type: "warmup" | "workout";
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface ExerciseStats {
-  warmupCount: number;
-  workoutCount: number;
+  count: number;
 }
 
 // ─── Blocks ──────────────────────────────────────────────────────────────────

@@ -22,7 +22,7 @@ interface SessionCardProps {
   onAddBlock?: (type: BlockType) => void;
   onRemoveBlock?: (blockId: string) => void;
   onUpdateBlock?: (blockId: string, updates: Partial<SessionBlock>) => void;
-  onAddExercise?: (blockId: string, blockType: BlockType) => void;
+  onAddExercise?: (blockId: string) => void;
   onRemoveExercise?: (blockId: string, index: number) => void;
   onUpdateExercise?: (
     blockId: string,
@@ -101,7 +101,7 @@ export const SessionCard = ({
                   block={block}
                   onUpdate={(updates) => onUpdateBlock?.(block._id, updates)}
                   onRemove={() => onRemoveBlock?.(block._id)}
-                  onAddExercise={() => onAddExercise?.(block._id, block.type)}
+                  onAddExercise={() => onAddExercise?.(block._id)}
                   onRemoveExercise={(i) => onRemoveExercise?.(block._id, i)}
                   onUpdateExercise={(i, updates) =>
                     onUpdateExercise?.(block._id, i, updates)

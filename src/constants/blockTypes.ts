@@ -25,7 +25,7 @@ export const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
   amrap:   "Max de tours en temps limité",
   timecap: "Terminer avant la limite",
   chipper: "Liste à faire en 1 passe",
-  tabata:  "20s / 10s × N tours",
+  tabata:  "Travail / Repos en alternance",
   onoff:   "Xon / Xoff × N tours",
   pyramid: "Reps qui montent et descendent",
   ladder:  "Reps qui augmentent ou diminuent",
@@ -43,9 +43,13 @@ export const BLOCK_TYPES_ORDERED: BlockType[] = [
 export const blockSupportsSets = (type: BlockType): boolean =>
   type === "classic";
 
-// Blocs où le timing est défini au niveau du bloc, pas de l'exercice
+// Blocs où le timing est entièrement défini par le schéma du bloc (aucune métrique par exercice)
 export const blockDefinesOwnMetrics = (type: BlockType): boolean =>
-  ["pyramid", "ladder", "tabata", "onoff"].includes(type);
+  ["pyramid", "ladder"].includes(type);
+
+// Blocs où seul un nombre de reps cible par exercice a du sens (pas de durée ni mesure)
+export const blockSupportsRepsOnly = (type: BlockType): boolean =>
+  ["tabata", "onoff"].includes(type);
 
 export const getBlockColor = (type: BlockType): string =>
   BLOCK_TYPE_CONFIG[type]?.color ?? "#94a3b8";
@@ -69,17 +73,27 @@ export const getBlockConfigSummary = (block: SessionBlock): string => {
         .filter(Boolean)
         .join(" ");
     case "tabata":
+      return [
+        block.workDuration !== undefined && `${block.workDuration}s`,
+        block.restDuration !== undefined && `/ ${block.restDuration}s`,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
     case "onoff":
       return [
         block.rounds && `${block.rounds}×`,
         block.workDuration !== undefined && `${block.workDuration}s`,
         block.restDuration !== undefined && `/ ${block.restDuration}s`,
       ]
-        .filter((v) => v !== false && v !== undefined)
+        .filter(Boolean)
         .join(" ");
     case "pyramid":
-    case "ladder":
-      return block.repsScheme?.join("-") ?? "";
+    case "ladder": {
+      const scheme = block.repsScheme?.join("-") ?? "";
+      const rest = block.restBetweenRounds ? `${block.restBetweenRounds}s repos` : "";
+      return [scheme, rest].filter(Boolean).join(" · ");
+    }
     case "chipper":
       return block.durationMinutes ? `${block.durationMinutes} min max` : "";
     default:
@@ -87,7 +101,3 @@ export const getBlockConfigSummary = (block: SessionBlock): string => {
   }
 };
 
-export const getExerciseTypeForBlock = (
-  blockType: BlockType,
-): "warmup" | "workout" =>
-  blockType === "warmup" ? "warmup" : "workout";

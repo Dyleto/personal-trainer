@@ -25,6 +25,9 @@ const calculateBlockDuration = (block: BlockForDuration): number => {
       return (block.intervalMinutes || 0) * 60 * (block.rounds || 0);
 
     case "tabata":
+      // Pas de rounds définis — durée non calculable, on retourne 0
+      return 0;
+
     case "onoff": {
       const rounds = block.rounds || 0;
       return rounds * (block.workDuration || 0) + Math.max(0, rounds - 1) * (block.restDuration || 0);
@@ -84,8 +87,11 @@ const calculateBlockDuration = (block: BlockForDuration): number => {
 
 export const calculateSessionDuration = (
   session: Session | { blocks: BlockSnapshot[] },
-): number =>
-  (session.blocks as BlockForDuration[]).reduce(
+): number => {
+  const raw = (session.blocks as BlockForDuration[]).reduce(
     (total, block) => total + calculateBlockDuration(block),
     0,
   );
+  if (raw === 0) return 0;
+  return Math.ceil(raw / 30) * 30;
+};
