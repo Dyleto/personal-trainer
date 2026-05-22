@@ -1,4 +1,10 @@
 /**
+ * Retire les accents et diacritiques d'une chaîne (é→e, à→a, ç→c…)
+ */
+export const stripAccents = (str: string): string =>
+  str.normalize("NFD").replace(/[̀-ͯ]/g, "");;
+
+/**
  * Formate une durée en secondes en format lisible (ex: 1h30, 45min, 30s)
  * @param seconds Durée en secondes
  * @returns Durée formatée

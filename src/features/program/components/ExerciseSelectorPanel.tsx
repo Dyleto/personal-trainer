@@ -1,24 +1,22 @@
 import {
-  Drawer,
-  Input,
-  VStack,
   Box,
-  HStack,
   Button,
+  Drawer,
+  HStack,
+  Input,
   Spinner,
-  Grid,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
-import { useExercises } from "@/features/exercise/hooks/useExercises";
-import { useExerciseFilter } from "@/features/exercise/hooks/useExerciseFilter";
-import { useState } from "react";
-import { LuSearch, LuX } from "react-icons/lu";
-import { Exercise } from "@/types";
-import {
-  CreateExerciseCard,
-  ExerciseEditor,
-  ExerciseLibraryCard,
-} from "@/features/exercise";
 import { useCreateExercise } from "@/features/exercise/hooks/useExerciseMutations";
+import { useExerciseFilter } from "@/features/exercise/hooks/useExerciseFilter";
+import { useExercises } from "@/features/exercise/hooks/useExercises";
+import { Exercise } from "@/types";
+import { useMemo, useState } from "react";
+import { LuDumbbell, LuLibrary, LuPlus, LuSearch, LuX } from "react-icons/lu";
+import { useThemeColors } from "@/hooks/useThemeColors";
+import { Heading } from "@chakra-ui/react";
+import { ExerciseEditor, ExerciseLibraryCard } from "@/features/exercise";
 
 interface ExerciseSelectorPanelProps {
   isOpen: boolean;
@@ -35,8 +33,18 @@ export const ExerciseSelectorPanel = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [onCreateMode, setOnCreateMode] = useState(false);
 
+  const colors = useThemeColors();
   const createMutation = useCreateExercise();
   const filteredExercises = useExerciseFilter(exercises, searchQuery);
+
+  // 5 exercices les plus récents (pour accès rapide)
+  const recentExercises = useMemo(
+    () =>
+      [...exercises]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 5),
+    [exercises]
+  );
 
   const handleSave = (exercise: Partial<Exercise>) => {
     createMutation.mutate(exercise, {
@@ -46,6 +54,8 @@ export const ExerciseSelectorPanel = ({
       },
     });
   };
+
+  const isSearching = searchQuery.trim().length > 0;
 
   return (
     <Drawer.Root
@@ -57,18 +67,46 @@ export const ExerciseSelectorPanel = ({
     >
       <Drawer.Positioner pointerEvents="none">
         <Drawer.Content bg="gray.900">
+          {/* Header */}
           <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
-            <HStack justify="space-between">
-              <Drawer.Title>
-                {onCreateMode ? "Créer un exercice" : "Ajouter un exercice"}
-              </Drawer.Title>
-              <Drawer.CloseTrigger asChild>
-                <Button size="sm" variant="ghost" onClick={onClose}>
-                  <LuX />
-                </Button>
-              </Drawer.CloseTrigger>
+            <HStack justify="space-between" align="center">
+              <HStack gap={2}>
+                {onCreateMode ? (
+                  <LuDumbbell size={20} color={colors.primaryHex} />
+                ) : (
+                  <LuLibrary size={20} color={colors.primaryHex} />
+                )}
+                <Heading size="lg">
+                  {onCreateMode ? "Créer un exercice" : "Mes exercices"}
+                </Heading>
+              </HStack>
+              <HStack gap={2}>
+                {onCreateMode ? (
+                  <Button size="sm" variant="ghost" onClick={() => setOnCreateMode(false)}>
+                    Annuler
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    bg={colors.primary}
+                    color="black"
+                    fontWeight="semibold"
+                    _hover={{ bg: colors.primaryHover }}
+                    onClick={() => setOnCreateMode(true)}
+                  >
+                    <LuPlus />
+                    Créer
+                  </Button>
+                )}
+                <Drawer.CloseTrigger asChild>
+                  <Button size="sm" variant="ghost" onClick={onClose}>
+                    <LuX />
+                  </Button>
+                </Drawer.CloseTrigger>
+              </HStack>
             </HStack>
           </Drawer.Header>
+
           <Drawer.Body p={4}>
             {onCreateMode ? (
               <ExerciseEditor
@@ -77,44 +115,120 @@ export const ExerciseSelectorPanel = ({
               />
             ) : (
               <VStack gap={4} align="stretch" h="full">
-                <Box position="relative">
+                {/* Recherche */}
+                <HStack
+                  bg="gray.800"
+                  borderRadius="xl"
+                  borderWidth="1px"
+                  borderColor="gray.700"
+                  px={3}
+                  _focusWithin={{ borderColor: "yellow.400" }}
+                  transition="border-color 0.2s ease"
+                >
+                  <LuSearch size={14} color="gray" />
                   <Input
                     placeholder="Rechercher un exercice..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    pl={10}
-                    bg="whiteAlpha.50"
                     border="none"
+                    _focus={{ boxShadow: "none" }}
+                    size="sm"
                   />
-                  <Box
-                    position="absolute"
-                    left={3}
-                    top="50%"
-                    transform="translateY(-50%)"
-                    color="gray.400"
-                  >
-                    <LuSearch />
-                  </Box>
-                </Box>
+                  {searchQuery && (
+                    <Box
+                      cursor="pointer"
+                      color="gray.500"
+                      _hover={{ color: "gray.300" }}
+                      onClick={() => setSearchQuery("")}
+                      flexShrink={0}
+                    >
+                      <LuX size={12} />
+                    </Box>
+                  )}
+                </HStack>
 
                 {isLoading ? (
                   <Box textAlign="center" py={10}>
                     <Spinner />
                   </Box>
+                ) : isSearching ? (
+                  /* Résultats de recherche */
+                  <VStack gap={1.5} align="stretch">
+                    <Text fontSize="xs" color="gray.500" px={1}>
+                      {filteredExercises.length} résultat{filteredExercises.length !== 1 ? "s" : ""}
+                    </Text>
+                    {filteredExercises.length === 0 ? (
+                      <Box py={8} textAlign="center" color="gray.600" fontSize="sm">
+                        Aucun exercice pour « {searchQuery} »
+                      </Box>
+                    ) : (
+                      filteredExercises.map((exercise) => (
+                        <ExerciseLibraryCard
+                          key={exercise._id}
+                          exercise={exercise}
+                          horizontal
+                          onClick={() => onSelect(exercise)}
+                        />
+                      ))
+                    )}
+                  </VStack>
                 ) : (
-                  <Grid
-                    templateColumns={{ base: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }}
-                    gap={4}
-                  >
-                    <CreateExerciseCard onClick={() => setOnCreateMode(true)} />
-                    {filteredExercises.map((exercise) => (
-                      <ExerciseLibraryCard
-                        key={exercise._id}
-                        exercise={exercise}
-                        onClick={() => onSelect(exercise)}
-                      />
-                    ))}
-                  </Grid>
+                  /* Vue par défaut : récents + tous */
+                  <VStack gap={5} align="stretch">
+                    {/* Récemment ajoutés */}
+                    {recentExercises.length > 0 && (
+                      <VStack gap={2} align="stretch">
+                        <Text
+                          fontSize="xs"
+                          fontWeight="bold"
+                          color="gray.500"
+                          letterSpacing="wider"
+                          textTransform="uppercase"
+                          px={1}
+                        >
+                          Récemment ajoutés
+                        </Text>
+                        {recentExercises.map((exercise) => (
+                          <ExerciseLibraryCard
+                            key={exercise._id}
+                            exercise={exercise}
+                            horizontal
+                            onClick={() => onSelect(exercise)}
+                          />
+                        ))}
+                      </VStack>
+                    )}
+
+                    {/* Tous les exercices */}
+                    <VStack gap={2} align="stretch">
+                      <Text
+                        fontSize="xs"
+                        fontWeight="bold"
+                        color="gray.500"
+                        letterSpacing="wider"
+                        textTransform="uppercase"
+                        px={1}
+                      >
+                        Tous les exercices ({exercises.length})
+                      </Text>
+                      {exercises.length === 0 ? (
+                        <Box py={8} textAlign="center" color="gray.600" fontSize="sm">
+                          Aucun exercice — créez votre premier exercice
+                        </Box>
+                      ) : (
+                        [...exercises]
+                          .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }))
+                          .map((exercise) => (
+                            <ExerciseLibraryCard
+                              key={exercise._id}
+                              exercise={exercise}
+                              horizontal
+                              onClick={() => onSelect(exercise)}
+                            />
+                          ))
+                      )}
+                    </VStack>
+                  </VStack>
                 )}
               </VStack>
             )}
