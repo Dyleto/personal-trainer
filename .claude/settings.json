@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\clemoull\\\\source\\\\perso\\\\kettle\\\\kettleapp\" -Recurse -Directory | Where-Object {$_.Name -match 'admin'} | Select-Object -ExpandProperty FullName)",
+      "Bash(find \"c:/Users/clemoull/source/perso/kettle\" -name \"CLAUDE.md\" -o -name \"README.md\" | head -10)",
+      "Read(//c/Users/clemoull/source/perso/kettle/**)"
+    ]
+  }
+}

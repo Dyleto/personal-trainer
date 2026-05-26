@@ -41,9 +41,12 @@ export const ExerciseSelectorPanel = ({
   const recentExercises = useMemo(
     () =>
       [...exercises]
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        )
         .slice(0, 5),
-    [exercises]
+    [exercises],
   );
 
   const handleSave = (exercise: Partial<Exercise>) => {
@@ -82,7 +85,11 @@ export const ExerciseSelectorPanel = ({
               </HStack>
               <HStack gap={2}>
                 {onCreateMode ? (
-                  <Button size="sm" variant="ghost" onClick={() => setOnCreateMode(false)}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setOnCreateMode(false)}
+                  >
                     Annuler
                   </Button>
                 ) : (
@@ -122,7 +129,7 @@ export const ExerciseSelectorPanel = ({
                   borderWidth="1px"
                   borderColor="gray.700"
                   px={3}
-                  _focusWithin={{ borderColor: "yellow.400" }}
+                  _focusWithin={{ borderColor: colors.primary }}
                   transition="border-color 0.2s ease"
                 >
                   <LuSearch size={14} color="gray" />
@@ -155,10 +162,16 @@ export const ExerciseSelectorPanel = ({
                   /* Résultats de recherche */
                   <VStack gap={1.5} align="stretch">
                     <Text fontSize="xs" color="gray.500" px={1}>
-                      {filteredExercises.length} résultat{filteredExercises.length !== 1 ? "s" : ""}
+                      {filteredExercises.length} résultat
+                      {filteredExercises.length !== 1 ? "s" : ""}
                     </Text>
                     {filteredExercises.length === 0 ? (
-                      <Box py={8} textAlign="center" color="gray.600" fontSize="sm">
+                      <Box
+                        py={8}
+                        textAlign="center"
+                        color="gray.600"
+                        fontSize="sm"
+                      >
                         Aucun exercice pour « {searchQuery} »
                       </Box>
                     ) : (
@@ -212,12 +225,21 @@ export const ExerciseSelectorPanel = ({
                         Tous les exercices ({exercises.length})
                       </Text>
                       {exercises.length === 0 ? (
-                        <Box py={8} textAlign="center" color="gray.600" fontSize="sm">
+                        <Box
+                          py={8}
+                          textAlign="center"
+                          color="gray.600"
+                          fontSize="sm"
+                        >
                           Aucun exercice — créez votre premier exercice
                         </Box>
                       ) : (
                         [...exercises]
-                          .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }))
+                          .sort((a, b) =>
+                            a.name.localeCompare(b.name, "fr", {
+                              sensitivity: "base",
+                            }),
+                          )
                           .map((exercise) => (
                             <ExerciseLibraryCard
                               key={exercise._id}

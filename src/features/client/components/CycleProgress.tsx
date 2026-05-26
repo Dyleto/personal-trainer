@@ -1,18 +1,20 @@
 ﻿import { Session } from "@/types";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { Box, HStack, Text } from "@chakra-ui/react";
-import { LuRefreshCw } from "react-icons/lu";
+import { LuCalendarDays, LuRefreshCw } from "react-icons/lu";
 
 interface CycleProgressProps {
   sessions: Session[];
   currentCycleNumber: number;
   sessionsDoneInCurrentCycle: number;
+  onViewProgram: () => void;
 }
 
 export const CycleProgress = ({
   sessions,
   currentCycleNumber,
   sessionsDoneInCurrentCycle,
+  onViewProgram,
 }: CycleProgressProps) => {
   const colors = useThemeColors();
 
@@ -37,9 +39,23 @@ export const CycleProgress = ({
             Cycle {currentCycleNumber} en cours
           </Text>
         </HStack>
-        <Text fontSize="xs" color="gray.400">
-          {sessionsDoneInCurrentCycle} / {sessions.length} séances
-        </Text>
+        <HStack gap={3}>
+          <Text fontSize="xs" color="gray.400">
+            {sessionsDoneInCurrentCycle} / {sessions.length} séances
+          </Text>
+          <HStack
+            gap={1}
+            fontSize="xs"
+            color="gray.400"
+            cursor="pointer"
+            _hover={{ color: "gray.200" }}
+            onClick={onViewProgram}
+            transition="color 0.15s"
+          >
+            <LuCalendarDays size={13} />
+            <Text>Voir le programme</Text>
+          </HStack>
+        </HStack>
       </HStack>
       <HStack gap={2}>
         {sessions.map((s, index) => {

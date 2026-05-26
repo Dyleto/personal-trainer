@@ -4,9 +4,11 @@
   SessionHistory,
   useCycleProgress,
 } from "@/features/client";
+import { FullProgramDrawer } from "@/features/client/components/FullProgramDrawer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Container, HStack, Text, VStack } from "@chakra-ui/react";
 import { Header } from "@/components/Header";
+import { useState } from "react";
 
 const ClientDashboard = () => {
   const { user } = useAuth();
@@ -18,6 +20,8 @@ const ClientDashboard = () => {
     sessionsDoneInCurrentCycle,
     handleSubmitLog,
   } = useCycleProgress();
+
+  const [isProgramOpen, setIsProgramOpen] = useState(false);
 
   return (
     <Container py={8} px={4}>
@@ -35,12 +39,21 @@ const ClientDashboard = () => {
           sessions={sessions}
           currentCycleNumber={currentCycleNumber}
           sessionsDoneInCurrentCycle={sessionsDoneInCurrentCycle}
+          onViewProgram={() => setIsProgramOpen(true)}
         />
 
         <CurrentSession nextSession={nextSession} onComplete={handleSubmitLog} />
 
         {history.length > 0 && <SessionHistory history={history} />}
       </VStack>
+
+      <FullProgramDrawer
+        isOpen={isProgramOpen}
+        onClose={() => setIsProgramOpen(false)}
+        sessions={sessions}
+        nextSession={nextSession}
+        sessionsDoneInCurrentCycle={sessionsDoneInCurrentCycle}
+      />
     </Container>
   );
 };

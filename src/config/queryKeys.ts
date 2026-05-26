@@ -35,6 +35,12 @@ export const queryKeys = {
     },
   },
 
+  admin: {
+    all: ["admin"] as const,
+    stats: () => [...queryKeys.admin.all, "stats"] as const,
+    coaches: () => [...queryKeys.admin.all, "coaches"] as const,
+  },
+
   client: {
     all: ["client"] as const,
     program: {
