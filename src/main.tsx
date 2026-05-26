@@ -10,6 +10,10 @@ import { queryClient } from "./config/queryClient.js";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import ErrorBoundary from "./components/ErrorBoundary.js";
 
+window.addEventListener("vite:preloadError", () => {
+  window.location.reload();
+});
+
 ReactDOM.createRoot(document.getElementById("root")! as HTMLElement).render(
   <Provider forcedTheme="dark">
     <ErrorBoundary>
