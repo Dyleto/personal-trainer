@@ -9,8 +9,9 @@ export const useUpdateProgramSessions = (clientId: string) => {
 
   return useMutation({
     mutationFn: async (sessions: Session[]) => {
-      const formattedSessions = sessions.map((session) => ({
+      const formattedSessions = sessions.map((session, si) => ({
         _id: session._id,
+        order: si + 1,
         notes: session.notes?.trim(),
         blocks: session.blocks.map((block, bi) => ({
           type: block.type,
