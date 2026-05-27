@@ -15,7 +15,8 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { LuTrash2 } from "react-icons/lu";
+import { LuChevronDown, LuChevronUp, LuTrash2, LuVideo } from "react-icons/lu";
+import VideoPlayer from "@/components/VideoPlayer";
 import { useState, useEffect } from "react";
 
 // ─── Metric display helper ────────────────────────────────────────────────────
@@ -56,36 +57,73 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
       ? `${exercise.restBetweenSets}s repos`
       : null;
 
+  const ex = exercise.exercise;
+  const hasDescription = !!ex.description?.trim();
+  const hasVideo = !!ex.videoUrl?.trim();
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <HStack justify="space-between" py={2} gap={3} align="center">
-      <HStack gap={2} flex={1} minW={0}>
-        <Box
-          w="5px"
-          h="5px"
-          borderRadius="full"
-          bg={color}
-          flexShrink={0}
-          opacity={0.7}
-        />
-        <Text fontSize="sm" color="gray.300" lineClamp={1}>
-          {exercise.exercise.name}
-        </Text>
+    <Box>
+      {/* Ligne principale — toujours cliquable */}
+      <HStack
+        justify="space-between"
+        py={2.5}
+        gap={3}
+        align="center"
+        onClick={() => setIsOpen((v) => !v)}
+        cursor="pointer"
+        _hover={{ opacity: 0.85 }}
+        transition="opacity 0.1s"
+      >
+        <HStack gap={2} flex={1} minW={0}>
+          <Box w="5px" h="5px" borderRadius="full" bg={color} flexShrink={0} opacity={0.7} />
+          <Text fontSize="sm" color="gray.300" lineClamp={1} flex={1} minW={0}>
+            {ex.name}
+          </Text>
+          {hasVideo && (
+            <Box color="blue.400" flexShrink={0} opacity={0.6}>
+              <LuVideo size={11} />
+            </Box>
+          )}
+        </HStack>
+
+        <HStack gap={2} flexShrink={0}>
+          {(metric || rest) && (
+            <VStack gap={0.5} align="end">
+              {metric && <Text fontSize="sm" color="gray.500">{metric}</Text>}
+              {rest  && <Text fontSize="xs" color="gray.600">{rest}</Text>}
+            </VStack>
+          )}
+          <Box
+            color="gray.600"
+            transition="transform 0.2s"
+            transform={isOpen ? "rotate(180deg)" : "none"}
+          >
+            <LuChevronDown size={14} />
+          </Box>
+        </HStack>
       </HStack>
-      {(metric || rest) && (
-        <VStack gap={0.5} align="end" flexShrink={0}>
-          {metric && (
-            <Text fontSize="sm" color="gray.500">
-              {metric}
-            </Text>
-          )}
-          {rest && (
-            <Text fontSize="xs" color="gray.600">
-              {rest}
-            </Text>
-          )}
-        </VStack>
+
+      {/* Détail dépliable */}
+      {isOpen && (
+        <Box pt={2} pb={3} borderTopWidth="1px" borderColor="whiteAlpha.100">
+          <VStack align="stretch" gap={3}>
+            {hasDescription ? (
+              <Text fontSize="xs" color="gray.400" lineHeight="tall" whiteSpace="pre-wrap">
+                {ex.description}
+              </Text>
+            ) : (
+              !hasVideo && (
+                <Text fontSize="xs" color="gray.600" fontStyle="italic">
+                  Aucune description pour cet exercice.
+                </Text>
+              )
+            )}
+            {hasVideo && <VideoPlayer url={ex.videoUrl!} />}
+          </VStack>
+        </Box>
       )}
-    </HStack>
+    </Box>
   );
 };
 
