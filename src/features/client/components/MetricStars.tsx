@@ -9,6 +9,7 @@ interface MetricStarsProps {
   value: number; // 1-5
   readonly?: boolean;
   onChange?: (value: number) => void;
+  starsW?: string;
 }
 
 export const MetricStars = ({
@@ -17,6 +18,7 @@ export const MetricStars = ({
   value,
   readonly = false,
   onChange,
+  starsW,
 }: MetricStarsProps) => {
   const colors = useThemeColors();
 
@@ -28,7 +30,7 @@ export const MetricStars = ({
           {label}
         </Text>
       </HStack>
-      <HStack gap={1}>
+      <HStack gap={1} w={starsW} justify={starsW ? "space-between" : undefined}>
         {[1, 2, 3, 4, 5].map((star) => (
           <LuStar
             key={star}

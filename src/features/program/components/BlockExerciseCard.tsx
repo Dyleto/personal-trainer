@@ -60,19 +60,19 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
   const ex = exercise.exercise;
   const hasDescription = !!ex.description?.trim();
   const hasVideo = !!ex.videoUrl?.trim();
+  const hasDetail = hasDescription || hasVideo;
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Box>
-      {/* Ligne principale — toujours cliquable */}
       <HStack
         justify="space-between"
         py={2.5}
         gap={3}
         align="center"
-        onClick={() => setIsOpen((v) => !v)}
-        cursor="pointer"
-        _hover={{ opacity: 0.85 }}
+        onClick={hasDetail ? () => setIsOpen((v) => !v) : undefined}
+        cursor={hasDetail ? "pointer" : "default"}
+        _hover={hasDetail ? { opacity: 0.85 } : undefined}
         transition="opacity 0.1s"
       >
         <HStack gap={2} flex={1} minW={0}>
@@ -94,30 +94,25 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
               {rest  && <Text fontSize="xs" color="gray.600">{rest}</Text>}
             </VStack>
           )}
-          <Box
-            color="gray.600"
-            transition="transform 0.2s"
-            transform={isOpen ? "rotate(180deg)" : "none"}
-          >
-            <LuChevronDown size={14} />
-          </Box>
+          {hasDetail && (
+            <Box
+              color="gray.600"
+              transition="transform 0.2s"
+              transform={isOpen ? "rotate(180deg)" : "none"}
+            >
+              <LuChevronDown size={14} />
+            </Box>
+          )}
         </HStack>
       </HStack>
 
-      {/* Détail dépliable */}
-      {isOpen && (
+      {isOpen && hasDetail && (
         <Box pt={2} pb={3} borderTopWidth="1px" borderColor="whiteAlpha.100">
           <VStack align="stretch" gap={3}>
-            {hasDescription ? (
+            {hasDescription && (
               <Text fontSize="xs" color="gray.400" lineHeight="tall" whiteSpace="pre-wrap">
                 {ex.description}
               </Text>
-            ) : (
-              !hasVideo && (
-                <Text fontSize="xs" color="gray.600" fontStyle="italic">
-                  Aucune description pour cet exercice.
-                </Text>
-              )
             )}
             {hasVideo && <VideoPlayer url={ex.videoUrl!} />}
           </VStack>

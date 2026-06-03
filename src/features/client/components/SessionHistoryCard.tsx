@@ -5,9 +5,11 @@ import { calculateSessionDuration } from "@/utils/sessionUtils";
 import { formatDuration } from "@/utils/formatters";
 import { getBlockColor, getBlockLabel } from "@/constants/blockTypes";
 import { Box, Grid, HStack, Separator, Text, VStack } from "@chakra-ui/react";
-import { LuClock } from "react-icons/lu";
+import { LuClock, LuChevronRight } from "react-icons/lu";
 import { RadarChart } from "@/components/RadarChart";
 import { METRICS_CONFIG } from "@/constants/metricsConfig";
+import { useState } from "react";
+import { CompletedSessionDrawer } from "./CompletedSessionDrawer";
 
 interface SessionHistoryCardProps {
   completed: CompletedSession;
@@ -19,6 +21,7 @@ export const SessionHistoryCard = ({
   showUnseenIndicator = false,
 }: SessionHistoryCardProps) => {
   const colors = useThemeColors();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const duration = calculateSessionDuration({ blocks: completed.blocks });
 
@@ -143,8 +146,27 @@ export const SessionHistoryCard = ({
           </VStack>
         </Grid>
 
-        <Separator borderColor="whiteAlpha.100" />
+        <HStack
+          px={4}
+          py={2}
+          justify="flex-end"
+          cursor="pointer"
+          onClick={() => setIsDrawerOpen(true)}
+          _hover={{ opacity: 0.8 }}
+          transition="opacity 0.15s"
+        >
+          <Text fontSize="xs" color={colors.primary} fontWeight="medium">
+            Voir le détail
+          </Text>
+          <LuChevronRight size={13} color={colors.primaryHex} />
+        </HStack>
       </VStack>
+
+      <CompletedSessionDrawer
+        completed={completed}
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+      />
     </Card>
   );
 };

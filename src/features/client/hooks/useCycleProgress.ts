@@ -59,12 +59,13 @@ export const useCycleProgress = () => {
     }, [history, sessions]);
 
   const handleSubmitLog = useCallback(
-    (metrics: SessionMetrics, clientNotes: string) => {
+    (metrics: SessionMetrics, clientNotes: string, completedAt?: string) => {
       if (!nextSession) return;
       completeSession.mutate({
         sessionId: nextSession._id,
         metrics,
         clientNotes,
+        completedAt,
       });
     },
     [nextSession, completeSession],

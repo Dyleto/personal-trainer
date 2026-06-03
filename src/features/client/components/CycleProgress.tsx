@@ -1,6 +1,6 @@
 ﻿import { Session } from "@/types";
 import { useThemeColors } from "@/hooks/useThemeColors";
-import { Box, HStack, Text } from "@chakra-ui/react";
+import { Box, HStack, Skeleton, Text } from "@chakra-ui/react";
 import { LuCalendarDays, LuRefreshCw } from "react-icons/lu";
 
 interface CycleProgressProps {
@@ -8,6 +8,7 @@ interface CycleProgressProps {
   currentCycleNumber: number;
   sessionsDoneInCurrentCycle: number;
   onViewProgram: () => void;
+  isLoading?: boolean;
 }
 
 export const CycleProgress = ({
@@ -15,8 +16,31 @@ export const CycleProgress = ({
   currentCycleNumber,
   sessionsDoneInCurrentCycle,
   onViewProgram,
+  isLoading,
 }: CycleProgressProps) => {
   const colors = useThemeColors();
+
+  if (isLoading) {
+    return (
+      <Box
+        p={4}
+        bg="whiteAlpha.50"
+        borderRadius="lg"
+        borderWidth="1px"
+        borderColor="whiteAlpha.100"
+      >
+        <HStack justify="space-between" mb={3}>
+          <Skeleton h="12px" w="120px" borderRadius="md" />
+          <Skeleton h="12px" w="80px" borderRadius="md" />
+        </HStack>
+        <HStack gap={2}>
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} flex={1} h="6px" borderRadius="full" />
+          ))}
+        </HStack>
+      </Box>
+    );
+  }
 
   return (
     <Box

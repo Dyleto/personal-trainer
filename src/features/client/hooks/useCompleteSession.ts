@@ -12,11 +12,13 @@ export const useCompleteSession = () => {
       sessionId,
       metrics,
       clientNotes,
+      completedAt,
     }: {
       sessionId: string;
       metrics: SessionMetrics;
       clientNotes?: string;
-    }) => clientService.completeSession(sessionId, { metrics, clientNotes }),
+      completedAt?: string;
+    }) => clientService.completeSession(sessionId, { metrics, clientNotes, completedAt }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.client.history.all(),

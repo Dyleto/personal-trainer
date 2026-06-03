@@ -18,7 +18,7 @@ export const clientService = {
 
   completeSession: async (
     sessionId: string,
-    payload: { metrics: SessionMetrics; clientNotes?: string },
+    payload: { metrics: SessionMetrics; clientNotes?: string; completedAt?: string },
   ): Promise<CompletedSession> => {
     const { data } = await api.post<{ completed: CompletedSession }>(
       `/api/client/sessions/${sessionId}/complete`,

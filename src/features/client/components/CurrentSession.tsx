@@ -1,24 +1,44 @@
-﻿import { Session, SessionMetrics } from "@/types";
+import { Session, SessionMetrics } from "@/types";
 import { CompleteSessionModal } from "./CompleteSessionModal";
 import { NextSessionCard } from "./NextSessionCard";
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Skeleton, Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 
 interface CurrentSessionProps {
   nextSession: Session | undefined;
-  onComplete: (metrics: SessionMetrics, notes: string) => void;
+  onComplete: (metrics: SessionMetrics, notes: string, completedAt?: string) => void;
+  isLoading?: boolean;
 }
 
 export const CurrentSession = ({
   nextSession,
   onComplete,
+  isLoading,
 }: CurrentSessionProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSubmit = (metrics: SessionMetrics, notes: string) => {
-    onComplete(metrics, notes);
+  const handleSubmit = (metrics: SessionMetrics, notes: string, completedAt?: string) => {
+    onComplete(metrics, notes, completedAt);
     setIsModalOpen(false);
   };
+
+  if (isLoading) {
+    return (
+      <Box
+        p={5}
+        bg="whiteAlpha.50"
+        borderRadius="xl"
+        borderWidth="1px"
+        borderColor="whiteAlpha.100"
+      >
+        <VStack align="stretch" gap={3}>
+          <Skeleton h="16px" w="140px" borderRadius="md" />
+          <Skeleton h="12px" w="220px" borderRadius="md" />
+          <Skeleton h="80px" borderRadius="lg" mt={1} />
+        </VStack>
+      </Box>
+    );
+  }
 
   if (!nextSession) {
     return (

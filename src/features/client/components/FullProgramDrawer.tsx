@@ -1,8 +1,8 @@
 import {
   Box,
-  Button,
   Drawer,
   HStack,
+  IconButton,
   Separator,
   Text,
   VStack,
@@ -45,7 +45,11 @@ const SessionPanel = ({ session, status }: SessionPanelProps) => {
 
   const statusConfig = {
     done: { label: "Terminée", color: "green.400", bg: "green.400/10" },
-    next: { label: "À faire", color: colors.primary, bg: `${colors.primaryHex}18` },
+    next: {
+      label: "À faire",
+      color: colors.primary,
+      bg: `${colors.primaryHex}18`,
+    },
     upcoming: { label: "À venir", color: "gray.500", bg: "whiteAlpha.50" },
   }[status];
 
@@ -53,7 +57,9 @@ const SessionPanel = ({ session, status }: SessionPanelProps) => {
     <Box
       borderRadius="xl"
       borderWidth="1px"
-      borderColor={status === "next" ? `${colors.primaryHex}30` : "whiteAlpha.100"}
+      borderColor={
+        status === "next" ? `${colors.primaryHex}30` : "whiteAlpha.100"
+      }
       overflow="hidden"
       opacity={status === "upcoming" ? 0.6 : 1}
     >
@@ -74,7 +80,9 @@ const SessionPanel = ({ session, status }: SessionPanelProps) => {
               borderWidth="1px"
               borderColor={`${statusConfig.color}/30`}
             >
-              {status === "done" && <LuCheck size={10} color="var(--chakra-colors-green-400)" />}
+              {status === "done" && (
+                <LuCheck size={10} color="var(--chakra-colors-green-400)" />
+              )}
               {status === "next" && (
                 <Box
                   w="5px"
@@ -128,7 +136,9 @@ const SessionPanel = ({ session, status }: SessionPanelProps) => {
         </VStack>
       ) : (
         <Box px={4} py={3}>
-          <Text fontSize="sm" color="gray.600">Aucun bloc pour cette séance.</Text>
+          <Text fontSize="sm" color="gray.600">
+            Aucun bloc pour cette séance.
+          </Text>
         </Box>
       )}
     </Box>
@@ -159,13 +169,21 @@ export const FullProgramDrawer = ({
       <Drawer.Positioner>
         <Drawer.Content bg="gray.900">
           <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
-            <HStack justify="space-between" align="center">
+            <HStack justify="space-between" align="center" flex="1">
               <Text fontWeight="bold" fontSize="lg">
                 Mon programme
               </Text>
-              <Button size="sm" variant="ghost" onClick={onClose}>
-                <LuX />
-              </Button>
+              <IconButton
+                aria-label="Fermer"
+                size="sm"
+                variant="ghost"
+                color="gray.500"
+                _hover={{ color: "white", bg: "whiteAlpha.100" }}
+                borderRadius="full"
+                onClick={onClose}
+              >
+                <LuX size={16} />
+              </IconButton>
             </HStack>
           </Drawer.Header>
 
@@ -177,14 +195,20 @@ export const FullProgramDrawer = ({
             ) : (
               <VStack align="stretch" gap={4}>
                 <Text fontSize="xs" color="gray.500">
-                  {sessions.length} séance{sessions.length > 1 ? "s" : ""} dans ce cycle
+                  {sessions.length} séance{sessions.length > 1 ? "s" : ""} dans
+                  ce cycle
                 </Text>
                 <Separator borderColor="whiteAlpha.100" />
                 {sessions.map((session) => (
                   <SessionPanel
                     key={session._id}
                     session={session}
-                    status={getStatus(session, nextSession, sessionsDoneInCurrentCycle, sessions)}
+                    status={getStatus(
+                      session,
+                      nextSession,
+                      sessionsDoneInCurrentCycle,
+                      sessions,
+                    )}
                   />
                 ))}
               </VStack>

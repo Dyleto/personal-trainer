@@ -19,6 +19,7 @@ const ClientDashboard = () => {
     currentCycleNumber,
     sessionsDoneInCurrentCycle,
     handleSubmitLog,
+    isLoading,
   } = useCycleProgress();
 
   const [isProgramOpen, setIsProgramOpen] = useState(false);
@@ -40,9 +41,10 @@ const ClientDashboard = () => {
           currentCycleNumber={currentCycleNumber}
           sessionsDoneInCurrentCycle={sessionsDoneInCurrentCycle}
           onViewProgram={() => setIsProgramOpen(true)}
+          isLoading={isLoading}
         />
 
-        <CurrentSession nextSession={nextSession} onComplete={handleSubmitLog} />
+        <CurrentSession nextSession={nextSession} onComplete={handleSubmitLog} isLoading={isLoading} />
 
         {history.length > 0 && <SessionHistory history={history} />}
       </VStack>
