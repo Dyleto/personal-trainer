@@ -1,8 +1,11 @@
+import { blockSupportsSets } from '@/constants/blockTypes';
+import { BlockExercise, BlockType } from '@/types';
+
 /**
  * Retire les accents et diacritiques d'une chaîne (é→e, à→a, ç→c…)
  */
 export const stripAccents = (str: string): string =>
-  str.normalize("NFD").replace(/[̀-ͯ]/g, "");;
+  str.normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 /**
  * Formate une durée en secondes en format lisible (ex: 1h30, 45min, 30s)
@@ -32,5 +35,24 @@ export const formatDuration = (seconds: number): string => {
   if (mins === 0) {
     return `${hours}h`;
   }
-  return `${hours}h${mins.toString().padStart(2, "0")}`;
+  return `${hours}h${mins.toString().padStart(2, '0')}`;
+};
+
+export const formatExerciseMetric = (
+  ex: BlockExercise,
+  blockType: BlockType
+): string => {
+  const effort = ex.reps
+    ? `${ex.reps} reps`
+    : ex.duration
+      ? formatDuration(ex.duration)
+      : ex.customMetric
+        ? `${ex.customMetric.value} ${ex.customMetric.unit}`
+        : '';
+
+  if (!effort) return '';
+  if (blockSupportsSets(blockType) && ex.sets && ex.sets > 1) {
+    return `${ex.sets} × ${effort}`;
+  }
+  return effort;
 };

@@ -1,8 +1,16 @@
-import { Box, HStack, Input, Text, VStack } from "@chakra-ui/react";
-import { NumField } from "./shared/NumField";
-import { BlockShell } from "./shared/BlockShell";
-import { BlockProps } from "./shared/types";
-import { getBlockColor } from "@/constants/blockTypes";
+import {
+  Box,
+  HStack,
+  Text,
+  VStack,
+  Button,
+  SimpleGrid,
+} from '@chakra-ui/react';
+import { NumField } from './shared/NumField';
+import { BlockShell } from './shared/BlockShell';
+import { BlockProps } from './shared/types';
+import { getBlockColor } from '@/constants/blockTypes';
+import { LuMinus, LuPlus } from 'react-icons/lu';
 
 export const LadderBlock = (props: BlockProps) => {
   const { block, isEditing, onUpdate } = props;
@@ -23,21 +31,51 @@ export const LadderBlock = (props: BlockProps) => {
               >
                 Paliers (ex: 5, 10, 15, 20)
               </Text>
-              <Input
-                size="sm"
-                value={(block.repsScheme || []).join(", ")}
-                bg="whiteAlpha.100"
-                borderColor="whiteAlpha.200"
-                _focus={{ borderColor: `${color}60` }}
-                borderRadius="md"
-                onChange={(e) => {
-                  const vals = e.target.value
-                    .split(/[,\s]+/)
-                    .map((v) => parseInt(v.trim()))
-                    .filter((v) => !isNaN(v) && v > 0);
-                  onUpdate?.({ repsScheme: vals });
-                }}
-              />
+              <HStack gap={2} align="start">
+                <Box flex={1}>
+                  <SimpleGrid columns={{ base: 2, sm: 3, md: 4 }} gap={2}>
+                    {(block.repsScheme || []).map((reps, i) => (
+                      <NumField
+                        key={i}
+                        value={reps}
+                        label=""
+                        onChange={(v) => {
+                          const newScheme = [...(block.repsScheme || [])];
+                          newScheme[i] = v;
+                          onUpdate?.({ repsScheme: newScheme });
+                        }}
+                      />
+                    ))}
+                  </SimpleGrid>
+                </Box>
+                <VStack>
+                  <Button
+                    bg="whiteAlpha.100"
+                    _hover={{ bg: 'whiteAlpha.200' }}
+                    onClick={() => {
+                      const newScheme = [...(block.repsScheme || []), 1];
+                      onUpdate?.({ repsScheme: newScheme });
+                    }}
+                    color={color}
+                    size="xs"
+                  >
+                    <LuPlus />
+                  </Button>
+                  <Button
+                    bg="whiteAlpha.100"
+                    _hover={{ bg: 'whiteAlpha.200' }}
+                    onClick={() => {
+                      const newScheme = [...(block.repsScheme || [])];
+                      newScheme.pop();
+                      onUpdate?.({ repsScheme: newScheme });
+                    }}
+                    color={color}
+                    size="xs"
+                  >
+                    <LuMinus />
+                  </Button>
+                </VStack>
+              </HStack>
             </VStack>
             <NumField
               label="Repos entre paliers (sec)"

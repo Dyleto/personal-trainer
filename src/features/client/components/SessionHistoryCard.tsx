@@ -1,11 +1,9 @@
 import { Card } from "@/components/Card";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { CompletedSession } from "@/types";
-import { calculateSessionDuration } from "@/utils/sessionUtils";
-import { formatDuration } from "@/utils/formatters";
 import { getBlockColor, getBlockLabel } from "@/constants/blockTypes";
 import { Box, Grid, HStack, Separator, Text, VStack } from "@chakra-ui/react";
-import { LuClock, LuChevronRight } from "react-icons/lu";
+import { LuChevronRight } from "react-icons/lu";
 import { RadarChart } from "@/components/RadarChart";
 import { METRICS_CONFIG } from "@/constants/metricsConfig";
 import { useState } from "react";
@@ -22,8 +20,6 @@ export const SessionHistoryCard = ({
 }: SessionHistoryCardProps) => {
   const colors = useThemeColors();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  const duration = calculateSessionDuration({ blocks: completed.blocks });
 
   const completedDate = new Intl.DateTimeFormat("fr-FR", {
     weekday: "short",
@@ -97,17 +93,12 @@ export const SessionHistoryCard = ({
 
           {/* Colonne droite — Stats + Blocs */}
           <VStack align="stretch" gap={2} p={3}>
-            <HStack gap={2} color="gray.400" fontSize="xs">
-              <LuClock size={12} />
-              <Text>{formatDuration(duration)}</Text>
-            </HStack>
-
-            <Separator borderColor="whiteAlpha.100" />
-
             {/* Blocs avec exercices */}
             <VStack align="stretch" gap={2}>
               {completed.blocks.map((block, bi) => {
-                const color = getBlockColor(block.type as Parameters<typeof getBlockColor>[0]);
+                const color = getBlockColor(
+                  block.type as Parameters<typeof getBlockColor>[0],
+                );
                 return (
                   <VStack key={bi} align="stretch" gap={0.5}>
                     <HStack gap={1.5}>
@@ -118,14 +109,29 @@ export const SessionHistoryCard = ({
                         bg={color}
                         flexShrink={0}
                       />
-                      <Text fontSize="2xs" color={color} fontWeight="bold" textTransform="uppercase" letterSpacing="wider">
-                        {getBlockLabel(block.type as Parameters<typeof getBlockLabel>[0])}
+                      <Text
+                        fontSize="2xs"
+                        color={color}
+                        fontWeight="bold"
+                        textTransform="uppercase"
+                        letterSpacing="wider"
+                      >
+                        {getBlockLabel(
+                          block.type as Parameters<typeof getBlockLabel>[0],
+                        )}
                       </Text>
                     </HStack>
                     {block.exercises.map((ex, ei) => {
-                      const name = (ex.exercise as { name?: string })?.name ?? "—";
+                      const name =
+                        (ex.exercise as { name?: string })?.name ?? "—";
                       return (
-                        <Text key={ei} fontSize="xs" color="gray.400" pl={3} lineClamp={1}>
+                        <Text
+                          key={ei}
+                          fontSize="xs"
+                          color="gray.400"
+                          pl={3}
+                          lineClamp={1}
+                        >
                           {name}
                         </Text>
                       );
@@ -138,7 +144,12 @@ export const SessionHistoryCard = ({
             {completed.clientNotes && (
               <>
                 <Separator borderColor="whiteAlpha.100" />
-                <Text fontSize="xs" color="gray.400" fontStyle="italic" lineClamp={2}>
+                <Text
+                  fontSize="xs"
+                  color="gray.400"
+                  fontStyle="italic"
+                  lineClamp={2}
+                >
                   "{completed.clientNotes}"
                 </Text>
               </>

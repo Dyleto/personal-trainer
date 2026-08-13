@@ -54,11 +54,11 @@ export const removeItem = (key: string): boolean => {
  */
 export const isAvailable = (): boolean => {
   try {
-    const testKey = "__storage_test__";
-    localStorage.setItem(testKey, "test");
+    const testKey = '__storage_test__';
+    localStorage.setItem(testKey, 'test');
     localStorage.removeItem(testKey);
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -104,7 +104,7 @@ export const clear = (): boolean => {
     localStorage.clear();
     return true;
   } catch (error) {
-    console.warn("[Storage] Impossible de vider le localStorage:", error);
+    console.warn('[Storage] Impossible de vider le localStorage:', error);
     return false;
   }
 };

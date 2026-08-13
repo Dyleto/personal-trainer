@@ -1,8 +1,8 @@
-import { toaster } from "@/components/ui/toaster";
-import api from "@/config/api";
-import { queryKeys } from "@/config/queryKeys";
-import { Session } from "@/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toaster } from '@/components/ui/toasterInstance';
+import api from '@/config/api';
+import { queryKeys } from '@/config/queryKeys';
+import { Session } from '@/types';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const useUpdateProgramSessions = (clientId: string) => {
   const queryClient = useQueryClient();
@@ -41,7 +41,7 @@ export const useUpdateProgramSessions = (clientId: string) => {
 
       const { data } = await api.put(
         `/api/coach/clients/${clientId}/program/sessions`,
-        { sessions: formattedSessions },
+        { sessions: formattedSessions }
       );
       return data;
     },
@@ -49,12 +49,12 @@ export const useUpdateProgramSessions = (clientId: string) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coach.clients.detail(clientId),
       });
-      toaster.create({ title: "Programme sauvegardé", type: "success" });
+      toaster.create({ title: 'Programme sauvegardé', type: 'success' });
     },
     onError: () => {
       toaster.create({
-        title: "Erreur lors de la sauvegarde du programme",
-        type: "error",
+        title: 'Erreur lors de la sauvegarde du programme',
+        type: 'error',
       });
     },
   });

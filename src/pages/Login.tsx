@@ -5,12 +5,12 @@ import {
   Spinner,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import GoogleLoginButton from "@/components/GoogleLoginButton";
-import { useThemeColors } from "@/hooks/useThemeColors";
+} from '@chakra-ui/react';
+import { useAuth } from '@/contexts/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import GoogleLoginButton from '@/components/GoogleLoginButton';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const Login: React.FC = () => {
   const { user, isLoading } = useAuth();
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (!isLoading && user) {
-      navigate("/");
+      navigate('/');
     }
   }, [isLoading, user, navigate]);
 
@@ -41,10 +41,11 @@ const Login: React.FC = () => {
               fontWeight="bold"
               letterSpacing="10px"
               style={{
-                background: "linear-gradient(to bottom, #ffffff, rgba(255,255,255,0.72))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                background:
+                  'linear-gradient(to bottom, #ffffff, rgba(255,255,255,0.72))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
               }}
             >
               KETTLE

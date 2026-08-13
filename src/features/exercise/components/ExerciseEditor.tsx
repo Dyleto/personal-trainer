@@ -1,5 +1,5 @@
-import { Field } from "@/components/ui/field";
-import { useThemeColors } from "@/hooks/useThemeColors";
+import { Field } from '@/components/ui/field';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import {
   Box,
   Button,
@@ -9,12 +9,12 @@ import {
   Input,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
-import { LuDumbbell, LuTrash2 } from "react-icons/lu";
-import VideoPlayer from "@/components/VideoPlayer";
-import { Exercise } from "@/types";
+} from '@chakra-ui/react';
+import { useState } from 'react';
+import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
+import { LuDumbbell, LuTrash2 } from 'react-icons/lu';
+import VideoPlayer from '@/components/VideoPlayer';
+import { Exercise } from '@/types';
 
 interface ExerciseEditorProps {
   initialData?: Partial<Exercise>;
@@ -36,26 +36,27 @@ export const ExerciseEditor = ({
   const colors = useThemeColors();
 
   const [formData, setFormData] = useState<Partial<Exercise>>({
-    name: "",
-    description: "",
-    videoUrl: "",
+    name: '',
+    description: '',
+    videoUrl: '',
     ...initialData,
   });
-  const [nameError, setNameError] = useState("");
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData((prev) => ({ ...prev, ...initialData }));
-    }
-  }, [initialData]);
+  const [nameError, setNameError] = useState('');
+
+  if (initialData && initialData !== prevInitialData) {
+    setPrevInitialData(initialData);
+    setFormData((prev) => ({ ...prev, ...initialData }));
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name?.trim()) {
-      setNameError("Le nom est requis");
+      setNameError('Le nom est requis');
       return;
     }
-    setNameError("");
+    setNameError('');
     onSave(formData);
   };
 
@@ -76,7 +77,7 @@ export const ExerciseEditor = ({
                 <LuDumbbell size={32} color={colors.primaryHex} />
               </Box>
               <Heading size="xl">
-                {isEditing ? "Modifier l'exercice" : "Créer un exercice"}
+                {isEditing ? "Modifier l'exercice" : 'Créer un exercice'}
               </Heading>
             </HStack>
           </Card.Body>
@@ -92,11 +93,11 @@ export const ExerciseEditor = ({
                   value={formData.name}
                   onChange={(e) => {
                     setFormData({ ...formData, name: e.target.value });
-                    if (nameError) setNameError("");
+                    if (nameError) setNameError('');
                   }}
                   placeholder="Ex: Kettlebell Swing"
-                  borderColor={nameError ? "red.400" : undefined}
-                  _focus={{ borderColor: nameError ? "red.400" : undefined }}
+                  borderColor={nameError ? 'red.400' : undefined}
+                  _focus={{ borderColor: nameError ? 'red.400' : undefined }}
                 />
                 {nameError && (
                   <Text fontSize="xs" color="red.400" mt={1}>
@@ -130,7 +131,12 @@ export const ExerciseEditor = ({
 
               {formData.videoUrl && (
                 <Box>
-                  <Box fontSize="sm" fontWeight="medium" mb={2} color="fg.muted">
+                  <Box
+                    fontSize="sm"
+                    fontWeight="medium"
+                    mb={2}
+                    color="fg.muted"
+                  >
                     Aperçu de la vidéo
                   </Box>
                   <VideoPlayer url={formData.videoUrl} />
@@ -154,7 +160,7 @@ export const ExerciseEditor = ({
               onClick={onDelete}
               loading={isLoading}
             >
-              <LuTrash2 style={{ marginRight: "8px" }} />
+              <LuTrash2 style={{ marginRight: '8px' }} />
               Supprimer
             </Button>
           )}
@@ -165,7 +171,7 @@ export const ExerciseEditor = ({
             fontWeight="bold"
             loading={isLoading}
           >
-            {isEditing ? "Enregistrer" : "Créer"}
+            {isEditing ? 'Enregistrer' : 'Créer'}
           </Button>
         </HStack>
       </VStack>

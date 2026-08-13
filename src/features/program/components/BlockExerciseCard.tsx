@@ -1,11 +1,11 @@
-import { BlockExercise, BlockType } from "@/types";
+import { BlockExercise, BlockType } from '@/types';
 import {
   blockDefinesOwnMetrics,
   blockSupportsRepsOnly,
   blockSupportsSets,
   getBlockColor,
-} from "@/constants/blockTypes";
-import { formatDuration } from "@/utils/formatters";
+} from '@/constants/blockTypes';
+import { formatExerciseMetric } from '@/utils/formatters';
 import {
   Box,
   Flex,
@@ -14,31 +14,10 @@ import {
   NumberInput,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { LuChevronDown, LuChevronUp, LuTrash2, LuVideo } from "react-icons/lu";
-import VideoPlayer from "@/components/VideoPlayer";
-import { useState, useEffect } from "react";
-
-// ─── Metric display helper ────────────────────────────────────────────────────
-
-export const formatExerciseMetric = (
-  ex: BlockExercise,
-  blockType: BlockType,
-): string => {
-  const effort = ex.reps
-    ? `${ex.reps} reps`
-    : ex.duration
-      ? formatDuration(ex.duration)
-      : ex.customMetric
-        ? `${ex.customMetric.value} ${ex.customMetric.unit}`
-        : "";
-
-  if (!effort) return "";
-  if (blockSupportsSets(blockType) && ex.sets && ex.sets > 1) {
-    return `${ex.sets} × ${effort}`;
-  }
-  return effort;
-};
+} from '@chakra-ui/react';
+import { LuChevronDown, LuTrash2, LuVideo } from 'react-icons/lu';
+import VideoPlayer from '@/components/VideoPlayer';
+import { useState } from 'react';
 
 // ─── View mode ────────────────────────────────────────────────────────────────
 
@@ -71,12 +50,19 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
         gap={3}
         align="center"
         onClick={hasDetail ? () => setIsOpen((v) => !v) : undefined}
-        cursor={hasDetail ? "pointer" : "default"}
+        cursor={hasDetail ? 'pointer' : 'default'}
         _hover={hasDetail ? { opacity: 0.85 } : undefined}
         transition="opacity 0.1s"
       >
         <HStack gap={2} flex={1} minW={0}>
-          <Box w="5px" h="5px" borderRadius="full" bg={color} flexShrink={0} opacity={0.7} />
+          <Box
+            w="5px"
+            h="5px"
+            borderRadius="full"
+            bg={color}
+            flexShrink={0}
+            opacity={0.7}
+          />
           <Text fontSize="sm" color="gray.300" lineClamp={1} flex={1} minW={0}>
             {ex.name}
           </Text>
@@ -90,15 +76,23 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
         <HStack gap={2} flexShrink={0}>
           {(metric || rest) && (
             <VStack gap={0.5} align="end">
-              {metric && <Text fontSize="sm" color="gray.500">{metric}</Text>}
-              {rest  && <Text fontSize="xs" color="gray.600">{rest}</Text>}
+              {metric && (
+                <Text fontSize="sm" color="gray.500">
+                  {metric}
+                </Text>
+              )}
+              {rest && (
+                <Text fontSize="xs" color="gray.600">
+                  {rest}
+                </Text>
+              )}
             </VStack>
           )}
           {hasDetail && (
             <Box
               color="gray.600"
               transition="transform 0.2s"
-              transform={isOpen ? "rotate(180deg)" : "none"}
+              transform={isOpen ? 'rotate(180deg)' : 'none'}
             >
               <LuChevronDown size={14} />
             </Box>
@@ -110,7 +104,12 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
         <Box pt={2} pb={3} borderTopWidth="1px" borderColor="whiteAlpha.100">
           <VStack align="stretch" gap={3}>
             {hasDescription && (
-              <Text fontSize="xs" color="gray.400" lineHeight="tall" whiteSpace="pre-wrap">
+              <Text
+                fontSize="xs"
+                color="gray.400"
+                lineHeight="tall"
+                whiteSpace="pre-wrap"
+              >
                 {ex.description}
               </Text>
             )}
@@ -124,12 +123,12 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
 
 // ─── Edit mode ────────────────────────────────────────────────────────────────
 
-type MetricMode = "reps" | "duration" | "custom";
+type MetricMode = 'reps' | 'duration' | 'custom';
 
 interface EditProps {
   exercise: BlockExercise;
   blockType: BlockType;
-  onUpdate: (updates: Partial<Omit<BlockExercise, "exercise">>) => void;
+  onUpdate: (updates: Partial<Omit<BlockExercise, 'exercise'>>) => void;
   onRemove: () => void;
 }
 
@@ -137,7 +136,7 @@ const NumInput = ({
   value,
   min = 0,
   onChange,
-  w = "68px",
+  w = '68px',
   label,
 }: {
   value?: number;
@@ -146,11 +145,13 @@ const NumInput = ({
   w?: string;
   label?: string;
 }) => {
-  const [local, setLocal] = useState(value != null ? String(value) : "");
+  const [local, setLocal] = useState(value != null ? String(value) : '');
+  const [prevValue, setPrevValue] = useState(value);
 
-  useEffect(() => {
-    setLocal(value != null ? String(value) : "");
-  }, [value]);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setLocal(value != null ? String(value) : '');
+  }
 
   return (
     <VStack gap={0} align="center">
@@ -166,8 +167,8 @@ const NumInput = ({
           if (!isNaN(n)) onChange(n);
         }}
         onBlur={() => {
-          if (local === "" || isNaN(parseInt(local))) {
-            setLocal("0");
+          if (local === '' || isNaN(parseInt(local))) {
+            setLocal('0');
             onChange(0);
           }
         }}
@@ -176,7 +177,7 @@ const NumInput = ({
         <NumberInput.Input
           textAlign="center"
           bg="whiteAlpha.100"
-          _focus={{ bg: "whiteAlpha.200" }}
+          _focus={{ bg: 'whiteAlpha.200' }}
           px={1}
           h="30px"
           borderRadius="md"
@@ -207,18 +208,18 @@ export const BlockExerciseEdit = ({
   const color = getBlockColor(blockType);
 
   const [mode, setModeState] = useState<MetricMode>(() =>
-    exercise.duration ? "duration" : exercise.customMetric ? "custom" : "reps",
+    exercise.duration ? 'duration' : exercise.customMetric ? 'custom' : 'reps'
   );
 
   const setMode = (newMode: MetricMode) => {
     setModeState(newMode);
-    if (newMode === "reps")
+    if (newMode === 'reps')
       onUpdate({ reps: 10, duration: undefined, customMetric: undefined });
-    if (newMode === "duration")
+    if (newMode === 'duration')
       onUpdate({ duration: 30, reps: undefined, customMetric: undefined });
-    if (newMode === "custom")
+    if (newMode === 'custom')
       onUpdate({
-        customMetric: { value: 100, unit: "m" },
+        customMetric: { value: 100, unit: 'm' },
         reps: undefined,
         duration: undefined,
       });
@@ -249,7 +250,7 @@ export const BlockExerciseEdit = ({
             size="xs"
             variant="ghost"
             color="gray.500"
-            _hover={{ color: "red.400" }}
+            _hover={{ color: 'red.400' }}
             onClick={onRemove}
           >
             <LuTrash2 size={13} />
@@ -282,24 +283,28 @@ export const BlockExerciseEdit = ({
               borderColor="whiteAlpha.100"
               gap={0}
             >
-              {(["reps", "duration", "custom"] as MetricMode[]).map((m) => (
+              {(['reps', 'duration', 'custom'] as MetricMode[]).map((m) => (
                 <Box
                   key={m}
                   as="button"
                   px={2.5}
                   py={1}
                   borderRadius="sm"
-                  bg={mode === m ? "whiteAlpha.200" : "transparent"}
-                  color={mode === m ? "white" : "gray.500"}
+                  bg={mode === m ? 'whiteAlpha.200' : 'transparent'}
+                  color={mode === m ? 'white' : 'gray.500'}
                   fontSize="xs"
                   fontWeight="medium"
                   onClick={() => setMode(m)}
                   _hover={{
-                    bg: mode === m ? "whiteAlpha.300" : "whiteAlpha.50",
+                    bg: mode === m ? 'whiteAlpha.300' : 'whiteAlpha.50',
                   }}
                   transition="all 0.15s"
                 >
-                  {m === "reps" ? "Reps" : m === "duration" ? "Durée" : "Mesure"}
+                  {m === 'reps'
+                    ? 'Reps'
+                    : m === 'duration'
+                      ? 'Durée'
+                      : 'Mesure'}
                 </Box>
               ))}
             </HStack>
@@ -319,7 +324,7 @@ export const BlockExerciseEdit = ({
                 </>
               )}
 
-              {mode === "reps" && (
+              {mode === 'reps' && (
                 <NumInput
                   value={exercise.reps}
                   label="reps"
@@ -327,7 +332,7 @@ export const BlockExerciseEdit = ({
                 />
               )}
 
-              {mode === "duration" && (
+              {mode === 'duration' && (
                 <NumInput
                   value={exercise.duration}
                   label="secondes"
@@ -336,7 +341,7 @@ export const BlockExerciseEdit = ({
                 />
               )}
 
-              {mode === "custom" && (
+              {mode === 'custom' && (
                 <HStack gap={2} align="flex-end">
                   <NumInput
                     value={exercise.customMetric?.value}
@@ -346,14 +351,14 @@ export const BlockExerciseEdit = ({
                       onUpdate({
                         customMetric: {
                           value: v,
-                          unit: exercise.customMetric?.unit || "m",
+                          unit: exercise.customMetric?.unit || 'm',
                         },
                       })
                     }
                   />
                   <Box pb={4}>
                     <input
-                      value={exercise.customMetric?.unit || ""}
+                      value={exercise.customMetric?.unit || ''}
                       onChange={(e) =>
                         onUpdate({
                           customMetric: {
@@ -364,14 +369,14 @@ export const BlockExerciseEdit = ({
                       }
                       placeholder="unité"
                       style={{
-                        background: "rgba(255,255,255,0.06)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "6px",
-                        color: "white",
-                        fontSize: "12px",
-                        padding: "4px 8px",
-                        width: "60px",
-                        height: "30px",
+                        background: 'rgba(255,255,255,0.06)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '6px',
+                        color: 'white',
+                        fontSize: '12px',
+                        padding: '4px 8px',
+                        width: '60px',
+                        height: '30px',
                       }}
                     />
                   </Box>

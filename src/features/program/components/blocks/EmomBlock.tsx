@@ -1,4 +1,3 @@
-import { HStack } from "@chakra-ui/react";
 import { NumField } from "./shared/NumField";
 import { BlockShell } from "./shared/BlockShell";
 import { BlockProps } from "./shared/types";

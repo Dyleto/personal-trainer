@@ -3,12 +3,12 @@
   CurrentSession,
   SessionHistory,
   useCycleProgress,
-} from "@/features/client";
-import { FullProgramDrawer } from "@/features/client/components/FullProgramDrawer";
-import { useAuth } from "@/contexts/AuthContext";
-import { Container, HStack, Text, VStack } from "@chakra-ui/react";
-import { Header } from "@/components/Header";
-import { useState } from "react";
+} from '@/features/client';
+import { FullProgramDrawer } from '@/features/client/components/FullProgramDrawer';
+import { useAuth } from '@/contexts/useAuth';
+import { Container, HStack, Text, VStack } from '@chakra-ui/react';
+import { Header } from '@/components/Header';
+import { useState } from 'react';
 
 const ClientDashboard = () => {
   const { user } = useAuth();
@@ -44,7 +44,11 @@ const ClientDashboard = () => {
           isLoading={isLoading}
         />
 
-        <CurrentSession nextSession={nextSession} onComplete={handleSubmitLog} isLoading={isLoading} />
+        <CurrentSession
+          nextSession={nextSession}
+          onComplete={handleSubmitLog}
+          isLoading={isLoading}
+        />
 
         {history.length > 0 && <SessionHistory history={history} />}
       </VStack>

@@ -1,20 +1,15 @@
-import { formatDuration } from "@/utils/formatters";
 import { useThemeColors } from "@/hooks/useThemeColors";
-import { Box, HStack, Text } from "@chakra-ui/react";
-import { LuClock } from "react-icons/lu";
+import { Box, HStack } from "@chakra-ui/react";
 
 interface SessionHeaderProps {
   order: number;
-  duration: number;
 }
 
-export const SessionHeader = ({ order, duration }: SessionHeaderProps) => {
+export const SessionHeader = ({ order }: SessionHeaderProps) => {
   const colors = useThemeColors();
 
   return (
-    <HStack justify="space-between" align="center" p={{ base: 4, md: 6 }}>
-      <Box w="80px" display={{ base: "none", md: "block" }} />
-
+    <HStack justify="center" align="center" p={{ base: 4, md: 6 }}>
       <Box
         px={4}
         py={2}
@@ -43,17 +38,6 @@ export const SessionHeader = ({ order, duration }: SessionHeaderProps) => {
       >
         Séance {order}
       </Box>
-
-      <HStack
-        gap={2}
-        color="gray.400"
-        fontSize="sm"
-        w={{ base: "auto", md: "80px" }}
-        justify="flex-end"
-      >
-        <LuClock size={14} />
-        <Text fontWeight="medium">{formatDuration(duration)}</Text>
-      </HStack>
     </HStack>
   );
 };

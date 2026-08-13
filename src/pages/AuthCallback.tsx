@@ -1,13 +1,13 @@
-import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { Box, Heading, Spinner, VStack } from "@chakra-ui/react";
+import { useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Box, Heading, Spinner, VStack } from '@chakra-ui/react';
 // Services & Hooks
-import { authService } from "@/services/authService";
-import { useAuth } from "@/contexts/AuthContext";
-import { getDefaultRoleRoute } from "@/utils/navigation";
-import storage from "@/utils/storage";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { toaster } from "@/components/ui/toaster";
+import { authService } from '@/services/authService';
+import { useAuth } from '@/contexts/useAuth';
+import { getDefaultRoleRoute } from '@/utils/navigation';
+import storage from '@/utils/storage';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { toaster } from '@/components/ui/toasterInstance';
 
 // Temps mini avant redirection (pour ne pas flasher l'écran)
 const MINIMUM_DISPLAY_TIME_MS = 800;
@@ -23,42 +23,42 @@ const AuthCallback = () => {
     let isMounted = true;
 
     const handleCallback = async () => {
-      const code = searchParams.get("code");
-      const error = searchParams.get("error");
+      const code = searchParams.get('code');
+      const error = searchParams.get('error');
 
       if (error || !code) {
         toaster.create({
-          title: "Connexion annulée ou échouée",
-          type: "error",
+          title: 'Connexion annulée ou échouée',
+          type: 'error',
         });
-        return navigate("/login", { replace: true });
+        return navigate('/login', { replace: true });
       }
 
       try {
         const startTime = Date.now();
         const redirectUri = `${window.location.origin}/auth/callback`;
-        const invitationToken = storage.getItem("invitation_token");
+        const invitationToken = storage.getItem('invitation_token');
 
         // --- APPEL API VIA SERVICE ---
         const data = await authService.googleLogin(
           code,
           redirectUri,
-          invitationToken || undefined,
+          invitationToken || undefined
         );
 
         // Nettoyage token invitation
-        if (invitationToken) storage.removeItem("invitation_token");
+        if (invitationToken) storage.removeItem('invitation_token');
 
         if (isMounted) {
           setUser(data.user);
 
-          toaster.create({ title: "Connexion réussie !", type: "success" });
+          toaster.create({ title: 'Connexion réussie !', type: 'success' });
 
           // Délai esthétique pour UX
           const elapsedTime = Date.now() - startTime;
           const remainingTime = Math.max(
             0,
-            MINIMUM_DISPLAY_TIME_MS - elapsedTime,
+            MINIMUM_DISPLAY_TIME_MS - elapsedTime
           );
 
           setTimeout(() => {
@@ -66,13 +66,13 @@ const AuthCallback = () => {
           }, remainingTime);
         }
       } catch (err) {
-        console.error("Auth Error:", err);
+        console.error('Auth Error:', err);
         toaster.create({
-          title: "Impossible de vous connecter",
-          description: "Veuillez réessayer.",
-          type: "error",
+          title: 'Impossible de vous connecter',
+          description: 'Veuillez réessayer.',
+          type: 'error',
         });
-        if (isMounted) navigate("/login", { replace: true });
+        if (isMounted) navigate('/login', { replace: true });
       }
     };
 

@@ -1,8 +1,7 @@
-import GoogleLoginButton from "@/components/GoogleLoginButton";
-import { useVerifyInviteToken } from "@/hooks/useVerifyInviteToken";
-import { useThemeColors } from "@/hooks/useThemeColors";
+import GoogleLoginButton from '@/components/GoogleLoginButton';
+import { useVerifyInviteToken } from '@/hooks/useVerifyInviteToken';
+import { useThemeColors } from '@/hooks/useThemeColors';
 import {
-  Button,
   Container,
   Heading,
   Spinner,
@@ -10,22 +9,23 @@ import {
   Text,
   Separator,
   Box,
-} from "@chakra-ui/react";
-import { useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+} from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Join = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const colors = useThemeColors();
-  const invitationToken = searchParams.get("token") ?? undefined;
+  const invitationToken = searchParams.get('token') ?? undefined;
 
   const { data, isLoading, error } = useVerifyInviteToken(invitationToken);
 
   // Rediriger si pas de token
   useEffect(() => {
     if (!invitationToken) {
-      navigate("/login", { replace: true });
+      navigate('/login', { replace: true });
     }
   }, [invitationToken, navigate]);
 
@@ -35,7 +35,9 @@ const Join = () => {
     }
 
     if (error) {
-      const status = (error as any).response?.status;
+      const status = axios.isAxiosError(error)
+        ? error.response?.status
+        : undefined;
 
       if (status === 410) {
         return (
@@ -65,7 +67,7 @@ const Join = () => {
     return (
       <VStack gap={6} maxW="md" w="100%">
         <Heading>
-          Vous avez été invité par {data?.coach.firstName}{" "}
+          Vous avez été invité par {data?.coach.firstName}{' '}
           {data?.coach.lastName}
         </Heading>
 

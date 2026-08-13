@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Toaster as ChakraToaster,
@@ -6,20 +6,15 @@ import {
   Spinner,
   Stack,
   Toast,
-  createToaster,
-} from "@chakra-ui/react";
-
-export const toaster = createToaster({
-  placement: "bottom-end",
-  pauseOnPageIdle: true,
-});
+} from '@chakra-ui/react';
+import { toaster } from './toasterInstance';
 
 export const Toaster = () => {
   return (
     <Portal>
       <ChakraToaster
         toaster={toaster}
-        insetInline={{ mdDown: "0" }}
+        insetInline={{ mdDown: '0' }}
         position="fixed"
         top={0}
         left={0}
@@ -30,16 +25,16 @@ export const Toaster = () => {
         display="flex"
         flexDirection="column"
         justifyContent="flex-end"
-        alignItems={{ base: "center", md: "flex-end" }}
-        padding={{ base: "0 0 20px 0", md: "0 20px 20px 0" }}
+        alignItems={{ base: 'center', md: 'flex-end' }}
+        padding={{ base: '0 0 20px 0', md: '0 20px 20px 0' }}
       >
         {(toast) => (
           <Toast.Root
-            width={{ base: "90vw", md: "sm" }}
-            style={{ pointerEvents: "auto", marginBottom: "8px" }}
+            width={{ base: '90vw', md: 'sm' }}
+            style={{ pointerEvents: 'auto', marginBottom: '8px' }}
             onClick={() => toaster.dismiss(toast.id)}
           >
-            {toast.type === "loading" ? (
+            {toast.type === 'loading' ? (
               <Spinner size="sm" color="blue.solid" />
             ) : (
               <Toast.Indicator />

@@ -1,10 +1,10 @@
-import { Header } from "@/components/Header";
-import { useAuth } from "@/contexts/AuthContext";
-import { useAdminCoaches, useAdminStats } from "@/hooks/useAdminStats";
-import { useCreateCoach } from "@/hooks/useCreateCoach";
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/config/queryKeys";
-import { AdminCoach } from "@/services/adminService";
+import { Header } from '@/components/Header';
+import { useAuth } from '@/contexts/useAuth';
+import { useAdminCoaches, useAdminStats } from '@/hooks/useAdminStats';
+import { useCreateCoach } from '@/hooks/useCreateCoach';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/config/queryKeys';
+import { AdminCoach } from '@/services/adminService';
 import {
   Box,
   Button,
@@ -18,8 +18,8 @@ import {
   Skeleton,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { useState } from "react";
+} from '@chakra-ui/react';
+import { useState } from 'react';
 import {
   LuChartBar,
   LuDumbbell,
@@ -29,7 +29,7 @@ import {
   LuUsers,
   LuX,
   LuZap,
-} from "react-icons/lu";
+} from 'react-icons/lu';
 
 // ─── Stat card ────────────────────────────────────────────────────────────────
 
@@ -62,7 +62,13 @@ const StatCard = ({ label, value, sub, icon, color }: StatCardProps) => (
     />
     <HStack justify="space-between" align="start">
       <VStack align="start" gap={1}>
-        <Text fontSize="xs" color="gray.500" fontWeight="medium" textTransform="uppercase" letterSpacing="wider">
+        <Text
+          fontSize="xs"
+          color="gray.500"
+          fontWeight="medium"
+          textTransform="uppercase"
+          letterSpacing="wider"
+        >
           {label}
         </Text>
         {value === undefined ? (
@@ -88,10 +94,11 @@ const StatCard = ({ label, value, sub, icon, color }: StatCardProps) => (
 // ─── Coach row ────────────────────────────────────────────────────────────────
 
 const CoachRow = ({ coach }: { coach: AdminCoach }) => {
-  const initials = `${coach.firstName?.[0] ?? ""}${coach.lastName?.[0] ?? ""}`.toUpperCase();
-  const since = new Date(coach.createdAt).toLocaleDateString("fr-FR", {
-    month: "short",
-    year: "numeric",
+  const initials =
+    `${coach.firstName?.[0] ?? ''}${coach.lastName?.[0] ?? ''}`.toUpperCase();
+  const since = new Date(coach.createdAt).toLocaleDateString('fr-FR', {
+    month: 'short',
+    year: 'numeric',
   });
 
   return (
@@ -101,8 +108,8 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
       borderBottomWidth="1px"
       borderColor="whiteAlpha.100"
       gap={4}
-      _last={{ borderBottom: "none" }}
-      _hover={{ bg: "whiteAlpha.50" }}
+      _last={{ borderBottom: 'none' }}
+      _hover={{ bg: 'whiteAlpha.50' }}
       transition="background 0.15s"
     >
       {/* Avatar */}
@@ -118,10 +125,14 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
         overflow="hidden"
       >
         {coach.picture ? (
-          <img src={coach.picture} alt={initials} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <img
+            src={coach.picture}
+            alt={initials}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         ) : (
           <Text fontSize="xs" fontWeight="bold" color="gray.300">
-            {initials || "?"}
+            {initials || '?'}
           </Text>
         )}
       </Box>
@@ -140,13 +151,21 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
       <HStack gap={5} flexShrink={0}>
         <HStack gap={1.5} color="gray.400" fontSize="xs">
           <LuUsers size={13} />
-          <Text>{coach.clientCount} client{coach.clientCount !== 1 ? "s" : ""}</Text>
+          <Text>
+            {coach.clientCount} client{coach.clientCount !== 1 ? 's' : ''}
+          </Text>
         </HStack>
         <HStack gap={1.5} color="gray.400" fontSize="xs">
           <LuDumbbell size={13} />
-          <Text>{coach.exerciseCount} exo{coach.exerciseCount !== 1 ? "s" : ""}</Text>
+          <Text>
+            {coach.exerciseCount} exo{coach.exerciseCount !== 1 ? 's' : ''}
+          </Text>
         </HStack>
-        <Text fontSize="xs" color="gray.600" display={{ base: "none", md: "block" }}>
+        <Text
+          fontSize="xs"
+          color="gray.600"
+          display={{ base: 'none', md: 'block' }}
+        >
           depuis {since}
         </Text>
       </HStack>
@@ -162,17 +181,18 @@ interface CreateCoachDrawerProps {
 }
 
 const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "" });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '' });
   const [errors, setErrors] = useState<Partial<typeof form>>({});
   const queryClient = useQueryClient();
   const mutation = useCreateCoach();
 
   const validate = () => {
     const e: Partial<typeof form> = {};
-    if (!form.firstName.trim()) e.firstName = "Requis";
-    if (!form.lastName.trim()) e.lastName = "Requis";
-    if (!form.email.trim()) e.email = "Requis";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Email invalide";
+    if (!form.firstName.trim()) e.firstName = 'Requis';
+    if (!form.lastName.trim()) e.lastName = 'Requis';
+    if (!form.email.trim()) e.email = 'Requis';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      e.email = 'Email invalide';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -184,14 +204,18 @@ const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.coaches() });
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.stats() });
-        setForm({ firstName: "", lastName: "", email: "" });
+        setForm({ firstName: '', lastName: '', email: '' });
         onClose();
       },
     });
   };
 
   return (
-    <Drawer.Root open={isOpen} onOpenChange={(e) => !e.open && onClose()} size="sm">
+    <Drawer.Root
+      open={isOpen}
+      onOpenChange={(e) => !e.open && onClose()}
+      size="sm"
+    >
       <Drawer.Positioner>
         <Drawer.Content bg="gray.900">
           <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
@@ -213,21 +237,29 @@ const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
                   <Field.Label fontSize="sm">Prénom</Field.Label>
                   <Input
                     value={form.firstName}
-                    onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, firstName: e.target.value })
+                    }
                     placeholder="Jean"
                     autoFocus
                   />
-                  {errors.firstName && <Field.ErrorText>{errors.firstName}</Field.ErrorText>}
+                  {errors.firstName && (
+                    <Field.ErrorText>{errors.firstName}</Field.ErrorText>
+                  )}
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.lastName}>
                   <Field.Label fontSize="sm">Nom</Field.Label>
                   <Input
                     value={form.lastName}
-                    onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, lastName: e.target.value })
+                    }
                     placeholder="Dupont"
                   />
-                  {errors.lastName && <Field.ErrorText>{errors.lastName}</Field.ErrorText>}
+                  {errors.lastName && (
+                    <Field.ErrorText>{errors.lastName}</Field.ErrorText>
+                  )}
                 </Field.Root>
 
                 <Field.Root invalid={!!errors.email}>
@@ -235,10 +267,14 @@ const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
                   <Input
                     type="email"
                     value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
                     placeholder="jean.dupont@example.com"
                   />
-                  {errors.email && <Field.ErrorText>{errors.email}</Field.ErrorText>}
+                  {errors.email && (
+                    <Field.ErrorText>{errors.email}</Field.ErrorText>
+                  )}
                 </Field.Root>
 
                 <Button
@@ -271,13 +307,18 @@ const AdminDashboard = () => {
   return (
     <Container maxW="container.xl" py={8} px={4}>
       <VStack gap={8} align="stretch">
-
         {/* Header */}
         <HStack justify="space-between" align="start">
           <VStack align="start" gap={0.5}>
             <HStack gap={2}>
               <LuShield size={16} color="#eab308" />
-              <Text fontSize="xs" color="yellow.400" fontWeight="bold" textTransform="uppercase" letterSpacing="wider">
+              <Text
+                fontSize="xs"
+                color="yellow.400"
+                fontWeight="bold"
+                textTransform="uppercase"
+                letterSpacing="wider"
+              >
                 Administration
               </Text>
             </HStack>
@@ -287,7 +328,10 @@ const AdminDashboard = () => {
         </HStack>
 
         {/* KPI */}
-        <Grid templateColumns={{ base: "1fr 1fr", lg: "repeat(4, 1fr)" }} gap={4}>
+        <Grid
+          templateColumns={{ base: '1fr 1fr', lg: 'repeat(4, 1fr)' }}
+          gap={4}
+        >
           <StatCard
             label="Coachs"
             value={stats?.coachCount}
@@ -303,7 +347,11 @@ const AdminDashboard = () => {
           <StatCard
             label="Séances complétées"
             value={stats?.sessionCount}
-            sub={stats?.sessionTodayCount ? `+${stats.sessionTodayCount} aujourd'hui` : undefined}
+            sub={
+              stats?.sessionTodayCount
+                ? `+${stats.sessionTodayCount} aujourd'hui`
+                : undefined
+            }
             icon={<LuZap size={18} />}
             color="#22c55e"
           />
@@ -339,7 +387,7 @@ const AdminDashboard = () => {
               bg="yellow.400"
               color="gray.900"
               fontWeight="bold"
-              _hover={{ bg: "yellow.300" }}
+              _hover={{ bg: 'yellow.300' }}
               onClick={() => setIsDrawerOpen(true)}
             >
               <LuPlus />
@@ -358,7 +406,12 @@ const AdminDashboard = () => {
               <VStack align="stretch" gap={0} p={4}>
                 {[...Array(3)].map((_, i) => (
                   <HStack key={i} px={0} py={3} gap={4}>
-                    <Skeleton w="36px" h="36px" borderRadius="full" flexShrink={0} />
+                    <Skeleton
+                      w="36px"
+                      h="36px"
+                      borderRadius="full"
+                      flexShrink={0}
+                    />
                     <VStack align="start" gap={1} flex={1}>
                       <Skeleton h="14px" w="140px" borderRadius="md" />
                       <Skeleton h="12px" w="180px" borderRadius="md" />
@@ -369,7 +422,11 @@ const AdminDashboard = () => {
               </VStack>
             ) : coaches.length === 0 ? (
               <Box py={12} textAlign="center">
-                <LuTrendingUp size={28} color="gray" style={{ margin: "0 auto 8px" }} />
+                <LuTrendingUp
+                  size={28}
+                  color="gray"
+                  style={{ margin: '0 auto 8px' }}
+                />
                 <Text color="gray.500" fontSize="sm">
                   Aucun coach pour l'instant
                 </Text>
@@ -382,7 +439,6 @@ const AdminDashboard = () => {
             )}
           </Box>
         </VStack>
-
       </VStack>
 
       <CreateCoachDrawer

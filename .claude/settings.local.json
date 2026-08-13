@@ -7,7 +7,10 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\clemoull\\\\source\\\\perso\\\\kettle\\\\kettleapp\\\\src\" -Recurse -Directory)",
       "Bash(Select-Object -First 50)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\clemoull\\\\source\\\\perso\\\\kettle\\\\kettleapp\" -Recurse -Filter \"*.tsx\" -o Name)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(git diff *)",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\clemoull\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-clemoull-source-perso-kettle-kettleapp\\\\b5bb8e02-b2c1-4df1-a1f2-ba53a4d78fe4\\\\scratchpad\")"
     ]
   }
 }

@@ -1,4 +1,3 @@
-import { Client } from "@/types";
 import {
   Avatar,
   Box,
@@ -8,19 +7,17 @@ import {
   Text,
   VStack,
   Button,
-} from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import ClickableCard from "@/components/ClickableCard";
-import { useClients } from "@/features/coach/hooks/useClients";
-import { useToastError } from "@/hooks/useToastError";
-import { useThemeColors } from "@/hooks/useThemeColors";
+} from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import ClickableCard from '@/components/ClickableCard';
+import { useClients } from '@/features/coach/hooks/useClients';
+import { useToastError } from '@/hooks/useToastError';
 
 export const ClientsGrid = () => {
   const navigate = useNavigate();
   const { data: clients = [], isLoading, error, refetch } = useClients();
-  const colors = useThemeColors();
 
-  useToastError(error, "Impossible de charger vos clients");
+  useToastError(error, 'Impossible de charger vos clients');
 
   // Loading state
   if (isLoading) {
@@ -28,10 +25,10 @@ export const ClientsGrid = () => {
       <Box w="100%">
         <Grid
           templateColumns={{
-            base: "1fr",
-            sm: "repeat(2, 1fr)",
-            md: "repeat(3, 1fr)",
-            lg: "repeat(4, 1fr)",
+            base: '1fr',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)',
+            lg: 'repeat(4, 1fr)',
           }}
           gap={4}
         >
@@ -83,10 +80,10 @@ export const ClientsGrid = () => {
     <Box w="100%">
       <Grid
         templateColumns={{
-          base: "1fr",
-          sm: "repeat(2, 1fr)",
-          md: "repeat(3, 1fr)",
-          lg: "repeat(4, 1fr)",
+          base: '1fr',
+          sm: 'repeat(2, 1fr)',
+          md: 'repeat(3, 1fr)',
+          lg: 'repeat(4, 1fr)',
         }}
         gap={4}
       >
@@ -95,12 +92,12 @@ export const ClientsGrid = () => {
             key={client._id}
             onClick={() =>
               navigate(
-                `/coach/clients/${client._id}${client.unseenCount > 0 ? "?tab=journal" : ""}`,
+                `/coach/clients/${client._id}${client.unseenCount > 0 ? '?tab=journal' : ''}`
               )
             }
             footerText={
               client.unseenCount > 0
-                ? `${client.unseenCount} nouvelle${client.unseenCount > 1 ? "s" : ""} séance${client.unseenCount > 1 ? "s" : ""}`
+                ? `${client.unseenCount} nouvelle${client.unseenCount > 1 ? 's' : ''} séance${client.unseenCount > 1 ? 's' : ''}`
                 : undefined
             }
             p={8}

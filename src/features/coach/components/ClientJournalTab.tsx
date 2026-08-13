@@ -1,8 +1,8 @@
-import { CompletedSession } from "@/types";
-import { useEffect, useRef } from "react";
-import { useMarkHistoryAsViewed } from "@/features/coach/hooks/useMarkHistoryAsViewed";
-import { SessionHistoryCard } from "@/features/client";
-import { Box, Grid } from "@chakra-ui/react";
+import { CompletedSession } from '@/types';
+import { useEffect, useState } from 'react';
+import { useMarkHistoryAsViewed } from '@/features/coach/hooks/useMarkHistoryAsViewed';
+import { SessionHistoryCard } from '@/features/client';
+import { Box, Grid } from '@chakra-ui/react';
 
 interface Props {
   history: CompletedSession[];
@@ -11,17 +11,14 @@ interface Props {
 
 export const ClientJournalTab = ({ history, clientId }: Props) => {
   const { mutate: markHistoryAsViewed } = useMarkHistoryAsViewed(clientId);
-  const initialUnseenIds = useRef<Set<string> | null>(null);
+  const [initialUnseenIds] = useState<Set<string>>(
+    () =>
+      new Set(history.filter((c) => c.viewedByCoach !== true).map((c) => c._id))
+  );
 
   useEffect(() => {
-    if (initialUnseenIds.current === null) {
-      const unseenIds = new Set(
-        history.filter((c) => c.viewedByCoach !== true).map((c) => c._id),
-      );
-      initialUnseenIds.current = unseenIds;
-      if (unseenIds.size > 0) markHistoryAsViewed();
-    }
-  }, [history]);
+    if (initialUnseenIds.size > 0) markHistoryAsViewed();
+  }, [initialUnseenIds, markHistoryAsViewed]);
 
   if (history.length === 0) {
     return (
@@ -33,7 +30,11 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
 
   return (
     <Grid
-      templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", xl: "repeat(3, 1fr)" }}
+      templateColumns={{
+        base: '1fr',
+        md: 'repeat(2, 1fr)',
+        xl: 'repeat(3, 1fr)',
+      }}
       gap={4}
       alignItems="start"
     >
@@ -41,7 +42,7 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
         <SessionHistoryCard
           key={c._id}
           completed={c}
-          showUnseenIndicator={initialUnseenIds.current?.has(c._id) ?? false}
+          showUnseenIndicator={initialUnseenIds.has(c._id)}
         />
       ))}
     </Grid>

@@ -1,9 +1,9 @@
-﻿import { useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { clientService } from "@/services/clientService";
-import { queryKeys } from "@/config/queryKeys";
-import { useCompleteSession } from "./useCompleteSession";
-import { SessionMetrics } from "@/types";
+﻿import { useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { clientService } from '@/services/clientService';
+import { queryKeys } from '@/config/queryKeys';
+import { useCompleteSession } from './useCompleteSession';
+import { SessionMetrics } from '@/types';
 
 export const useCycleProgress = () => {
   const programQuery = useQuery({
@@ -18,42 +18,45 @@ export const useCycleProgress = () => {
 
   const completeSession = useCompleteSession();
 
-  const sessions = programQuery.data?.sessions ?? [];
-  const completed = historyQuery.data ?? [];
+  const sessions = useMemo(
+    () => programQuery.data?.sessions ?? [],
+    [programQuery.data]
+  );
+  const completed = useMemo(() => historyQuery.data ?? [], [historyQuery.data]);
 
   const history = useMemo(
     () =>
       [...completed].sort(
         (a, b) =>
-          new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime(),
+          new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
       ),
-    [completed],
+    [completed]
   );
 
   const { currentCycleNumber, sessionsDoneInCurrentCycle, nextSession } =
     useMemo(() => {
       const currentProgramSessionIds = sessions.map((s) => s._id);
       const currentProgramHistory = history.filter((c) =>
-        currentProgramSessionIds.includes(c.originalSessionId),
+        currentProgramSessionIds.includes(c.originalSessionId)
       );
 
       const totalCompletedInProgram = currentProgramHistory.length;
       const completedCycles = Math.floor(
-        totalCompletedInProgram / (sessions.length || 1),
+        totalCompletedInProgram / (sessions.length || 1)
       );
 
       const lastCompleted = currentProgramHistory[0];
       const next = lastCompleted
         ? sessions.find(
             (s) =>
-              s.order ===
-              (lastCompleted.sessionOrder % sessions.length) + 1,
+              s.order === (lastCompleted.sessionOrder % sessions.length) + 1
           )
         : sessions[0];
 
       return {
         currentCycleNumber: completedCycles + 1,
-        sessionsDoneInCurrentCycle: totalCompletedInProgram % (sessions.length || 1),
+        sessionsDoneInCurrentCycle:
+          totalCompletedInProgram % (sessions.length || 1),
         nextSession: next,
       };
     }, [history, sessions]);
@@ -68,7 +71,7 @@ export const useCycleProgress = () => {
         completedAt,
       });
     },
-    [nextSession, completeSession],
+    [nextSession, completeSession]
   );
 
   return {

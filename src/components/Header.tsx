@@ -1,28 +1,17 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/contexts/ThemeContext";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import {
-  Box,
-  Menu,
-  Button,
-  Avatar,
-  Portal,
-  HStack,
-  Text,
-} from "@chakra-ui/react";
-import { useState } from "react";
+import { useAuth } from '@/contexts/useAuth';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Box, Menu, Avatar, Portal, HStack, Text } from '@chakra-ui/react';
 import {
   LuDumbbell,
   LuWrench,
   LuLogOut,
   LuClipboardCheck,
-} from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
+} from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 
 export const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
   const colors = useThemeColors();
 
   const roles = [user?.isClient, user?.isCoach, user?.isAdmin].filter(Boolean);
@@ -30,24 +19,24 @@ export const Header = () => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login", { replace: true });
+    navigate('/login', { replace: true });
   };
 
   const handleSwitchClientView = () => {
-    navigate("/client", { replace: true });
+    navigate('/client', { replace: true });
   };
 
   const handleSwitchAdminView = () => {
-    navigate("/admin", { replace: true });
+    navigate('/admin', { replace: true });
   };
 
   const handleSwitchCoachView = () => {
-    navigate("/coach", { replace: true });
+    navigate('/coach', { replace: true });
   };
 
   return (
     <Box zIndex={2}>
-      <Menu.Root positioning={{ placement: "bottom-end" }}>
+      <Menu.Root positioning={{ placement: 'bottom-end' }}>
         <Menu.Context>
           {(menu) => (
             <>
@@ -60,16 +49,16 @@ export const Header = () => {
                 >
                   <svg
                     style={{
-                      position: "absolute",
-                      top: "-3px",
-                      left: "-3px",
-                      width: "calc(100% + 6px)",
-                      height: "calc(100% + 6px)",
-                      pointerEvents: "none",
+                      position: 'absolute',
+                      top: '-3px',
+                      left: '-3px',
+                      width: 'calc(100% + 6px)',
+                      height: 'calc(100% + 6px)',
+                      pointerEvents: 'none',
                       transform: menu.open
-                        ? "rotate(160deg)"
-                        : "rotate(-120deg)",
-                      transition: "transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)", // ← Animation de rotation
+                        ? 'rotate(160deg)'
+                        : 'rotate(-120deg)',
+                      transition: 'transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)', // ← Animation de rotation
                     }}
                   >
                     <circle
@@ -79,11 +68,11 @@ export const Header = () => {
                       fill="none"
                       stroke={colors.primaryHex}
                       strokeWidth="3"
-                      strokeDasharray={menu.open ? "295 295" : "80 295"}
+                      strokeDasharray={menu.open ? '295 295' : '80 295'}
                       strokeLinecap="round"
                       style={{
                         transition:
-                          "stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                          'stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
                       }}
                     />
                   </svg>
@@ -145,29 +134,13 @@ export const Header = () => {
                       onClick={handleLogout}
                       color="fg.error"
                       cursor="pointer"
-                      _hover={{ bg: "bg.error", color: "fg.error" }}
+                      _hover={{ bg: 'bg.error', color: 'fg.error' }}
                     >
                       <HStack gap={2}>
                         <LuLogOut />
                         <Text>Déconnexion</Text>
                       </HStack>
                     </Menu.Item>
-
-                    {/* <Menu.Item
-                      value="toggle-theme"
-                      cursor="pointer"
-                      onClick={() =>
-                        setTheme(theme === "yellow" ? "blue" : "yellow")
-                      }
-                    >
-                      <HStack gap={2}>
-                        <LuWrench />
-                        <Text>
-                          Changer le theme en{" "}
-                          {theme === "yellow" ? "Bleu" : "Jaune"}
-                        </Text>
-                      </HStack>
-                    </Menu.Item> */}
                   </Menu.Content>
                 </Menu.Positioner>
               </Portal>

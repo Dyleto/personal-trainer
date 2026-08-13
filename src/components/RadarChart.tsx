@@ -1,5 +1,5 @@
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { ReactNode } from "react";
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { ReactNode } from 'react';
 
 interface RadarChartProps {
   values: number[];
@@ -16,7 +16,7 @@ const getPoint = (angle: number, radius: number, cx: number, cy: number) => ({
 });
 
 const pointsToPath = (pts: { x: number; y: number }[]) =>
-  pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + " Z";
+  pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + ' Z';
 
 export const RadarChart = ({
   values,
@@ -30,7 +30,6 @@ export const RadarChart = ({
   const levels = 5;
   const sides = 5;
   const angleStep = 360 / sides;
-  const padding = 8;
   const margin = 24;
   const svgSize = size + margin * 2;
   const cx = svgSize / 2;
@@ -39,13 +38,13 @@ export const RadarChart = ({
   const gridLevels = Array.from({ length: levels }, (_, i) => {
     const r = (maxRadius * (i + 1)) / levels;
     const pts = Array.from({ length: sides }, (_, j) =>
-      getPoint(j * angleStep, r, cx, cy),
+      getPoint(j * angleStep, r, cx, cy)
     );
     return pointsToPath(pts);
   });
 
   const axes = Array.from({ length: sides }, (_, i) =>
-    getPoint(i * angleStep, maxRadius, cx, cy),
+    getPoint(i * angleStep, maxRadius, cx, cy)
   );
 
   const dataPoints = values.map((v, i) => {
@@ -128,16 +127,16 @@ export const RadarChart = ({
           y={pt.y - 8}
           width={16}
           height={16}
-          style={{ overflow: "visible" }}
+          style={{ overflow: 'visible' }}
         >
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "rgba(255,255,255,0.5)",
-              overflow: "visible",
-              whiteSpace: "nowrap",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(255,255,255,0.5)',
+              overflow: 'visible',
+              whiteSpace: 'nowrap',
             }}
           >
             {labels[i]}

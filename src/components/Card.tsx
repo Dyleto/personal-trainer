@@ -1,8 +1,7 @@
-import { Box, BoxProps } from "@chakra-ui/react";
-import { ReactNode } from "react";
-import { useThemeColors } from "@/hooks/useThemeColors";
+import { Box, BoxProps, SystemStyleObject } from '@chakra-ui/react';
+import { ReactNode } from 'react';
 
-interface CardProps extends Omit<BoxProps, "onClick"> {
+interface CardProps extends Omit<BoxProps, 'onClick'> {
   children: ReactNode;
   /**
    * Ajoute l'effet de brillance dans le coin
@@ -19,7 +18,7 @@ interface CardProps extends Omit<BoxProps, "onClick"> {
   /**
    * Variante de hover effect
    */
-  hoverEffect?: "lift" | "border" | "both" | "none";
+  hoverEffect?: 'lift' | 'border' | 'both' | 'none';
 }
 
 export const Card = ({
@@ -27,20 +26,18 @@ export const Card = ({
   withGlow = true,
   accentColor,
   onClick,
-  hoverEffect = "both",
+  hoverEffect = 'both',
   ...props
 }: CardProps) => {
-  const colors = useThemeColors();
-  const finalAccentColor = accentColor || colors.primary;
-  const getHoverStyles = () => {
-    const styles: any = {};
+  const getHoverStyles = (): SystemStyleObject => {
+    const styles: SystemStyleObject = {};
 
-    if (hoverEffect === "lift" || hoverEffect === "both") {
-      styles.transform = "translateY(-2px)";
-      styles.boxShadow = "0 12px 32px rgba(0, 0, 0, 0.5)";
+    if (hoverEffect === 'lift' || hoverEffect === 'both') {
+      styles.transform = 'translateY(-2px)';
+      styles.boxShadow = '0 12px 32px rgba(0, 0, 0, 0.5)';
     }
 
-    if (hoverEffect === "border" || hoverEffect === "both") {
+    if (hoverEffect === 'border' || hoverEffect === 'both') {
       styles.borderTopColor = accentColor;
     }
 
@@ -56,10 +53,10 @@ export const Card = ({
       boxShadow="0 8px 24px rgba(0, 0, 0, 0.4)"
       position="relative"
       overflow="hidden"
-      cursor={onClick ? "pointer" : "default"}
+      cursor={onClick ? 'pointer' : 'default'}
       transition="all 0.3s ease"
       onClick={onClick}
-      _hover={hoverEffect !== "none" ? getHoverStyles() : undefined}
+      _hover={hoverEffect !== 'none' ? getHoverStyles() : undefined}
       {...props}
     >
       {/* Effet brillance */}

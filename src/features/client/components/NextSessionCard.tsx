@@ -1,11 +1,9 @@
 import { Card } from "@/components/Card";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { Session } from "@/types";
-import { calculateSessionDuration } from "@/utils/sessionUtils";
-import { formatDuration } from "@/utils/formatters";
 import { BlockCard } from "@/features/program/components/BlockCard";
 import { Box, Button, HStack, Separator, Text, VStack } from "@chakra-ui/react";
-import { LuArrowRight, LuClock, LuZap } from "react-icons/lu";
+import { LuArrowRight, LuZap } from "react-icons/lu";
 import { keyframes } from "@emotion/react";
 
 const pulse = keyframes`
@@ -18,9 +16,11 @@ interface NextSessionCardProps {
   onComplete: () => void;
 }
 
-export const NextSessionCard = ({ session, onComplete }: NextSessionCardProps) => {
+export const NextSessionCard = ({
+  session,
+  onComplete,
+}: NextSessionCardProps) => {
   const colors = useThemeColors();
-  const duration = calculateSessionDuration(session);
 
   return (
     <Box style={{ filter: `drop-shadow(0 0 16px ${colors.primaryHex}50)` }}>
@@ -69,10 +69,6 @@ export const NextSessionCard = ({ session, onComplete }: NextSessionCardProps) =
                 </Text>
               </HStack>
             </VStack>
-            <HStack gap={1} color="gray.400" fontSize="sm">
-              <LuClock size={14} />
-              <Text>{formatDuration(duration)}</Text>
-            </HStack>
           </HStack>
         </Box>
 
@@ -99,7 +95,7 @@ export const NextSessionCard = ({ session, onComplete }: NextSessionCardProps) =
         )}
 
         {/* Blocks */}
-        <VStack align="stretch" gap={2} p={4}>
+        <VStack align="stretch" gap={4} p={4}>
           {session.blocks.map((block) => (
             <BlockCard key={block._id} block={block} />
           ))}

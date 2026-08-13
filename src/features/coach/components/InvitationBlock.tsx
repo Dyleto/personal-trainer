@@ -1,11 +1,11 @@
-import { useGenerateInvitation } from "@/features/coach/hooks/useGenerateInvitation";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { Button, useClipboard } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { useGenerateInvitation } from '@/features/coach/hooks/useGenerateInvitation';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Button, useClipboard } from '@chakra-ui/react';
+import { useEffect } from 'react';
 
 export const InvitationBlock = () => {
   const { mutate, data, isPending } = useGenerateInvitation();
-  const invitationLink = data?.link ?? "";
+  const invitationLink = data?.link ?? '';
   const colors = useThemeColors();
 
   const clipboard = useClipboard({
@@ -18,7 +18,7 @@ export const InvitationBlock = () => {
     if (invitationLink) {
       clipboard.copy();
     }
-  }, [invitationLink]);
+  }, [invitationLink, clipboard]);
 
   const handleClick = () => {
     mutate(); // ✅ Génère un nouveau lien à chaque clic
@@ -30,19 +30,19 @@ export const InvitationBlock = () => {
       color="fg.inverted"
       _hover={{
         bg: clipboard.copied ? colors.successHover : colors.primaryHover,
-        transform: "translateY(-2px)",
-        boxShadow: "md",
+        transform: 'translateY(-2px)',
+        boxShadow: 'md',
       }}
       _active={{
         bg: clipboard.copied ? colors.successActive : colors.primaryActive,
-        boxShadow: "sm",
+        boxShadow: 'sm',
       }}
-      pointerEvents={clipboard.copied ? "none" : "auto"}
+      pointerEvents={clipboard.copied ? 'none' : 'auto'}
       width="15em"
       onClick={handleClick}
       loading={isPending}
     >
-      {clipboard.copied ? "✓ Lien copié !" : "Copier le lien d'invitation"}
+      {clipboard.copied ? '✓ Lien copié !' : "Copier le lien d'invitation"}
     </Button>
   );
 };

@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import api from "@/config/api";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/useAuth';
+import api from '@/config/api';
 
 declare global {
   interface Window {
@@ -9,7 +9,12 @@ declare global {
       accounts: {
         id: {
           initialize: (config: Record<string, unknown>) => void;
-          prompt: (momentListener?: (notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => void) => void;
+          prompt: (
+            momentListener?: (notification: {
+              isNotDisplayed: () => boolean;
+              isSkippedMoment: () => boolean;
+            }) => void
+          ) => void;
           cancel: () => void;
         };
       };
@@ -23,8 +28,8 @@ export const useGoogleOneTap = () => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
 
@@ -35,16 +40,19 @@ export const useGoogleOneTap = () => {
         client_id: clientId,
         callback: async (response: { credential: string }) => {
           try {
-            const { data } = await api.post<{ user: unknown }>("/api/auth/google-onetap", {
-              credential: response.credential,
-            });
+            const { data } = await api.post<{ user: unknown }>(
+              '/api/auth/google-onetap',
+              {
+                credential: response.credential,
+              }
+            );
             setUser(data.user as never);
-            navigate("/");
+            navigate('/');
           } catch {
             // Silencieux — l'utilisateur peut toujours utiliser le bouton standard
           }
         },
-        context: "signin",
+        context: 'signin',
         auto_select: true,
         cancel_on_tap_outside: false,
       });

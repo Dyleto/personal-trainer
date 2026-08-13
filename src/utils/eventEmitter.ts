@@ -1,7 +1,9 @@
-class EventEmitter {
-  private listeners: { [key: string]: Function[] } = {};
+type Listener = (...args: unknown[]) => void;
 
-  on(event: string, callback: Function) {
+class EventEmitter {
+  private listeners: { [key: string]: Listener[] } = {};
+
+  on(event: string, callback: Listener) {
     if (!this.listeners[event]) {
       this.listeners[event] = [];
     }
@@ -9,19 +11,23 @@ class EventEmitter {
 
     // Retourner une fonction pour se désabonner
     return () => {
-      this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+      this.listeners[event] = this.listeners[event].filter(
+        (cb) => cb !== callback
+      );
     };
   }
 
-  emit(event: string, data?: any) {
+  emit(event: string, data?: unknown) {
     if (this.listeners[event]) {
-      this.listeners[event].forEach(cb => cb(data));
+      this.listeners[event].forEach((cb) => cb(data));
     }
   }
 
-  off(event: string, callback: Function) {
+  off(event: string, callback: Listener) {
     if (this.listeners[event]) {
-      this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+      this.listeners[event] = this.listeners[event].filter(
+        (cb) => cb !== callback
+      );
     }
   }
 }

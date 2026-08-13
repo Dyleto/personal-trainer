@@ -9,10 +9,8 @@ import {
 } from "@chakra-ui/react";
 import { Session } from "@/types";
 import { BlockCard } from "@/features/program/components/BlockCard";
-import { calculateSessionDuration } from "@/utils/sessionUtils";
-import { formatDuration } from "@/utils/formatters";
 import { useThemeColors } from "@/hooks/useThemeColors";
-import { LuClock, LuCheck, LuZap, LuX } from "react-icons/lu";
+import { LuCheck, LuZap, LuX } from "react-icons/lu";
 import { keyframes } from "@emotion/react";
 
 const pulse = keyframes`
@@ -41,7 +39,6 @@ interface SessionPanelProps {
 
 const SessionPanel = ({ session, status }: SessionPanelProps) => {
   const colors = useThemeColors();
-  const duration = calculateSessionDuration(session);
 
   const statusConfig = {
     done: { label: "Terminée", color: "green.400", bg: "green.400/10" },
@@ -103,12 +100,6 @@ const SessionPanel = ({ session, status }: SessionPanelProps) => {
               </Text>
             </HStack>
           </HStack>
-          {duration > 0 && (
-            <HStack gap={1} color="gray.500" fontSize="xs">
-              <LuClock size={12} />
-              <Text>{formatDuration(duration)}</Text>
-            </HStack>
-          )}
         </HStack>
 
         {session.notes && (

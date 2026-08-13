@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { NumberInput, Text, VStack } from "@chakra-ui/react";
+import { useState } from 'react';
+import { NumberInput, Text, VStack } from '@chakra-ui/react';
 
 interface NumFieldProps {
   label: string;
@@ -8,16 +8,28 @@ interface NumFieldProps {
   onChange: (v: number) => void;
 }
 
-export const NumField = ({ label, value, min = 0, onChange }: NumFieldProps) => {
-  const [local, setLocal] = useState(value != null ? String(value) : "");
+export const NumField = ({
+  label,
+  value,
+  min = 0,
+  onChange,
+}: NumFieldProps) => {
+  const [local, setLocal] = useState(value != null ? String(value) : '');
+  const [prevValue, setPrevValue] = useState(value);
 
-  useEffect(() => {
-    setLocal(value != null ? String(value) : "");
-  }, [value]);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setLocal(value != null ? String(value) : '');
+  }
 
   return (
     <VStack align="start" gap={1} flex={1}>
-      <Text fontSize="2xs" color="gray.500" textTransform="uppercase" letterSpacing="wider">
+      <Text
+        fontSize="2xs"
+        color="gray.500"
+        textTransform="uppercase"
+        letterSpacing="wider"
+      >
         {label}
       </Text>
       <NumberInput.Root
@@ -31,15 +43,15 @@ export const NumField = ({ label, value, min = 0, onChange }: NumFieldProps) => 
           if (!isNaN(n)) onChange(n);
         }}
         onBlur={() => {
-          if (local === "" || isNaN(parseInt(local))) {
-            setLocal("0");
+          if (local === '' || isNaN(parseInt(local))) {
+            setLocal('0');
             onChange(0);
           }
         }}
       >
         <NumberInput.Input
           bg="whiteAlpha.100"
-          _focus={{ bg: "whiteAlpha.200" }}
+          _focus={{ bg: 'whiteAlpha.200' }}
           borderRadius="md"
           h="36px"
         />

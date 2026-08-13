@@ -1,4 +1,4 @@
-import { Box, useBreakpointValue } from "@chakra-ui/react";
+import { Box, useBreakpointValue } from '@chakra-ui/react';
 
 interface VideoPlayerProps {
   url: string;
@@ -10,16 +10,22 @@ const VideoPlayer = ({ url }: VideoPlayerProps) => {
   const getYouTubeEmbedUrl = (videoUrl: string) => {
     // YouTube standard (watch?v=)
     const standardMatch = videoUrl.match(
-      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+      /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/
     );
     if (standardMatch) {
-      return { embedUrl: `https://www.youtube.com/embed/${standardMatch[1]}`, isShort: false };
+      return {
+        embedUrl: `https://www.youtube.com/embed/${standardMatch[1]}`,
+        isShort: false,
+      };
     }
 
     // YouTube Shorts
-    const shortsMatch = videoUrl.match(/youtube\.com\/shorts\/([^"&?\/\s]+)/);
+    const shortsMatch = videoUrl.match(/youtube\.com\/shorts\/([^"&?/\s]+)/);
     if (shortsMatch) {
-      return { embedUrl: `https://www.youtube.com/embed/${shortsMatch[1]}`, isShort: true };
+      return {
+        embedUrl: `https://www.youtube.com/embed/${shortsMatch[1]}`,
+        isShort: true,
+      };
     }
 
     return null;
@@ -68,13 +74,13 @@ const VideoPlayer = ({ url }: VideoPlayerProps) => {
         >
           <iframe
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 0,
               left: 0,
-              width: "100%",
-              height: "100%",
-              border: "none",
-              borderRadius: "0.375rem",
+              width: '100%',
+              height: '100%',
+              border: 'none',
+              borderRadius: '0.375rem',
             }}
             src={embedUrl}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -98,13 +104,13 @@ const VideoPlayer = ({ url }: VideoPlayerProps) => {
     >
       <iframe
         style={{
-          position: "absolute",
+          position: 'absolute',
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
-          border: "none",
-          borderRadius: "0.375rem",
+          width: '100%',
+          height: '100%',
+          border: 'none',
+          borderRadius: '0.375rem',
         }}
         src={embedUrl}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

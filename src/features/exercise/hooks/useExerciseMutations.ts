@@ -1,8 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import api from "@/config/api";
-import { toaster } from "@/components/ui/toaster";
-import { Exercise } from "@/types";
-import { queryKeys } from "@/config/queryKeys";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import api from '@/config/api';
+
+import { toaster } from '@/components/ui/toasterInstance';
+import { Exercise } from '@/types';
+import { queryKeys } from '@/config/queryKeys';
 
 /**
  * Hook pour créer un exercice
@@ -12,20 +13,20 @@ export const useCreateExercise = () => {
 
   return useMutation({
     mutationFn: (data: Partial<Exercise>) =>
-      api.post("/api/coach/exercises", data),
+      api.post('/api/coach/exercises', data),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coach.exercises.all(),
       });
-      toaster.create({ title: "Exercice créé", type: "success" });
+      toaster.create({ title: 'Exercice créé', type: 'success' });
     },
 
     onError: () => {
       toaster.create({
-        title: "Erreur",
+        title: 'Erreur',
         description: "Impossible de créer l'exercice",
-        type: "error",
+        type: 'error',
       });
     },
   });
@@ -48,14 +49,14 @@ export const useUpdateExercise = () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coach.exercises.detail(variables.id),
       });
-      toaster.create({ title: "Exercice modifié", type: "success" });
+      toaster.create({ title: 'Exercice modifié', type: 'success' });
     },
 
     onError: () => {
       toaster.create({
-        title: "Erreur",
+        title: 'Erreur',
         description: "Impossible de modifier l'exercice",
-        type: "error",
+        type: 'error',
       });
     },
   });
@@ -77,17 +78,17 @@ export const useDeleteExercise = () => {
       });
 
       toaster.create({
-        title: "Succès",
-        description: "Exercice supprimé avec succès",
-        type: "success",
+        title: 'Succès',
+        description: 'Exercice supprimé avec succès',
+        type: 'success',
       });
     },
 
     onError: () => {
       toaster.create({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la suppression",
-        type: "error",
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la suppression',
+        type: 'error',
       });
     },
   });
