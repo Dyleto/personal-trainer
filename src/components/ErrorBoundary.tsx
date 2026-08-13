@@ -1,6 +1,6 @@
-import { Component, ErrorInfo, ReactNode } from "react";
-import { Box, Button, Heading, Text, VStack } from "@chakra-ui/react";
-import { toaster } from "./ui/toaster";
+import { Component, ErrorInfo, ReactNode } from 'react';
+import { Box, Button, Heading, Text, VStack } from '@chakra-ui/react';
+import { toaster } from './ui/toasterInstance';
 
 interface Props {
   children?: ReactNode;
@@ -20,13 +20,13 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    console.error('Uncaught error:', error, errorInfo);
 
     toaster.create({
-      title: "Une erreur est survenue",
+      title: 'Une erreur est survenue',
       description:
-        "Impossible de charger la ressource. Vérifiez votre connexion.",
-      type: "error",
+        'Impossible de charger la ressource. Vérifiez votre connexion.',
+      type: 'error',
       duration: 5000,
     });
   }
