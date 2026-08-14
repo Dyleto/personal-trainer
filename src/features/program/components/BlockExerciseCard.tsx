@@ -1,6 +1,7 @@
 import { BlockExercise, BlockType } from '@/types';
 import {
   blockDefinesOwnMetrics,
+  blockIndexPrefix,
   blockSupportsRepsOnly,
   blockSupportsSets,
   getBlockColor,
@@ -24,9 +25,14 @@ import { useState } from 'react';
 interface ViewProps {
   exercise: BlockExercise;
   blockType: BlockType;
+  index: number;
 }
 
-export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
+export const BlockExerciseView = ({
+  exercise,
+  blockType,
+  index,
+}: ViewProps) => {
   const metric = formatExerciseMetric(exercise, blockType);
   const color = getBlockColor(blockType);
   const rest =
@@ -40,6 +46,7 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
   const hasDescription = !!ex.description?.trim();
   const hasVideo = !!ex.videoUrl?.trim();
   const hasDetail = hasDescription || hasVideo;
+  const indexPrefix = blockIndexPrefix(blockType);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -63,9 +70,22 @@ export const BlockExerciseView = ({ exercise, blockType }: ViewProps) => {
             flexShrink={0}
             opacity={0.7}
           />
-          <Text fontSize="sm" color="gray.300" lineClamp={1} flex={1} minW={0}>
-            {ex.name}
-          </Text>
+          <HStack gap={1}>
+            {indexPrefix && (
+              <Text fontSize="sm" color="gray.300" fontWeight="medium">
+                {index + 1} ·
+              </Text>
+            )}
+            <Text
+              fontSize="sm"
+              color="gray.300"
+              lineClamp={1}
+              flex={1}
+              minW={0}
+            >
+              {ex.name}
+            </Text>
+          </HStack>
           {hasVideo && (
             <Box color="blue.400" flexShrink={0} opacity={0.6}>
               <LuVideo size={11} />
@@ -128,6 +148,7 @@ type MetricMode = 'reps' | 'duration' | 'custom';
 interface EditProps {
   exercise: BlockExercise;
   blockType: BlockType;
+  index: number;
   onUpdate: (updates: Partial<Omit<BlockExercise, 'exercise'>>) => void;
   onRemove: () => void;
 }
@@ -199,6 +220,7 @@ const NumInput = ({
 export const BlockExerciseEdit = ({
   exercise,
   blockType,
+  index,
   onUpdate,
   onRemove,
 }: EditProps) => {
@@ -206,6 +228,7 @@ export const BlockExerciseEdit = ({
   const metricsDefinedByBlock = blockDefinesOwnMetrics(blockType);
   const repsOnly = blockSupportsRepsOnly(blockType);
   const color = getBlockColor(blockType);
+  const indexPrefix = blockIndexPrefix(blockType);
 
   const [mode, setModeState] = useState<MetricMode>(() =>
     exercise.duration ? 'duration' : exercise.customMetric ? 'custom' : 'reps'
@@ -236,15 +259,22 @@ export const BlockExerciseEdit = ({
       <VStack align="stretch" gap={2}>
         {/* Exercise name + delete */}
         <HStack justify="space-between">
-          <Text
-            fontSize="sm"
-            color="gray.300"
-            fontWeight="medium"
-            lineClamp={1}
-            flex={1}
-          >
-            {exercise.exercise.name}
-          </Text>
+          <HStack gap={1}>
+            {indexPrefix && (
+              <Text fontSize="sm" color="gray.300" fontWeight="medium">
+                {index + 1} ·
+              </Text>
+            )}
+            <Text
+              fontSize="sm"
+              color="gray.300"
+              fontWeight="medium"
+              lineClamp={1}
+              flex={1}
+            >
+              {exercise.exercise.name}
+            </Text>
+          </HStack>
           <IconButton
             aria-label="Supprimer"
             size="xs"

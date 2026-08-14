@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode } from 'react';
 import {
   Box,
   HStack,
@@ -7,21 +7,27 @@ import {
   Separator,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { LuPlus, LuTrash2 } from "react-icons/lu";
-import { Button } from "@chakra-ui/react";
+} from '@chakra-ui/react';
+import {
+  LuPlus,
+  LuTrash2,
+  LuGripVertical,
+  LuChevronUp,
+  LuChevronDown,
+} from 'react-icons/lu';
+import { Button } from '@chakra-ui/react';
 import {
   getBlockColor,
   getBlockConfigSummary,
   getBlockDescription,
   getBlockLabel,
-} from "@/constants/blockTypes";
-import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
+} from '@/constants/blockTypes';
+import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import {
   BlockExerciseEdit,
   BlockExerciseView,
-} from "@/features/program/components/BlockExerciseCard";
-import { BlockProps } from "./types";
+} from '@/features/program/components/BlockExerciseCard';
+import { BlockProps } from './types';
 
 interface BlockShellProps extends BlockProps {
   /** Config inputs affichés en mode édition (sous le header) */
@@ -40,16 +46,21 @@ export const BlockShell = ({
   onAddExercise,
   onRemoveExercise,
   onUpdateExercise,
+  dragHandleProps,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
 }: BlockShellProps) => {
   const color = getBlockColor(block.type);
   const description = getBlockDescription(block.type);
 
   return (
     <Box
-      borderRadius={isEditing ? "xl" : "lg"}
+      borderRadius={isEditing ? 'xl' : 'lg'}
       overflow="hidden"
       borderWidth="1px"
-      borderColor={isEditing ? `${color}30` : "whiteAlpha.100"}
+      borderColor={isEditing ? `${color}30` : 'whiteAlpha.100'}
       bg="blackAlpha.200"
     >
       {/* ── Header ── */}
@@ -81,7 +92,7 @@ export const BlockShell = ({
                 </Text>
                 <Input
                   size="xs"
-                  value={block.label || ""}
+                  value={block.label || ''}
                   onChange={(e) =>
                     onUpdate?.({ label: e.target.value || undefined })
                   }
@@ -94,16 +105,54 @@ export const BlockShell = ({
                   color="gray.300"
                 />
               </HStack>
-              <IconButton
-                aria-label="Supprimer le bloc"
-                size="xs"
-                variant="ghost"
-                color="gray.500"
-                _hover={{ color: "red.400" }}
-                onClick={onRemove}
-              >
-                <LuTrash2 size={14} />
-              </IconButton>
+
+              <HStack gap={0} flexShrink={0}>
+                <IconButton
+                  aria-label="Réorganiser le bloc"
+                  size="xs"
+                  variant="ghost"
+                  color="gray.500"
+                  cursor="grab"
+                  touchAction="none"
+                  {...dragHandleProps}
+                >
+                  <LuGripVertical size={14} />
+                </IconButton>
+                <VStack gap={0}>
+                  <IconButton
+                    aria-label="Monter le bloc"
+                    size="2xs"
+                    variant="ghost"
+                    color="gray.500"
+                    onClick={onMoveUp}
+                    disabled={!canMoveUp}
+                    minH="16px"
+                  >
+                    <LuChevronUp size={12} />
+                  </IconButton>
+                  <IconButton
+                    aria-label="Descendre le bloc"
+                    size="2xs"
+                    variant="ghost"
+                    color="gray.500"
+                    onClick={onMoveDown}
+                    disabled={!canMoveDown}
+                    minH="16px"
+                  >
+                    <LuChevronDown size={12} />
+                  </IconButton>
+                </VStack>
+                <IconButton
+                  aria-label="Supprimer le bloc"
+                  size="xs"
+                  variant="ghost"
+                  color="gray.500"
+                  _hover={{ color: 'red.400' }}
+                  onClick={onRemove}
+                >
+                  <LuTrash2 size={14} />
+                </IconButton>
+              </HStack>
             </HStack>
             <Text fontSize="2xs" color="gray.500" lineHeight="shorter">
               {description}
@@ -129,7 +178,7 @@ export const BlockShell = ({
                   letterSpacing="wider"
                   lineHeight="shorter"
                 >
-                  {getBlockLabel(block.type)} {block.label && "·"} {block.label}
+                  {getBlockLabel(block.type)} {block.label && '·'} {block.label}
                 </Text>
                 <Text
                   fontSize="2xs"
@@ -162,6 +211,7 @@ export const BlockShell = ({
                   key={i}
                   exercise={ex}
                   blockType={block.type}
+                  index={i}
                   onUpdate={(updates) => onUpdateExercise?.(i, updates)}
                   onRemove={() => onRemoveExercise?.(i)}
                 />
@@ -188,7 +238,7 @@ export const BlockShell = ({
 
           <AutoResizeTextarea
             mt={3}
-            value={block.notes || ""}
+            value={block.notes || ''}
             onChange={(e) => onUpdate?.({ notes: e.target.value || undefined })}
             placeholder="Notes pour ce bloc (consignes, tempo, intensité...)"
             size="sm"
@@ -209,6 +259,7 @@ export const BlockShell = ({
                   key={i}
                   exercise={ex}
                   blockType={block.type}
+                  index={i}
                 />
               ))}
             </VStack>

@@ -49,6 +49,10 @@ export const useUpdateProgramSessions = (clientId: string) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.coach.clients.detail(clientId),
       });
+
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.client.program.get(),
+      });
       toaster.create({ title: 'Programme sauvegardé', type: 'success' });
     },
     onError: () => {

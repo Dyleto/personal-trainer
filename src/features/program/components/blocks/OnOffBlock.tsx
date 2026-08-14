@@ -1,7 +1,7 @@
-import { HStack } from "@chakra-ui/react";
-import { NumField } from "./shared/NumField";
-import { BlockShell } from "./shared/BlockShell";
-import { BlockProps } from "./shared/types";
+import { HStack } from '@chakra-ui/react';
+import { NumField } from './shared/NumField';
+import { BlockShell } from './shared/BlockShell';
+import { BlockProps } from './shared/types';
 
 export const OnOffBlock = (props: BlockProps) => (
   <BlockShell
@@ -16,14 +16,15 @@ export const OnOffBlock = (props: BlockProps) => (
             onChange={(v) => props.onUpdate?.({ rounds: v })}
           />
           <NumField
-            label="On (sec)"
+            label="On (min)"
             value={props.block.workDuration}
             min={1}
             onChange={(v) => props.onUpdate?.({ workDuration: v })}
           />
           <NumField
-            label="Off (sec)"
+            label="Off (min)"
             value={props.block.restDuration}
+            min={1}
             onChange={(v) => props.onUpdate?.({ restDuration: v })}
           />
         </HStack>

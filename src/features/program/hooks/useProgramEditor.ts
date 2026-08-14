@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useCallback, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import {
   BlockExercise,
   BlockType,
@@ -7,30 +7,31 @@ import {
   Exercise,
   Session,
   SessionBlock,
-} from "@/types";
-import { blockSupportsSets } from "@/constants/blockTypes";
+} from '@/types';
+import { blockSupportsSets } from '@/constants/blockTypes';
 
-type ExerciseUpdate = Partial<Omit<BlockExercise, "exercise">>;
+type ExerciseUpdate = Partial<Omit<BlockExercise, 'exercise'>>;
 
 const BLOCK_DEFAULTS: Record<BlockType, Partial<SessionBlock>> = {
-  warmup:  {},
+  warmup: {},
   classic: {},
   chipper: {},
-  emom:    { durationMinutes: 10 },
-  amrap:   { durationMinutes: 8 },
+  emom: { durationMinutes: 10 },
+  amrap: { durationMinutes: 8 },
   timecap: { durationMinutes: 15 },
-  every:   { intervalMinutes: 3, rounds: 5 },
-  tabata:  { workDuration: 20, restDuration: 10 },
-  onoff:   { rounds: 10, workDuration: 30, restDuration: 30 },
+  every: { intervalMinutes: 3, rounds: 5 },
+  tabata: { workDuration: 20, restDuration: 10 },
+  onoff: { rounds: 10, workDuration: 30, restDuration: 30 },
   pyramid: { repsScheme: [5, 10, 15, 20, 15, 10, 5], restBetweenRounds: 60 },
-  ladder:  { repsScheme: [5, 10, 15, 20], restBetweenRounds: 60 },
+  ladder: { repsScheme: [5, 10, 15, 20], restBetweenRounds: 60 },
 };
 
 const getExerciseDefaults = (blockType: BlockType): Partial<BlockExercise> => {
-  if (blockSupportsSets(blockType)) return { sets: 3, reps: 10, restBetweenSets: 60 };
-  if (blockType === "warmup") return { reps: 10 };
-  if (["tabata", "onoff"].includes(blockType)) return { reps: 5 };
-  if (["pyramid", "ladder"].includes(blockType)) return {};
+  if (blockSupportsSets(blockType))
+    return { sets: 3, reps: 10, restBetweenSets: 60 };
+  if (blockType === 'warmup') return { reps: 10 };
+  if (['tabata', 'onoff'].includes(blockType)) return { reps: 5 };
+  if (['pyramid', 'ladder'].includes(blockType)) return {};
   return { reps: 10 };
 };
 
@@ -75,7 +76,7 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
       return {
         ...prev,
         sessions: prev.sessions.map((s) =>
-          s._id === sessionId ? { ...s, notes } : s,
+          s._id === sessionId ? { ...s, notes } : s
         ),
       };
     });
@@ -132,14 +133,14 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
             return {
               ...s,
               blocks: s.blocks.map((b) =>
-                b._id === blockId ? { ...b, ...updates } : b,
+                b._id === blockId ? { ...b, ...updates } : b
               ),
             };
           }),
         };
       });
     },
-    [],
+    []
   );
 
   // ─── Exercises ─────────────────────────────────────────────────────────────
@@ -148,7 +149,7 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
     (
       sessionId: string,
       blockId: string,
-      updater: (exercises: BlockExercise[]) => BlockExercise[],
+      updater: (exercises: BlockExercise[]) => BlockExercise[]
     ) => {
       setProgram((prev) => {
         if (!prev) return null;
@@ -167,7 +168,7 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
         };
       });
     },
-    [],
+    []
   );
 
   const addExercise = useCallback(
@@ -194,7 +195,7 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
         };
       });
     },
-    [],
+    []
   );
 
   const removeExercise = useCallback(
@@ -202,10 +203,10 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
       updateBlockExercises(sessionId, blockId, (exs) =>
         exs
           .filter((_, i) => i !== index)
-          .map((e, i) => ({ ...e, order: i + 1 })),
+          .map((e, i) => ({ ...e, order: i + 1 }))
       );
     },
-    [updateBlockExercises],
+    [updateBlockExercises]
   );
 
   const updateExercise = useCallback(
@@ -213,13 +214,37 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
       sessionId: string,
       blockId: string,
       index: number,
-      updates: ExerciseUpdate,
+      updates: ExerciseUpdate
     ) => {
       updateBlockExercises(sessionId, blockId, (exs) =>
-        exs.map((e, i) => (i === index ? { ...e, ...updates } : e)),
+        exs.map((e, i) => (i === index ? { ...e, ...updates } : e))
       );
     },
-    [updateBlockExercises],
+    [updateBlockExercises]
+  );
+
+  const reorderBlocks = useCallback(
+    (sessionId: string, orderedBlockIds: string[]) => {
+      setProgram((prev) => {
+        if (!prev) return null;
+
+        return {
+          ...prev,
+          sessions: prev.sessions.map((session) => {
+            if (session._id !== sessionId) return session;
+
+            const blockById = new Map(session.blocks.map((b) => [b._id, b]));
+            const reordered = orderedBlockIds
+              .map((id) => blockById.get(id))
+              .filter((block): block is SessionBlock => block !== undefined)
+              .map((block, index) => ({ ...block, order: index + 1 }));
+
+            return { ...session, blocks: reordered };
+          }),
+        };
+      });
+    },
+    []
   );
 
   return {
@@ -235,6 +260,7 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
       addExercise,
       removeExercise,
       updateExercise,
+      reorderBlocks,
     },
   };
 };

@@ -1,4 +1,4 @@
-import { BlockExercise, SessionBlock } from "@/types";
+import { BlockExercise, SessionBlock } from '@/types';
 
 export interface BlockProps {
   block: SessionBlock;
@@ -9,6 +9,11 @@ export interface BlockProps {
   onRemoveExercise?: (index: number) => void;
   onUpdateExercise?: (
     index: number,
-    updates: Partial<Omit<BlockExercise, "exercise">>,
+    updates: Partial<Omit<BlockExercise, 'exercise'>>
   ) => void;
+  dragHandleProps?: Record<string, unknown>;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }

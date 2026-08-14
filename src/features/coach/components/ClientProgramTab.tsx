@@ -1,15 +1,15 @@
-import { ClientWithDetails, Exercise } from "@/types";
-import { useEffect, useState } from "react";
-import { useProgramEditor } from "@/features/program/hooks/useProgramEditor";
-import { useUpdateProgramSessions } from "@/features/program/hooks/useProgramMutations";
+import { ClientWithDetails, Exercise } from '@/types';
+import { useEffect, useState } from 'react';
+import { useProgramEditor } from '@/features/program/hooks/useProgramEditor';
+import { useUpdateProgramSessions } from '@/features/program/hooks/useProgramMutations';
 import {
   SessionCard,
   ExerciseSelectorPanel,
   CreateSessionCard,
-} from "@/features/program";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { Box, Button, Grid, Heading, HStack, Text } from "@chakra-ui/react";
-import { LuPencil, LuSave, LuX } from "react-icons/lu";
+} from '@/features/program';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Box, Button, Grid, Heading, HStack, Text } from '@chakra-ui/react';
+import { LuPencil, LuSave, LuX } from 'react-icons/lu';
 
 interface SelectorState {
   isOpen: boolean;
@@ -97,7 +97,10 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
         </HStack>
 
         <Grid
-          templateColumns={{ base: "1fr", md: "repeat(auto-fill, minmax(400px, 1fr))" }}
+          templateColumns={{
+            base: '1fr',
+            md: 'repeat(auto-fill, minmax(400px, 1fr))',
+          }}
           gap={8}
           alignItems="start"
         >
@@ -112,10 +115,16 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
                 actions.updateSessionNotes(session._id, notes)
               }
               onAddBlock={(type) => actions.addBlock(session._id, type)}
-              onRemoveBlock={(blockId) => actions.removeBlock(session._id, blockId)}
+              onRemoveBlock={(blockId) =>
+                actions.removeBlock(session._id, blockId)
+              }
               onUpdateBlock={(blockId, updates) =>
                 actions.updateBlock(session._id, blockId, updates)
               }
+              onReorderBlocks={(orderedIds) =>
+                actions.reorderBlocks(session._id, orderedIds)
+              }
+
               onAddExercise={(blockId) =>
                 handleOpenSelector(session._id, blockId)
               }
@@ -173,7 +182,9 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
       {selectorState.isOpen && selectorState.blockId && (
         <ExerciseSelectorPanel
           isOpen={selectorState.isOpen}
-          onClose={() => setSelectorState((prev) => ({ ...prev, isOpen: false }))}
+          onClose={() =>
+            setSelectorState((prev) => ({ ...prev, isOpen: false }))
+          }
           onSelect={handleSelectExercise}
         />
       )}

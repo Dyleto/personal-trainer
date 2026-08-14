@@ -1,5 +1,5 @@
-import { BlockExercise, SessionBlock } from "@/types";
-import { Block } from "./blocks";
+import { BlockExercise, SessionBlock } from '@/types';
+import { Block } from './blocks';
 
 interface BlockEditorProps {
   block: SessionBlock;
@@ -9,8 +9,13 @@ interface BlockEditorProps {
   onRemoveExercise: (index: number) => void;
   onUpdateExercise: (
     index: number,
-    updates: Partial<Omit<BlockExercise, "exercise">>,
+    updates: Partial<Omit<BlockExercise, 'exercise'>>
   ) => void;
+  dragHandleProps?: Record<string, unknown>;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
 export const BlockEditor = (props: BlockEditorProps) => (
