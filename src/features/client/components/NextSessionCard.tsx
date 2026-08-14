@@ -1,10 +1,10 @@
-import { Card } from "@/components/Card";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { Session } from "@/types";
-import { BlockCard } from "@/features/program/components/BlockCard";
-import { Box, Button, HStack, Separator, Text, VStack } from "@chakra-ui/react";
-import { LuArrowRight, LuZap } from "react-icons/lu";
-import { keyframes } from "@emotion/react";
+import { Card } from '@/components/Card';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Session } from '@/types';
+import { BlockCard } from '@/features/program/components/BlockCard';
+import { Box, Button, HStack, Separator, Text, VStack } from '@chakra-ui/react';
+import { LuArrowRight, LuZap } from 'react-icons/lu';
+import { keyframes } from '@emotion/react';
 
 const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -13,11 +13,13 @@ const pulse = keyframes`
 
 interface NextSessionCardProps {
   session: Session;
+  isManualSelection?: boolean;
   onComplete: () => void;
 }
 
 export const NextSessionCard = ({
   session,
+  isManualSelection,
   onComplete,
 }: NextSessionCardProps) => {
   const colors = useThemeColors();
@@ -59,7 +61,7 @@ export const NextSessionCard = ({
                   textTransform="uppercase"
                   letterSpacing="wider"
                 >
-                  À faire
+                  {isManualSelection ? 'Séance choisie' : 'À faire'}
                 </Text>
               </HStack>
               <HStack gap={2} align="baseline">

@@ -15,6 +15,9 @@ const ClientDashboard = () => {
   const {
     sessions,
     nextSession,
+    activeSession,
+    isManualSelection,
+    selectSession,
     history,
     currentCycleNumber,
     sessionsDoneInCurrentCycle,
@@ -45,8 +48,10 @@ const ClientDashboard = () => {
         />
 
         <CurrentSession
-          nextSession={nextSession}
+          session={activeSession}
+          isManualSelection={isManualSelection}
           onComplete={handleSubmitLog}
+          onChooseSession={() => setIsProgramOpen(true)}
           isLoading={isLoading}
         />
 
@@ -59,6 +64,7 @@ const ClientDashboard = () => {
         sessions={sessions}
         nextSession={nextSession}
         sessionsDoneInCurrentCycle={sessionsDoneInCurrentCycle}
+        onSelectSession={selectSession}
       />
     </Container>
   );

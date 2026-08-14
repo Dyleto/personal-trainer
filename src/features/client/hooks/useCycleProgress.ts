@@ -1,4 +1,4 @@
-﻿import { useCallback, useMemo } from 'react';
+﻿import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { clientService } from '@/services/clientService';
 import { queryKeys } from '@/config/queryKeys';
@@ -33,6 +33,10 @@ export const useCycleProgress = () => {
     [completed]
   );
 
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
+    null
+  );
+
   const { currentCycleNumber, sessionsDoneInCurrentCycle, nextSession } =
     useMemo(() => {
       const currentProgramSessionIds = sessions.map((s) => s._id);
@@ -61,22 +65,43 @@ export const useCycleProgress = () => {
       };
     }, [history, sessions]);
 
+  const activeSession = useMemo(
+    () =>
+      selectedSessionId
+        ? sessions.find((session) => session._id === selectedSessionId)
+        : nextSession,
+    [selectedSessionId, sessions, nextSession]
+  );
+
+  const isManualSelection =
+    selectedSessionId !== null && selectedSessionId !== nextSession?._id;
+
+  const selectSession = useCallback((sessionId: string | null) => {
+    setSelectedSessionId(sessionId);
+  }, []);
+
   const handleSubmitLog = useCallback(
     (metrics: SessionMetrics, clientNotes: string, completedAt?: string) => {
-      if (!nextSession) return;
-      completeSession.mutate({
-        sessionId: nextSession._id,
-        metrics,
-        clientNotes,
-        completedAt,
-      });
+      if (!activeSession) return;
+      completeSession.mutate(
+        {
+          sessionId: activeSession._id,
+          metrics,
+          clientNotes,
+          completedAt,
+        },
+        { onSuccess: () => setSelectedSessionId(null) }
+      );
     },
-    [nextSession, completeSession]
+    [activeSession, completeSession]
   );
 
   return {
     sessions,
     nextSession,
+    activeSession,
+    isManualSelection,
+    selectSession,
     history,
     currentCycleNumber,
     sessionsDoneInCurrentCycle,

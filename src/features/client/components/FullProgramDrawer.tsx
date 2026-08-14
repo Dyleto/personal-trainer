@@ -1,53 +1,55 @@
 import {
   Box,
+  Button,
   Drawer,
   HStack,
   IconButton,
   Separator,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { Session } from "@/types";
-import { BlockCard } from "@/features/program/components/BlockCard";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { LuCheck, LuZap, LuX } from "react-icons/lu";
-import { keyframes } from "@emotion/react";
+} from '@chakra-ui/react';
+import { Session } from '@/types';
+import { BlockCard } from '@/features/program/components/BlockCard';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { LuCheck, LuZap, LuX } from 'react-icons/lu';
+import { keyframes } from '@emotion/react';
 
 const pulse = keyframes`
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
 `;
 
-type SessionStatus = "done" | "next" | "upcoming";
+type SessionStatus = 'done' | 'next' | 'upcoming';
 
 function getStatus(
   session: Session,
   nextSession: Session | undefined,
   sessionsDone: number,
-  sessions: Session[],
+  sessions: Session[]
 ): SessionStatus {
   const index = sessions.findIndex((s) => s._id === session._id);
-  if (index < sessionsDone) return "done";
-  if (session._id === nextSession?._id) return "next";
-  return "upcoming";
+  if (index < sessionsDone) return 'done';
+  if (session._id === nextSession?._id) return 'next';
+  return 'upcoming';
 }
 
 interface SessionPanelProps {
   session: Session;
   status: SessionStatus;
+  onSelect: () => void;
 }
 
-const SessionPanel = ({ session, status }: SessionPanelProps) => {
+const SessionPanel = ({ session, status, onSelect }: SessionPanelProps) => {
   const colors = useThemeColors();
 
   const statusConfig = {
-    done: { label: "Terminée", color: "green.400", bg: "green.400/10" },
+    done: { label: 'Terminée', color: 'green.400', bg: 'green.400/10' },
     next: {
-      label: "À faire",
+      label: 'À faire',
       color: colors.primary,
       bg: `${colors.primaryHex}18`,
     },
-    upcoming: { label: "À venir", color: "gray.500", bg: "whiteAlpha.50" },
+    upcoming: { label: 'À venir', color: 'gray.500', bg: 'whiteAlpha.50' },
   }[status];
 
   return (
@@ -55,83 +57,108 @@ const SessionPanel = ({ session, status }: SessionPanelProps) => {
       borderRadius="xl"
       borderWidth="1px"
       borderColor={
-        status === "next" ? `${colors.primaryHex}30` : "whiteAlpha.100"
+        status === 'next' ? `${colors.primaryHex}30` : 'whiteAlpha.100'
       }
       overflow="hidden"
-      opacity={status === "upcoming" ? 0.6 : 1}
     >
-      {/* Header séance */}
-      <Box
-        px={4}
-        py={3}
-        bg={status === "next" ? `${colors.primaryHex}12` : "whiteAlpha.50"}
-      >
-        <HStack justify="space-between" align="center">
-          <HStack gap={3}>
-            <HStack
-              gap={1.5}
-              px={2}
-              py={0.5}
-              borderRadius="full"
-              bg={statusConfig.bg}
-              borderWidth="1px"
-              borderColor={`${statusConfig.color}/30`}
-            >
-              {status === "done" && (
-                <LuCheck size={10} color="var(--chakra-colors-green-400)" />
-              )}
-              {status === "next" && (
-                <Box
-                  w="5px"
-                  h="5px"
-                  borderRadius="full"
-                  bg={colors.primary}
-                  animation={`${pulse} 2s ease-in-out infinite`}
-                />
-              )}
-              <Text fontSize="xs" fontWeight="bold" color={statusConfig.color}>
-                {statusConfig.label}
-              </Text>
-            </HStack>
-            <HStack gap={1.5}>
-              <LuZap size={13} color={colors.primaryHex} />
-              <Text fontWeight="bold" fontSize="sm">
-                Séance {session.order}
-              </Text>
+      <Box opacity={status === 'upcoming' ? 0.6 : 1}>
+        {/* Header séance */}
+        <Box
+          px={4}
+          py={3}
+          bg={status === 'next' ? `${colors.primaryHex}12` : 'whiteAlpha.50'}
+        >
+          <HStack justify="space-between" align="center">
+            <HStack gap={3}>
+              <HStack
+                gap={1.5}
+                px={2}
+                py={0.5}
+                borderRadius="full"
+                bg={statusConfig.bg}
+                borderWidth="1px"
+                borderColor={`${statusConfig.color}/30`}
+              >
+                {status === 'done' && (
+                  <LuCheck size={10} color="var(--chakra-colors-green-400)" />
+                )}
+                {status === 'next' && (
+                  <Box
+                    w="5px"
+                    h="5px"
+                    borderRadius="full"
+                    bg={colors.primary}
+                    animation={`${pulse} 2s ease-in-out infinite`}
+                  />
+                )}
+                <Text
+                  fontSize="xs"
+                  fontWeight="bold"
+                  color={statusConfig.color}
+                >
+                  {statusConfig.label}
+                </Text>
+              </HStack>
+              <HStack gap={1.5}>
+                <LuZap size={13} color={colors.primaryHex} />
+                <Text fontWeight="bold" fontSize="sm">
+                  Séance {session.order}
+                </Text>
+              </HStack>
             </HStack>
           </HStack>
-        </HStack>
 
-        {session.notes && (
-          <Box
-            mt={2}
-            p={2.5}
-            bg="whiteAlpha.50"
-            borderRadius="md"
-            borderLeft="2px solid"
-            borderLeftColor={colors.primaryBorder}
-          >
-            <Text fontSize="xs" color="gray.400" whiteSpace="pre-wrap">
-              {session.notes}
+          {session.notes && (
+            <Box
+              mt={2}
+              p={2.5}
+              bg="whiteAlpha.50"
+              borderRadius="md"
+              borderLeft="2px solid"
+              borderLeftColor={colors.primaryBorder}
+            >
+              <Text fontSize="xs" color="gray.400" whiteSpace="pre-wrap">
+                {session.notes}
+              </Text>
+            </Box>
+          )}
+        </Box>
+
+        {/* Blocs */}
+        {session.blocks.length > 0 ? (
+          <VStack align="stretch" gap={2} p={3}>
+            {session.blocks.map((block) => (
+              <BlockCard key={block._id} block={block} />
+            ))}
+          </VStack>
+        ) : (
+          <Box px={4} py={3}>
+            <Text fontSize="sm" color="gray.600">
+              Aucun bloc pour cette séance.
             </Text>
           </Box>
         )}
       </Box>
 
-      {/* Blocs */}
-      {session.blocks.length > 0 ? (
-        <VStack align="stretch" gap={2} p={3}>
-          {session.blocks.map((block) => (
-            <BlockCard key={block._id} block={block} />
-          ))}
-        </VStack>
-      ) : (
-        <Box px={4} py={3}>
-          <Text fontSize="sm" color="gray.600">
-            Aucun bloc pour cette séance.
-          </Text>
-        </Box>
-      )}
+      <Separator borderColor="whiteAlpha.100" />
+      <Box px={4} py={3}>
+        <Button
+          size="sm"
+          w="full"
+          variant={status === 'next' ? 'solid' : 'outline'}
+          bg={status === 'next' ? colors.primary : undefined}
+          color={status === 'next' ? 'gray.900' : undefined}
+          borderColor={status === 'next' ? undefined : colors.primaryBorder}
+          _hover={
+            status === 'next'
+              ? { bg: colors.primaryHover }
+              : { bg: `${colors.primaryHex}10` }
+          }
+          onClick={onSelect}
+        >
+          {status === 'done' ? 'Refaire cette séance' : 'Faire cette séance'}
+        </Button>
+      </Box>
     </Box>
   );
 };
@@ -142,6 +169,7 @@ interface FullProgramDrawerProps {
   sessions: Session[];
   nextSession: Session | undefined;
   sessionsDoneInCurrentCycle: number;
+  onSelectSession: (sessionId: string) => void;
 }
 
 export const FullProgramDrawer = ({
@@ -150,12 +178,18 @@ export const FullProgramDrawer = ({
   sessions,
   nextSession,
   sessionsDoneInCurrentCycle,
+  onSelectSession,
 }: FullProgramDrawerProps) => {
+  const handleSelect = (sessionId: string) => {
+    onSelectSession(sessionId);
+    onClose();
+  };
+
   return (
     <Drawer.Root
       open={isOpen}
       onOpenChange={(e) => !e.open && onClose()}
-      size={{ base: "full", md: "md", lg: "lg" }}
+      size={{ base: 'full', md: 'md', lg: 'lg' }}
     >
       <Drawer.Positioner>
         <Drawer.Content bg="gray.900">
@@ -169,7 +203,7 @@ export const FullProgramDrawer = ({
                 size="sm"
                 variant="ghost"
                 color="gray.500"
-                _hover={{ color: "white", bg: "whiteAlpha.100" }}
+                _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
                 borderRadius="full"
                 onClick={onClose}
               >
@@ -186,7 +220,7 @@ export const FullProgramDrawer = ({
             ) : (
               <VStack align="stretch" gap={4}>
                 <Text fontSize="xs" color="gray.500">
-                  {sessions.length} séance{sessions.length > 1 ? "s" : ""} dans
+                  {sessions.length} séance{sessions.length > 1 ? 's' : ''} dans
                   ce cycle
                 </Text>
                 <Separator borderColor="whiteAlpha.100" />
@@ -198,8 +232,9 @@ export const FullProgramDrawer = ({
                       session,
                       nextSession,
                       sessionsDoneInCurrentCycle,
-                      sessions,
+                      sessions
                     )}
+                    onSelect={() => handleSelect(session._id)}
                   />
                 ))}
               </VStack>
