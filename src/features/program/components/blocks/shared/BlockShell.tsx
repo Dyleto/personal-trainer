@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import {
   Box,
+  Grid,
   HStack,
   IconButton,
   Input,
@@ -11,9 +12,9 @@ import {
 import {
   LuPlus,
   LuTrash2,
-  LuGripVertical,
   LuChevronUp,
   LuChevronDown,
+  LuMenu,
 } from 'react-icons/lu';
 import { Button } from '@chakra-ui/react';
 import {
@@ -71,6 +72,46 @@ export const BlockShell = ({
       >
         {isEditing ? (
           <VStack align="stretch" gap={1}>
+            {/* Ligne d'action : réorganisation */}
+            <Grid templateColumns="1fr auto 1fr" alignItems="center">
+              <HStack gap={0}>
+                <IconButton
+                  aria-label="Monter le bloc"
+                  size="xs"
+                  variant="ghost"
+                  color="gray.500"
+                  onClick={onMoveUp}
+                  disabled={!canMoveUp}
+                >
+                  <LuChevronUp size={14} />
+                </IconButton>
+                <IconButton
+                  aria-label="Descendre le bloc"
+                  size="xs"
+                  variant="ghost"
+                  color="gray.500"
+                  onClick={onMoveDown}
+                  disabled={!canMoveDown}
+                >
+                  <LuChevronDown size={14} />
+                </IconButton>
+              </HStack>
+
+              <IconButton
+                aria-label="Réorganiser le bloc"
+                size="xs"
+                variant="ghost"
+                color="gray.500"
+                cursor="grab"
+                touchAction="none"
+                {...dragHandleProps}
+              >
+                <LuMenu size={14} />
+              </IconButton>
+
+              <Box />
+            </Grid>
+
             <HStack justify="space-between" gap={2}>
               <HStack gap={2} flex={1} minW={0}>
                 <Box
@@ -106,54 +147,18 @@ export const BlockShell = ({
                 />
               </HStack>
 
-              <HStack gap={0} flexShrink={0}>
-                <IconButton
-                  aria-label="Réorganiser le bloc"
-                  size="xs"
-                  variant="ghost"
-                  color="gray.500"
-                  cursor="grab"
-                  touchAction="none"
-                  {...dragHandleProps}
-                >
-                  <LuGripVertical size={14} />
-                </IconButton>
-                <VStack gap={0}>
-                  <IconButton
-                    aria-label="Monter le bloc"
-                    size="2xs"
-                    variant="ghost"
-                    color="gray.500"
-                    onClick={onMoveUp}
-                    disabled={!canMoveUp}
-                    minH="16px"
-                  >
-                    <LuChevronUp size={12} />
-                  </IconButton>
-                  <IconButton
-                    aria-label="Descendre le bloc"
-                    size="2xs"
-                    variant="ghost"
-                    color="gray.500"
-                    onClick={onMoveDown}
-                    disabled={!canMoveDown}
-                    minH="16px"
-                  >
-                    <LuChevronDown size={12} />
-                  </IconButton>
-                </VStack>
-                <IconButton
-                  aria-label="Supprimer le bloc"
-                  size="xs"
-                  variant="ghost"
-                  color="gray.500"
-                  _hover={{ color: 'red.400' }}
-                  onClick={onRemove}
-                >
-                  <LuTrash2 size={14} />
-                </IconButton>
-              </HStack>
+              <IconButton
+                aria-label="Supprimer le bloc"
+                size="xs"
+                variant="ghost"
+                color="gray.500"
+                _hover={{ color: 'red.400' }}
+                onClick={onRemove}
+              >
+                <LuTrash2 size={14} />
+              </IconButton>
             </HStack>
+
             <Text fontSize="2xs" color="gray.500" lineHeight="shorter">
               {description}
             </Text>
