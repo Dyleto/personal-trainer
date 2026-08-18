@@ -5,16 +5,14 @@ import {
   SimpleGrid,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { NumField } from "./shared/NumField";
-import { BlockShell } from "./shared/BlockShell";
-import { BlockProps } from "./shared/types";
-import { getBlockColor } from "@/constants/blockTypes";
-import { LuMinus, LuPlus } from "react-icons/lu";
+} from '@chakra-ui/react';
+import { NumField } from './shared/NumField';
+import { BlockShell } from './shared/BlockShell';
+import { BlockProps } from './shared/types';
+import { LuMinus, LuPlus } from 'react-icons/lu';
 
 export const PyramidBlock = (props: BlockProps) => {
   const { block, isEditing, onUpdate } = props;
-  const color = getBlockColor(block.type);
 
   return (
     <BlockShell
@@ -25,7 +23,7 @@ export const PyramidBlock = (props: BlockProps) => {
             <VStack align="start" gap={1}>
               <Text
                 fontSize="2xs"
-                color="gray.500"
+                color="fg.muted"
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
@@ -51,25 +49,25 @@ export const PyramidBlock = (props: BlockProps) => {
                 <VStack>
                   <Button
                     bg="whiteAlpha.100"
-                    _hover={{ bg: "whiteAlpha.200" }}
+                    _hover={{ bg: 'whiteAlpha.200' }}
                     onClick={() => {
                       const newScheme = [...(block.repsScheme || []), 0];
                       onUpdate?.({ repsScheme: newScheme });
                     }}
-                    color={color}
+                    color="app.primary"
                     size="xs"
                   >
                     <LuPlus />
                   </Button>
                   <Button
                     bg="whiteAlpha.100"
-                    _hover={{ bg: "whiteAlpha.200" }}
+                    _hover={{ bg: 'whiteAlpha.200' }}
                     onClick={() => {
                       const newScheme = [...(block.repsScheme || [])];
                       newScheme.pop();
                       onUpdate?.({ repsScheme: newScheme });
                     }}
-                    color={color}
+                    color="app.primary"
                     size="xs"
                   >
                     <LuMinus />
@@ -97,11 +95,11 @@ export const PyramidBlock = (props: BlockProps) => {
                   px={2}
                   py={0.5}
                   borderRadius="md"
-                  bg={`${color}20`}
+                  bg="app.primary/20"
                   borderWidth="1px"
-                  borderColor={`${color}40`}
+                  borderColor="app.primary/40"
                 >
-                  <Text fontSize="xs" fontWeight="bold" color={color}>
+                  <Text fontSize="xs" fontWeight="bold" color="app.primary">
                     {reps}
                   </Text>
                 </Box>

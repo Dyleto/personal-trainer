@@ -1,18 +1,22 @@
-import ClickableCard from "@/components/ClickableCard";
-import { useExerciseStats } from "@/features/coach/hooks/useExerciseStats";
-import { useExercises } from "@/features/exercise/hooks/useExercises";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { useToastError } from "@/hooks/useToastError";
-import { Box, HStack, Skeleton, VStack } from "@chakra-ui/react";
-import { useMemo } from "react";
-import { LuArrowRight, LuLibrary } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
+import { Card } from '@/components/Card';
+import { useExerciseStats } from '@/features/coach/hooks/useExerciseStats';
+import { useExercises } from '@/features/exercise/hooks/useExercises';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { useToastError } from '@/hooks/useToastError';
+import { Box, HStack, Skeleton, VStack } from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { LuArrowRight, LuLibrary } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 
 export const ExercisesBlock = () => {
   const navigate = useNavigate();
   const colors = useThemeColors();
 
-  const { data: { count = 0 } = {}, isLoading: statsLoading, error } = useExerciseStats();
+  const {
+    data: { count = 0 } = {},
+    isLoading: statsLoading,
+    error,
+  } = useExerciseStats();
   const { data: exercises = [], isLoading: exercisesLoading } = useExercises();
 
   useToastError(error, "Impossible de charger le nombre d'exercices");
@@ -20,7 +24,10 @@ export const ExercisesBlock = () => {
   const recentExercises = useMemo(
     () =>
       [...exercises]
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
         .slice(0, 5),
     [exercises]
   );
@@ -29,7 +36,12 @@ export const ExercisesBlock = () => {
 
   if (isLoading) {
     return (
-      <ClickableCard onClick={() => {}} color={colors.primary} minW="50%">
+      <Card
+        onClick={() => {}}
+        accentColor={colors.primary}
+        minW="50%"
+        contentPadding={8}
+      >
         <VStack gap={4} align="stretch">
           <HStack justify="space-between">
             <Skeleton height="20px" width="55%" />
@@ -42,15 +54,16 @@ export const ExercisesBlock = () => {
             <Skeleton height="24px" width="80px" borderRadius="full" />
           </HStack>
         </VStack>
-      </ClickableCard>
+      </Card>
     );
   }
 
   return (
-    <ClickableCard
-      onClick={() => navigate("/coach/exercises")}
-      color={colors.primary}
+    <Card
+      onClick={() => navigate('/coach/exercises')}
+      accentColor={colors.primary}
       minW="50%"
+      contentPadding={8}
     >
       <VStack gap={4} align="stretch">
         {/* Titre + flèche */}
@@ -79,8 +92,8 @@ export const ExercisesBlock = () => {
           <Box fontSize="4xl" fontWeight="bold" color="white" lineHeight={1}>
             {count}
           </Box>
-          <Box fontSize="sm" color="gray.500">
-            exercice{count !== 1 ? "s" : ""}
+          <Box fontSize="sm" color="fg.muted">
+            exercice{count !== 1 ? 's' : ''}
           </Box>
         </HStack>
 
@@ -90,7 +103,7 @@ export const ExercisesBlock = () => {
             {recentExercises.map((ex, index) => (
               <Box
                 key={ex._id}
-                display={{ base: index < 2 ? "block" : "none", md: "block" }}
+                display={{ base: index < 2 ? 'block' : 'none', md: 'block' }}
                 px={3}
                 py={1}
                 bg={colors.primaryBg}
@@ -109,7 +122,7 @@ export const ExercisesBlock = () => {
             {/* +N mobile : tout ce qui dépasse 2 */}
             {count > 2 && (
               <Box
-                display={{ base: "block", md: "none" }}
+                display={{ base: 'block', md: 'none' }}
                 px={3}
                 py={1}
                 bg="gray.700"
@@ -124,7 +137,7 @@ export const ExercisesBlock = () => {
             {/* +N desktop : tout ce qui dépasse 5 */}
             {count > 5 && (
               <Box
-                display={{ base: "none", md: "block" }}
+                display={{ base: 'none', md: 'block' }}
                 px={3}
                 py={1}
                 bg="gray.700"
@@ -139,6 +152,6 @@ export const ExercisesBlock = () => {
           </HStack>
         )}
       </VStack>
-    </ClickableCard>
+    </Card>
   );
 };

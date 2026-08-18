@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/useAuth';
 import { ClientsGrid, ExercisesBlock, InvitationBlock } from '@/features/coach';
 import { Container, VStack, HStack, Text, Box } from '@chakra-ui/react';
 
-const CoachDashboard = () => {
+const Clients = () => {
   const { user } = useAuth();
 
   return (
@@ -42,4 +42,4 @@ const CoachDashboard = () => {
   );
 };
 
-export default CoachDashboard;
+export default Clients;

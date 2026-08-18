@@ -82,7 +82,7 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
               <Button
                 data-state="active"
                 bg={colors.primary}
-                color="gray.900"
+                color="bg.canvas"
                 onClick={handleSave}
                 loading={updateProgramMutation.isPending}
               >
@@ -169,7 +169,7 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
             <Button
               size="sm"
               bg={colors.primary}
-              color="gray.900"
+              color="bg.canvas"
               onClick={handleSave}
               loading={updateProgramMutation.isPending}
             >

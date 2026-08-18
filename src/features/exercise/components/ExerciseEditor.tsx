@@ -167,7 +167,7 @@ export const ExerciseEditor = ({
           <Button
             type="submit"
             bg={colors.primary}
-            color="gray.900"
+            color="bg.canvas"
             fontWeight="bold"
             loading={isLoading}
           >

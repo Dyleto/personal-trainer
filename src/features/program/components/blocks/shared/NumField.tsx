@@ -26,7 +26,7 @@ export const NumField = ({
     <VStack align="start" gap={1} flex={1}>
       <Text
         fontSize="2xs"
-        color="gray.500"
+        color="fg.muted"
         textTransform="uppercase"
         letterSpacing="wider"
       >

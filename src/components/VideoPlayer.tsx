@@ -70,7 +70,7 @@ const VideoPlayer = ({ url }: VideoPlayerProps) => {
           height={0}
           overflow="hidden"
           borderRadius="md"
-          bg="gray.900"
+          bg="bg.canvas"
         >
           <iframe
             style={{
@@ -100,7 +100,7 @@ const VideoPlayer = ({ url }: VideoPlayerProps) => {
       height={0}
       overflow="hidden"
       borderRadius="md"
-      bg="gray.900"
+      bg="bg.canvas"
     >
       <iframe
         style={{

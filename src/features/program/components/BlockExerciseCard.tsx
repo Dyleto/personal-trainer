@@ -4,8 +4,7 @@ import {
   blockIndexPrefix,
   blockSupportsRepsOnly,
   blockSupportsSets,
-  getBlockColor,
-} from '@/constants/blockTypes';
+} from '@/features/program/constants';
 import { formatExerciseMetric } from '@/utils/formatters';
 import {
   Box,
@@ -34,7 +33,6 @@ export const BlockExerciseView = ({
   index,
 }: ViewProps) => {
   const metric = formatExerciseMetric(exercise, blockType);
-  const color = getBlockColor(blockType);
   const rest =
     blockSupportsSets(blockType) &&
     (exercise.sets ?? 1) > 1 &&
@@ -66,19 +64,19 @@ export const BlockExerciseView = ({
             w="5px"
             h="5px"
             borderRadius="full"
-            bg={color}
+            bg="app.primary"
             flexShrink={0}
             opacity={0.7}
           />
           <HStack gap={1}>
             {indexPrefix && (
-              <Text fontSize="sm" color="gray.300" fontWeight="medium">
+              <Text fontSize="sm" color="fg.muted" fontWeight="medium">
                 {index + 1} ·
               </Text>
             )}
             <Text
               fontSize="sm"
-              color="gray.300"
+              color="fg.muted"
               lineClamp={1}
               flex={1}
               minW={0}
@@ -97,12 +95,17 @@ export const BlockExerciseView = ({
           {(metric || rest) && (
             <VStack gap={0.5} align="end">
               {metric && (
-                <Text fontSize="sm" color="gray.500">
+                <Text
+                  fontSize="sm"
+                  color="fg"
+                  fontWeight="semibold"
+                  fontFamily="mono"
+                >
                   {metric}
                 </Text>
               )}
               {rest && (
-                <Text fontSize="xs" color="gray.600">
+                <Text fontSize="xs" color="fg.muted">
                   {rest}
                 </Text>
               )}
@@ -110,7 +113,7 @@ export const BlockExerciseView = ({
           )}
           {hasDetail && (
             <Box
-              color="gray.600"
+              color="fg.muted"
               transition="transform 0.2s"
               transform={isOpen ? 'rotate(180deg)' : 'none'}
             >
@@ -126,7 +129,7 @@ export const BlockExerciseView = ({
             {hasDescription && (
               <Text
                 fontSize="xs"
-                color="gray.400"
+                color="fg.muted"
                 lineHeight="tall"
                 whiteSpace="pre-wrap"
               >
@@ -209,7 +212,7 @@ const NumInput = ({
         </NumberInput.Control>
       </NumberInput.Root>
       {label && (
-        <Text fontSize="2xs" color="gray.600" mt={0.5}>
+        <Text fontSize="2xs" color="fg.muted" mt={0.5}>
           {label}
         </Text>
       )}
@@ -227,7 +230,6 @@ export const BlockExerciseEdit = ({
   const supportsSets = blockSupportsSets(blockType);
   const metricsDefinedByBlock = blockDefinesOwnMetrics(blockType);
   const repsOnly = blockSupportsRepsOnly(blockType);
-  const color = getBlockColor(blockType);
   const indexPrefix = blockIndexPrefix(blockType);
 
   const [mode, setModeState] = useState<MetricMode>(() =>
@@ -279,7 +281,7 @@ export const BlockExerciseEdit = ({
             aria-label="Supprimer"
             size="xs"
             variant="ghost"
-            color="gray.500"
+            color="fg.muted"
             _hover={{ color: 'red.400' }}
             onClick={onRemove}
           >
@@ -295,7 +297,7 @@ export const BlockExerciseEdit = ({
               label="reps"
               onChange={(v) => onUpdate({ reps: v })}
             />
-            <Text fontSize="xs" color="gray.500" pb={4}>
+            <Text fontSize="xs" color="fg.muted" pb={4}>
               reps cibles
             </Text>
           </HStack>
@@ -321,7 +323,7 @@ export const BlockExerciseEdit = ({
                   py={1}
                   borderRadius="sm"
                   bg={mode === m ? 'whiteAlpha.200' : 'transparent'}
-                  color={mode === m ? 'white' : 'gray.500'}
+                  color={mode === m ? 'white' : 'fg.muted'}
                   fontSize="xs"
                   fontWeight="medium"
                   onClick={() => setMode(m)}
@@ -348,7 +350,7 @@ export const BlockExerciseEdit = ({
                     label="séries"
                     onChange={(v) => onUpdate({ sets: v })}
                   />
-                  <Text pb={4} color="gray.500" fontSize="sm">
+                  <Text pb={4} color="fg.muted" fontSize="sm">
                     ×
                   </Text>
                 </>
@@ -422,7 +424,7 @@ export const BlockExerciseEdit = ({
                 borderColor="whiteAlpha.100"
                 pt={2}
               >
-                <Text fontSize="xs" color="gray.500">
+                <Text fontSize="xs" color="fg.muted">
                   Repos entre séries :
                 </Text>
                 <NumInput
@@ -437,7 +439,7 @@ export const BlockExerciseEdit = ({
         )}
 
         {/* Color accent line */}
-        <Box h="2px" borderRadius="full" bg={`${color}40`} mt={1} />
+        <Box h="2px" borderRadius="full" bg="app.primary" mt={1} />
       </VStack>
     </Box>
   );

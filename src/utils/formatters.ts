@@ -1,4 +1,4 @@
-import { blockSupportsSets } from '@/constants/blockTypes';
+import { blockSupportsSets } from '@/features/program/constants';
 import { BlockExercise, BlockType } from '@/types';
 
 /**

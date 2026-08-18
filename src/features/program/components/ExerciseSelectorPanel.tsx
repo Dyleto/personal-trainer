@@ -7,16 +7,16 @@ import {
   Spinner,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { useCreateExercise } from "@/features/exercise/hooks/useExerciseMutations";
-import { useExerciseFilter } from "@/features/exercise/hooks/useExerciseFilter";
-import { useExercises } from "@/features/exercise/hooks/useExercises";
-import { Exercise } from "@/types";
-import { useMemo, useState } from "react";
-import { LuDumbbell, LuLibrary, LuPlus, LuSearch, LuX } from "react-icons/lu";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { Heading } from "@chakra-ui/react";
-import { ExerciseEditor, ExerciseLibraryCard } from "@/features/exercise";
+} from '@chakra-ui/react';
+import { useCreateExercise } from '@/features/exercise/hooks/useExerciseMutations';
+import { useExerciseFilter } from '@/features/exercise/hooks/useExerciseFilter';
+import { useExercises } from '@/features/exercise/hooks/useExercises';
+import { Exercise } from '@/types';
+import { useMemo, useState } from 'react';
+import { LuDumbbell, LuLibrary, LuPlus, LuSearch, LuX } from 'react-icons/lu';
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Heading } from '@chakra-ui/react';
+import { ExerciseEditor, ExerciseLibraryCard } from '@/features/exercise';
 
 interface ExerciseSelectorPanelProps {
   isOpen: boolean;
@@ -30,7 +30,7 @@ export const ExerciseSelectorPanel = ({
   onSelect,
 }: ExerciseSelectorPanelProps) => {
   const { data: exercises = [], isLoading } = useExercises();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [onCreateMode, setOnCreateMode] = useState(false);
 
   const colors = useThemeColors();
@@ -43,10 +43,10 @@ export const ExerciseSelectorPanel = ({
       [...exercises]
         .sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
         .slice(0, 5),
-    [exercises],
+    [exercises]
   );
 
   const handleSave = (exercise: Partial<Exercise>) => {
@@ -64,12 +64,12 @@ export const ExerciseSelectorPanel = ({
     <Drawer.Root
       open={isOpen}
       onOpenChange={(e) => !e.open && onClose()}
-      size={{ base: "full", md: "md", lg: "lg", xl: "xl" }}
+      size={{ base: 'full', md: 'md', lg: 'lg', xl: 'xl' }}
       modal={false}
       preventScroll={false}
     >
       <Drawer.Positioner pointerEvents="none">
-        <Drawer.Content bg="gray.900">
+        <Drawer.Content bg="bg.canvas">
           {/* Header */}
           <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
             <HStack justify="space-between" align="center">
@@ -80,7 +80,7 @@ export const ExerciseSelectorPanel = ({
                   <LuLibrary size={20} color={colors.primaryHex} />
                 )}
                 <Heading size="lg">
-                  {onCreateMode ? "Créer un exercice" : "Mes exercices"}
+                  {onCreateMode ? 'Créer un exercice' : 'Mes exercices'}
                 </Heading>
               </HStack>
               <HStack gap={2}>
@@ -138,15 +138,15 @@ export const ExerciseSelectorPanel = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     border="none"
-                    _focus={{ boxShadow: "none" }}
+                    _focus={{ boxShadow: 'none' }}
                     size="sm"
                   />
                   {searchQuery && (
                     <Box
                       cursor="pointer"
-                      color="gray.500"
-                      _hover={{ color: "gray.300" }}
-                      onClick={() => setSearchQuery("")}
+                      color="fg.muted"
+                      _hover={{ color: 'gray.300' }}
+                      onClick={() => setSearchQuery('')}
                       flexShrink={0}
                     >
                       <LuX size={12} />
@@ -161,15 +161,15 @@ export const ExerciseSelectorPanel = ({
                 ) : isSearching ? (
                   /* Résultats de recherche */
                   <VStack gap={1.5} align="stretch">
-                    <Text fontSize="xs" color="gray.500" px={1}>
+                    <Text fontSize="xs" color="fg.muted" px={1}>
                       {filteredExercises.length} résultat
-                      {filteredExercises.length !== 1 ? "s" : ""}
+                      {filteredExercises.length !== 1 ? 's' : ''}
                     </Text>
                     {filteredExercises.length === 0 ? (
                       <Box
                         py={8}
                         textAlign="center"
-                        color="gray.600"
+                        color="fg.muted"
                         fontSize="sm"
                       >
                         Aucun exercice pour « {searchQuery} »
@@ -194,7 +194,7 @@ export const ExerciseSelectorPanel = ({
                         <Text
                           fontSize="xs"
                           fontWeight="bold"
-                          color="gray.500"
+                          color="fg.muted"
                           letterSpacing="wider"
                           textTransform="uppercase"
                           px={1}
@@ -217,7 +217,7 @@ export const ExerciseSelectorPanel = ({
                       <Text
                         fontSize="xs"
                         fontWeight="bold"
-                        color="gray.500"
+                        color="fg.muted"
                         letterSpacing="wider"
                         textTransform="uppercase"
                         px={1}
@@ -228,7 +228,7 @@ export const ExerciseSelectorPanel = ({
                         <Box
                           py={8}
                           textAlign="center"
-                          color="gray.600"
+                          color="fg.muted"
                           fontSize="sm"
                         >
                           Aucun exercice — créez votre premier exercice
@@ -236,9 +236,9 @@ export const ExerciseSelectorPanel = ({
                       ) : (
                         [...exercises]
                           .sort((a, b) =>
-                            a.name.localeCompare(b.name, "fr", {
-                              sensitivity: "base",
-                            }),
+                            a.name.localeCompare(b.name, 'fr', {
+                              sensitivity: 'base',
+                            })
                           )
                           .map((exercise) => (
                             <ExerciseLibraryCard

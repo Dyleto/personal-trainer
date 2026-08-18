@@ -8,7 +8,7 @@ import {
   Session,
   SessionBlock,
 } from '@/types';
-import { blockSupportsSets } from '@/constants/blockTypes';
+import { blockSupportsSets } from '@/features/program/constants';
 
 type ExerciseUpdate = Partial<Omit<BlockExercise, 'exercise'>>;
 

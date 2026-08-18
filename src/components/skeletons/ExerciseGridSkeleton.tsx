@@ -1,6 +1,6 @@
-import { Grid } from "@chakra-ui/react";
-import { ExerciseCardSkeleton } from "./ExerciseCardSkeleton";
-import { GRID_LAYOUTS } from "@/constants/layouts";
+import { Grid } from '@chakra-ui/react';
+import { ExerciseCardSkeleton } from './ExerciseCardSkeleton';
+import { GRID_LAYOUTS } from '@/config/layouts';
 
 interface ExerciseGridSkeletonProps {
   count?: number;

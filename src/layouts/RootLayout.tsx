@@ -1,9 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Box, Grid, Spinner, VStack } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/useAuth';
-import { isPublicRoute } from '@/config/routes';
-import { RoleBadge } from '@/components/RoleBadge';
-import { getDefaultRoleRoute } from '@/utils/navigation';
+import { getDefaultRoleRoute, isPublicRoute } from '@/config/routes';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { Suspense } from 'react';
 
@@ -32,18 +30,6 @@ const RootLayout: React.FC = () => {
     return <Navigate to={getDefaultRoleRoute(user)} replace />;
   }
 
-  const hasMultipleRoles =
-    [user?.isCoach, user?.isClient, user?.isAdmin].filter(Boolean).length > 1;
-
-  const getCurrentRole = () => {
-    if (location.pathname.startsWith('/coach')) return 'coach';
-    if (location.pathname.startsWith('/client')) return 'client';
-    if (location.pathname.startsWith('/admin')) return 'admin';
-    return null;
-  };
-
-  const currentRole = getCurrentRole();
-
   return (
     <>
       {/* 
@@ -60,10 +46,6 @@ const RootLayout: React.FC = () => {
         zIndex={-1}
         pointerEvents="none"
       />
-
-      {user && hasMultipleRoles && currentRole && (
-        <RoleBadge role={currentRole} />
-      )}
 
       <Grid
         bg="bg.canvas"

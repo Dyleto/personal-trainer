@@ -9,9 +9,9 @@ import {
   Button,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
-import ClickableCard from '@/components/ClickableCard';
 import { useClients } from '@/features/coach/hooks/useClients';
 import { useToastError } from '@/hooks/useToastError';
+import { Card } from '@/components/Card';
 
 export const ClientsGrid = () => {
   const navigate = useNavigate();
@@ -33,14 +33,14 @@ export const ClientsGrid = () => {
           gap={4}
         >
           {[...Array(8)].map((_, index) => (
-            <ClickableCard key={index} onClick={() => {}} p={8}>
+            <Card key={index} onClick={() => {}} contentPadding={8}>
               <VStack gap={3}>
                 <SkeletonCircle size="11" />
                 <VStack gap={1} w="100%">
                   <SkeletonText height={6} noOfLines={1} />
                 </VStack>
               </VStack>
-            </ClickableCard>
+            </Card>
           ))}
         </Grid>
       </Box>
@@ -88,7 +88,7 @@ export const ClientsGrid = () => {
         gap={4}
       >
         {clients.map((client) => (
-          <ClickableCard
+          <Card
             key={client._id}
             onClick={() =>
               navigate(
@@ -100,7 +100,7 @@ export const ClientsGrid = () => {
                 ? `${client.unseenCount} nouvelle${client.unseenCount > 1 ? 's' : ''} séance${client.unseenCount > 1 ? 's' : ''}`
                 : undefined
             }
-            p={8}
+            contentPadding={8}
           >
             <VStack gap={3}>
               <Box position="relative" display="inline-block">
@@ -117,7 +117,7 @@ export const ClientsGrid = () => {
                 </Text>
               </VStack>
             </VStack>
-          </ClickableCard>
+          </Card>
         ))}
       </Grid>
     </Box>

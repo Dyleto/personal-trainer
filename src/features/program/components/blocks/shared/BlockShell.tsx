@@ -18,11 +18,10 @@ import {
 } from 'react-icons/lu';
 import { Button } from '@chakra-ui/react';
 import {
-  getBlockColor,
   getBlockConfigSummary,
   getBlockDescription,
   getBlockLabel,
-} from '@/constants/blockTypes';
+} from '@/features/program/constants';
 import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import {
   BlockExerciseEdit,
@@ -53,7 +52,6 @@ export const BlockShell = ({
   canMoveUp,
   canMoveDown,
 }: BlockShellProps) => {
-  const color = getBlockColor(block.type);
   const description = getBlockDescription(block.type);
 
   return (
@@ -61,14 +59,14 @@ export const BlockShell = ({
       borderRadius={isEditing ? 'xl' : 'lg'}
       overflow="hidden"
       borderWidth="1px"
-      borderColor={isEditing ? `${color}30` : 'whiteAlpha.100'}
+      borderColor={isEditing ? `app.primary/30` : 'whiteAlpha.100'}
       bg="blackAlpha.200"
     >
       {/* ── Header ── */}
       <Box
         px={4}
         py={isEditing ? 3 : 2.5}
-        bg={isEditing ? `${color}18` : `${color}15`}
+        bg={isEditing ? `app.primary/18` : `app.primary/15`}
       >
         {isEditing ? (
           <VStack align="stretch" gap={1}>
@@ -79,7 +77,7 @@ export const BlockShell = ({
                   aria-label="Monter le bloc"
                   size="xs"
                   variant="ghost"
-                  color="gray.500"
+                  color="fg.muted"
                   onClick={onMoveUp}
                   disabled={!canMoveUp}
                 >
@@ -89,7 +87,7 @@ export const BlockShell = ({
                   aria-label="Descendre le bloc"
                   size="xs"
                   variant="ghost"
-                  color="gray.500"
+                  color="fg.muted"
                   onClick={onMoveDown}
                   disabled={!canMoveDown}
                 >
@@ -101,7 +99,7 @@ export const BlockShell = ({
                 aria-label="Réorganiser le bloc"
                 size="xs"
                 variant="ghost"
-                color="gray.500"
+                color="fg.muted"
                 cursor="grab"
                 touchAction="none"
                 {...dragHandleProps}
@@ -118,13 +116,13 @@ export const BlockShell = ({
                   w="8px"
                   h="8px"
                   borderRadius="full"
-                  bg={color}
+                  bg="app.primary"
                   flexShrink={0}
                 />
                 <Text
                   fontSize="xs"
                   fontWeight="bold"
-                  color={color}
+                  color="app.primary"
                   textTransform="uppercase"
                   letterSpacing="wider"
                   flexShrink={0}
@@ -140,7 +138,7 @@ export const BlockShell = ({
                   placeholder="Nom personnalisé (optionnel)"
                   bg="blackAlpha.300"
                   borderColor="whiteAlpha.100"
-                  _focus={{ borderColor: `${color}50` }}
+                  _focus={{ borderColor: `app.primary/50` }}
                   borderRadius="md"
                   fontSize="xs"
                   color="gray.300"
@@ -151,7 +149,7 @@ export const BlockShell = ({
                 aria-label="Supprimer le bloc"
                 size="xs"
                 variant="ghost"
-                color="gray.500"
+                color="fg.muted"
                 _hover={{ color: 'red.400' }}
                 onClick={onRemove}
               >
@@ -159,7 +157,7 @@ export const BlockShell = ({
               </IconButton>
             </HStack>
 
-            <Text fontSize="2xs" color="gray.500" lineHeight="shorter">
+            <Text fontSize="2xs" color="fg.muted" lineHeight="shorter">
               {description}
             </Text>
           </VStack>
@@ -170,7 +168,7 @@ export const BlockShell = ({
                 w="8px"
                 h="8px"
                 borderRadius="full"
-                bg={color}
+                bg="app.primary"
                 flexShrink={0}
                 mt="3px"
               />
@@ -178,7 +176,7 @@ export const BlockShell = ({
                 <Text
                   fontSize="xs"
                   fontWeight="bold"
-                  color={color}
+                  color="app.primary"
                   textTransform="uppercase"
                   letterSpacing="wider"
                   lineHeight="shorter"
@@ -187,7 +185,7 @@ export const BlockShell = ({
                 </Text>
                 <Text
                   fontSize="2xs"
-                  color="gray.500"
+                  color="fg.muted"
                   lineHeight="shorter"
                   mt="2px"
                 >
@@ -196,7 +194,7 @@ export const BlockShell = ({
               </Box>
             </HStack>
             {getBlockConfigSummary(block) && (
-              <Text fontSize="xs" color="gray.500" flexShrink={0}>
+              <Text fontSize="xs" color="fg.muted" flexShrink={0}>
                 {getBlockConfigSummary(block)}
               </Text>
             )}
@@ -227,14 +225,14 @@ export const BlockShell = ({
           <Button
             size="sm"
             variant="ghost"
-            color={color}
+            color="app.primary"
             borderWidth="1px"
-            borderColor={`${color}30`}
+            borderColor={`app.primary/30`}
             borderStyle="dashed"
             borderRadius="lg"
             mt={3}
             onClick={onAddExercise}
-            _hover={{ bg: `${color}10` }}
+            _hover={{ bg: `app.primary/10` }}
             w="full"
           >
             <LuPlus size={14} />
@@ -250,7 +248,7 @@ export const BlockShell = ({
             fontSize="xs"
             bg="whiteAlpha.50"
             borderColor="whiteAlpha.100"
-            _focus={{ borderColor: `${color}50` }}
+            _focus={{ borderColor: `app.primary/50` }}
             borderRadius="md"
             color="gray.300"
           />
@@ -270,7 +268,7 @@ export const BlockShell = ({
             </VStack>
           ) : (
             <Box px={4} py={3}>
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color="fg.muted">
                 Aucun exercice
               </Text>
             </Box>
@@ -283,7 +281,7 @@ export const BlockShell = ({
               borderTopWidth="1px"
               borderColor="whiteAlpha.100"
             >
-              <Text fontSize="xs" color="gray.500" whiteSpace="pre-wrap">
+              <Text fontSize="xs" color="fg.muted" whiteSpace="pre-wrap">
                 {block.notes}
               </Text>
             </Box>

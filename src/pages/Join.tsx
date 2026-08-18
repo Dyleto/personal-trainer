@@ -1,14 +1,13 @@
 import GoogleLoginButton from '@/components/GoogleLoginButton';
-import { useVerifyInviteToken } from '@/hooks/useVerifyInviteToken';
-import { useThemeColors } from '@/hooks/useThemeColors';
+import { useVerifyInviteToken } from '@/features/auth';
 import {
+  Avatar,
+  Box,
   Container,
   Heading,
   Spinner,
-  VStack,
   Text,
-  Separator,
-  Box,
+  VStack,
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -17,21 +16,32 @@ import axios from 'axios';
 const Join = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const colors = useThemeColors();
   const invitationToken = searchParams.get('token') ?? undefined;
 
   const { data, isLoading, error } = useVerifyInviteToken(invitationToken);
 
-  // Rediriger si pas de token
   useEffect(() => {
     if (!invitationToken) {
       navigate('/login', { replace: true });
     }
   }, [invitationToken, navigate]);
 
+  const coachName = data?.coach
+    ? `${data.coach.firstName} ${data.coach.lastName}`
+    : '';
+
   const getContent = () => {
     if (isLoading) {
-      return <Spinner />;
+      return (
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          minH="40vh"
+        >
+          <Spinner size="xl" color="app.primary" />
+        </Box>
+      );
     }
 
     if (error) {
@@ -41,42 +51,96 @@ const Join = () => {
 
       if (status === 410) {
         return (
-          <VStack gap={4} maxW="md" w="100%">
-            <Heading color="red.400">Lien d'invitation expiré</Heading>
-            <Text color="fg.muted" textAlign="center">
-              Ce lien d'invitation n'est plus valide.
-            </Text>
-            <Text color="fg.muted" textAlign="center">
-              Demandez un nouveau lien à votre coach.
+          <VStack gap={3} w="100%">
+            <Avatar.Root
+              size="2xl"
+              mb={2}
+              opacity={0.6}
+              style={{ filter: 'grayscale(100%)' }}
+            >
+              <Avatar.Fallback name={coachName} />
+              <Avatar.Image src={data?.coach.picture} />
+            </Avatar.Root>
+            <Heading
+              fontSize="24px"
+              fontWeight="800"
+              textAlign="center"
+              maxW="20ch"
+            >
+              Lien d'invitation expiré
+            </Heading>
+            <Text color="fg.muted" fontSize="sm" textAlign="center" maxW="30ch">
+              Ce lien n'est plus valide. Demandez à votre coach de vous en
+              envoyer un nouveau.
             </Text>
           </VStack>
         );
       }
 
       return (
-        <VStack gap={6} maxW="md" w="100%">
-          <Heading color="red.400">Lien d'invitation invalide</Heading>
-          <Text color="fg.muted">
-            Le lien que vous avez cliqué n'existe pas ou est incorrect.
+        <VStack gap={3} w="100%">
+          <Box fontSize="26px" color="app.error" mb={1}>
+            ⊘
+          </Box>
+          <Heading
+            fontSize="24px"
+            fontWeight="800"
+            textAlign="center"
+            maxW="20ch"
+          >
+            Lien d'invitation invalide
+          </Heading>
+          <Text color="fg.muted" fontSize="sm" textAlign="center" maxW="30ch">
+            Le lien que vous avez ouvert n'existe pas ou est incorrect.
+            Vérifiez-le auprès de votre coach.
           </Text>
         </VStack>
       );
     }
 
-    // Token valide
     return (
-      <VStack gap={6} maxW="md" w="100%">
-        <Heading>
-          Vous avez été invité par {data?.coach.firstName}{' '}
-          {data?.coach.lastName}
+      <VStack gap={3} w="100%">
+        <Avatar.Root size="2xl" mb={2}>
+          <Avatar.Fallback name={coachName} />
+          <Avatar.Image src={data?.coach.picture} />
+        </Avatar.Root>
+        <Text
+          fontSize="11px"
+          letterSpacing="1.5px"
+          textTransform="uppercase"
+          fontWeight="800"
+          color="app.primary"
+        >
+          Invitation coaching
+        </Text>
+        <Heading
+          fontSize="24px"
+          fontWeight="800"
+          textAlign="center"
+          lineHeight="1.25"
+          maxW="22ch"
+        >
+          {coachName}
+          <br />
+          <Box as="span" color="app.primary">
+            vous invite
+          </Box>{' '}
+          à le rejoindre
         </Heading>
-
-        <VStack gap={3} w="100%">
-          <Text fontSize="sm" color="fg.muted">
-            Pour accepter l'invitation, connectez-vous avec Google
-          </Text>
-          <GoogleLoginButton invitationToken={invitationToken} />
-        </VStack>
+        <Text
+          color="fg.muted"
+          fontSize="sm"
+          textAlign="center"
+          maxW="30ch"
+          mb={2}
+        >
+          Créez votre compte pour accéder à votre programme personnalisé et
+          suivre vos séances.
+        </Text>
+        <GoogleLoginButton
+          text="Rejoindre avec Google"
+          invitationToken={invitationToken}
+        />
       </VStack>
     );
   };
@@ -88,21 +152,25 @@ const Join = () => {
       justifyContent="center"
       minH="100vh"
     >
-      <Container centerContent py={20}>
-        <VStack gap={16} w="100%" maxW="md">
-          {/* Header */}
-          <VStack gap={4} textAlign="center">
-            <Heading size="7xl" fontWeight="bold" letterSpacing="10px">
-              KETTLE
-            </Heading>
-            <Separator
-              borderColor={colors.primary}
-              borderWidth="1px"
-              width="50vw"
-            />
-          </VStack>
+      <Container centerContent py={12}>
+        <VStack gap={7} w="100%" maxW="380px">
+          <Text
+            fontSize="13px"
+            fontWeight="800"
+            letterSpacing="4px"
+            color="fg.muted"
+          >
+            KETTLE
+          </Text>
 
           {getContent()}
+
+          {!isLoading && !error && (
+            <Text fontSize="xs" color="fg.muted" textAlign="center" maxW="32ch">
+              Vous serez automatiquement rattaché à {coachName} — aucun autre
+              compte à créer.
+            </Text>
+          )}
         </VStack>
       </Container>
     </Box>

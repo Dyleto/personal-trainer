@@ -69,17 +69,17 @@ export const NativeSelectField = forwardRef<
         pr={3}
         borderRadius="md"
         borderWidth="1px"
-        borderColor={isOpen ? 'yellow.400' : 'gray.700'}
+        borderColor={isOpen ? 'app.primary' : 'fg.muted'}
         bg="gray.800"
         cursor="pointer"
         transition="all 0.2s"
         justify="space-between"
         onClick={() => setIsOpen(!isOpen)}
         _hover={{
-          borderColor: isOpen ? 'yellow.400' : 'gray.600',
+          borderColor: isOpen ? 'app.primary' : 'fg.muted',
         }}
         boxShadow={
-          isOpen ? '0 0 0 1px var(--chakra-colors-yellow-400)' : 'none'
+          isOpen ? '0 0 0 1px var(--chakra-colors-app-primary)' : 'none'
         }
       >
         {selectedOption ? (
@@ -87,10 +87,10 @@ export const NativeSelectField = forwardRef<
             {selectedOption.icon && (
               <Box
                 p={1}
-                bg={`${selectedOption.color || 'yellow.400'}/10`}
+                bg={`${selectedOption.color || 'app.primary'}/10`}
                 borderRadius="md"
                 borderWidth="1px"
-                borderColor={`${selectedOption.color || 'yellow.400'}/30`}
+                borderColor={`${selectedOption.color || 'app.primary'}/30`}
               >
                 {selectedOption.icon}
               </Box>
@@ -135,21 +135,21 @@ export const NativeSelectField = forwardRef<
               transition="all 0.2s"
               bg={
                 value === option.value
-                  ? `${option.color || 'yellow.400'}/10`
+                  ? `${option.color || 'app.primary'}/10`
                   : 'transparent'
               }
               _hover={{
-                bg: `${option.color || 'yellow.400'}/20`,
+                bg: `${option.color || 'app.primary'}/20`,
               }}
               onClick={() => handleSelect(option.value)}
             >
               {option.icon && (
                 <Box
                   p={1}
-                  bg={`${option.color || 'yellow.400'}/10`}
+                  bg={`${option.color || 'app.primary'}/10`}
                   borderRadius="md"
                   borderWidth="1px"
-                  borderColor={`${option.color || 'yellow.400'}/30`}
+                  borderColor={`${option.color || 'app.primary'}/30`}
                 >
                   {option.icon}
                 </Box>

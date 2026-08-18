@@ -222,7 +222,7 @@ export const SessionCard = ({
                         <Button
                           size="xs"
                           variant="ghost"
-                          color="gray.500"
+                          color="fg.muted"
                           onClick={() => setShowBlockSelector(false)}
                         >
                           Annuler
@@ -265,7 +265,7 @@ export const SessionCard = ({
                   borderWidth="1px"
                   borderColor="whiteAlpha.100"
                 >
-                  <Text color="gray.500" fontSize="sm">
+                  <Text color="fg.muted" fontSize="sm">
                     Cette séance ne contient aucun bloc.
                   </Text>
                 </Box>
@@ -281,7 +281,7 @@ export const SessionCard = ({
             <Button
               variant="ghost"
               size="sm"
-              color="gray.600"
+              color="fg.muted"
               _hover={{ color: 'red.400', bg: 'red.400/8' }}
               onClick={onRemoveSession}
               w="full"
@@ -301,7 +301,7 @@ export const SessionCard = ({
             <Button
               w="full"
               bg={colors.primary}
-              color="gray.900"
+              color="bg.canvas"
               fontWeight="bold"
               size="lg"
               onClick={onComplete}

@@ -2,12 +2,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import { Provider } from './components/ui/provider';
 import { AuthProvider } from './contexts/AuthProvider';
-import { ThemeProvider } from './contexts/ThemeProvider';
 import { Toaster } from './components/ui/toaster';
 import { ErrorHandler } from './components/ErrorHandler';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './config/queryClient';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ErrorBoundary from './components/ErrorBoundary';
 
 window.addEventListener('vite:preloadError', () => {
@@ -15,17 +13,14 @@ window.addEventListener('vite:preloadError', () => {
 });
 
 ReactDOM.createRoot(document.getElementById('root')! as HTMLElement).render(
-  <Provider forcedTheme="dark">
+  <Provider>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AuthProvider>
-            <App />
-            <ErrorHandler />
-            <Toaster />
-          </AuthProvider>
-        </ThemeProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        <AuthProvider>
+          <App />
+          <ErrorHandler />
+          <Toaster />
+        </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   </Provider>

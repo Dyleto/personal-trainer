@@ -2,6 +2,7 @@ import {
   Box,
   Container,
   Heading,
+  HStack,
   Spinner,
   Text,
   VStack,
@@ -10,12 +11,17 @@ import { useAuth } from '@/contexts/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import GoogleLoginButton from '@/components/GoogleLoginButton';
-import { useThemeColors } from '@/hooks/useThemeColors';
+import { LuListChecks, LuActivity, LuLibrary } from 'react-icons/lu';
+
+const FEATURES = [
+  { label: 'Programmes sur mesure', icon: LuListChecks },
+  { label: 'Suivi séance par séance', icon: LuActivity },
+  { label: "Bibliothèque d'exercices partagée", icon: LuLibrary },
+];
 
 const Login: React.FC = () => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
-  const colors = useThemeColors();
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -23,7 +29,18 @@ const Login: React.FC = () => {
     }
   }, [isLoading, user, navigate]);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) {
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minH="100vh"
+      >
+        <Spinner size="xl" color="app.primary" />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -32,17 +49,17 @@ const Login: React.FC = () => {
       justifyContent="center"
       minH="100vh"
     >
-      <Container centerContent py={20}>
-        <VStack gap={16} w="100%" maxW="md">
+      <Container centerContent py={12}>
+        <VStack gap={7} w="100%" maxW="380px">
           {/* Header */}
-          <VStack gap={4} textAlign="center">
+          <VStack gap={1} textAlign="center">
             <Heading
-              size="7xl"
-              fontWeight="bold"
-              letterSpacing="10px"
+              fontSize="42px"
+              fontWeight="800"
+              letterSpacing="9px"
               style={{
                 background:
-                  'linear-gradient(to bottom, #ffffff, rgba(255,255,255,0.72))',
+                  'linear-gradient(180deg, #fff, rgba(255,255,255,0.72))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -50,23 +67,43 @@ const Login: React.FC = () => {
             >
               KETTLE
             </Heading>
-
-            <Box
-              h="1px"
-              w="50vw"
-              maxW="300px"
-              style={{
-                background: `linear-gradient(to right, transparent, ${colors.primaryHex}, transparent)`,
-              }}
-            />
-
-            <Text color="fg.muted" fontSize="md">
-              Votre application de coaching personnel
+            <Text fontSize="13.5px" color="fg.muted" mt={1}>
+              Plateforme de coaching sportif personnalisé
             </Text>
           </VStack>
 
-          {/* Bouton Google stylisé */}
-          <GoogleLoginButton text="Continuer avec Google" />
+          {/* Fonctionnalités */}
+          <VStack gap={2.5} w="100%">
+            {FEATURES.map(({ label, icon: FeatureIcon }) => (
+              <HStack
+                key={label}
+                gap={3}
+                w="100%"
+                bg="bg.surface"
+                borderWidth="1px"
+                borderColor="whiteAlpha.100"
+                borderRadius="lg"
+                px={3.5}
+                py={3}
+              >
+                <Box color="app.primary" flexShrink={0} display="flex">
+                  <FeatureIcon size={16} />
+                </Box>
+                <Text fontSize="xs" color="fg.muted" textAlign="left">
+                  {label}
+                </Text>
+              </HStack>
+            ))}
+          </VStack>
+
+          {/* Bouton Google + note coach */}
+          <VStack gap={3} w="100%">
+            <GoogleLoginButton text="Continuer avec Google" />
+            <Text fontSize="xs" color="fg.muted" textAlign="center" maxW="32ch">
+              Vous êtes coach ? Ce compte devient votre espace pour gérer vos
+              clients.
+            </Text>
+          </VStack>
         </VStack>
       </Container>
     </Box>

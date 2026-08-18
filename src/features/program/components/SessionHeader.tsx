@@ -1,5 +1,5 @@
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { Box, HStack } from "@chakra-ui/react";
+import { useThemeColors } from '@/hooks/useThemeColors';
+import { Box, HStack } from '@chakra-ui/react';
 
 interface SessionHeaderProps {
   order: number;
@@ -20,20 +20,20 @@ export const SessionHeader = ({ order }: SessionHeaderProps) => {
         justifyContent="center"
         fontWeight="bold"
         fontSize="lg"
-        color="gray.900"
+        color="bg.canvas"
         boxShadow={`0 4px 12px ${colors.primaryHex}4D`}
         position="relative"
         _before={{
           content: '""',
-          position: "absolute",
-          inset: "-3px",
-          borderRadius: "full",
-          padding: "3px",
+          position: 'absolute',
+          inset: '-3px',
+          borderRadius: 'full',
+          padding: '3px',
           background: `linear-gradient(135deg, ${colors.primaryHex}66, ${colors.primaryHex}1A)`,
           WebkitMask:
-            "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-          WebkitMaskComposite: "xor",
-          maskComposite: "exclude",
+            'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude',
         }}
       >
         Séance {order}

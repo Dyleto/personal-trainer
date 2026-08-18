@@ -1,24 +1,14 @@
-import { Box, BoxProps, SystemStyleObject } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import { Box, BoxProps, SystemStyleObject, Text } from '@chakra-ui/react';
+import { ReactNode, KeyboardEvent } from 'react';
 
 interface CardProps extends Omit<BoxProps, 'onClick'> {
   children: ReactNode;
-  /**
-   * Ajoute l'effet de brillance dans le coin
-   */
   withGlow?: boolean;
-  /**
-   * Couleur de l'effet brillance et de la bordure au hover
-   */
   accentColor?: string;
-  /**
-   * Rend la carte cliquable avec hover effects
-   */
   onClick?: () => void;
-  /**
-   * Variante de hover effect
-   */
   hoverEffect?: 'lift' | 'border' | 'both' | 'none';
+  footerText?: string;
+  contentPadding?: number;
 }
 
 export const Card = ({
@@ -27,8 +17,14 @@ export const Card = ({
   accentColor,
   onClick,
   hoverEffect = 'both',
+  footerText,
+  contentPadding,
+  p,
   ...props
 }: CardProps) => {
+  const usesInnerPadding = contentPadding !== undefined || !!footerText;
+  const pad = contentPadding ?? 8;
+
   const getHoverStyles = (): SystemStyleObject => {
     const styles: SystemStyleObject = {};
 
@@ -44,8 +40,17 @@ export const Card = ({
     return styles;
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault(); // évite que Espace fasse scroller la page
+      onClick();
+    }
+  };
+
   return (
     <Box
+      p={usesInnerPadding ? 0 : p}
       borderTopWidth="3px"
       borderTopColor="transparent"
       borderRadius="xl"
@@ -56,10 +61,21 @@ export const Card = ({
       cursor={onClick ? 'pointer' : 'default'}
       transition="all 0.3s ease"
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      _focusVisible={
+        onClick
+          ? {
+              outline: '2px solid',
+              outlineColor: 'app.primary',
+              outlineOffset: '2px',
+            }
+          : undefined
+      }
       _hover={hoverEffect !== 'none' ? getHoverStyles() : undefined}
       {...props}
     >
-      {/* Effet brillance */}
       {withGlow && (
         <Box
           position="absolute"
@@ -74,10 +90,35 @@ export const Card = ({
           pointerEvents="none"
         />
       )}
-
-      {/* Contenu */}
       <Box position="relative" zIndex={1}>
-        {children}
+        {usesInnerPadding ? (
+          <>
+            <Box pt={pad} px={pad} pb={footerText ? 4 : pad}>
+              {children}
+            </Box>
+            {footerText && (
+              <Box
+                bg={accentColor}
+                px={3}
+                py={1.5}
+                textAlign="center"
+                borderRadius="0 0 11px 11px"
+              >
+                <Text
+                  fontSize="2xs"
+                  fontWeight="bold"
+                  color="white"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                >
+                  {footerText}
+                </Text>
+              </Box>
+            )}
+          </>
+        ) : (
+          children
+        )}
       </Box>
     </Box>
   );

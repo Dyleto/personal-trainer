@@ -3,33 +3,37 @@ import {
   createRoutesFromElements,
   createBrowserRouter,
   RouterProvider,
-} from "react-router-dom";
-import RootLayout from "./layouts/RootLayout";
-import React from "react";
+} from 'react-router-dom';
+import RootLayout from './layouts/RootLayout';
+import React from 'react';
+import { RouteError } from './components/RouteError';
 
-const Login = React.lazy(() => import("./pages/Login"));
-const AuthCallback = React.lazy(() => import("./pages/AuthCallback"));
-const Join = React.lazy(() => import("./pages/Join"));
+const Login = React.lazy(() => import('./pages/Login'));
+const AuthCallback = React.lazy(() => import('./pages/AuthCallback'));
+const Join = React.lazy(() => import('./pages/Join'));
 
-const AdminDashboard = React.lazy(() => import("./pages/Admin/Dashboard"));
-const AdminCreateCoach = React.lazy(() => import("./pages/Admin/CreateCoach"));
+const AdminDashboard = React.lazy(() => import('./pages/Admin/Dashboard'));
 
-const CoachDashboard = React.lazy(() => import("./pages/Coach/Dashboard"));
-const ClientDetails = React.lazy(() => import("./pages/Coach/ClientDetails"));
-const Exercises = React.lazy(() => import("./pages/Coach/Exercises"));
-const ExerciseForm = React.lazy(() => import("./pages/Coach/ExerciseForm"));
+const Clients = React.lazy(() => import('./pages/Coach/Clients'));
+const ClientDetails = React.lazy(() => import('./pages/Coach/ClientDetails'));
+const Exercises = React.lazy(() => import('./pages/Coach/Exercises'));
+const ExerciseForm = React.lazy(() => import('./pages/Coach/ExerciseForm'));
 
-const ClientDashboard = React.lazy(() => import("./pages/Client/Dashboard"));
+const ClientLayout = React.lazy(() => import('./pages/Client/ClientLayout'));
+const Today = React.lazy(() => import('./pages/Client/Today'));
+const Program = React.lazy(() => import('./pages/Client/Program'));
+const SessionScreen = React.lazy(() => import('./pages/Client/SessionScreen'));
+const History = React.lazy(() => import('./pages/Client/History'));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<RootLayout />}>
+    <Route path="/" element={<RootLayout />} errorElement={<RouteError />}>
       <Route path="login" element={<Login />} />
       <Route path="auth/callback" element={<AuthCallback />} />
       <Route path="join" element={<Join />} />
 
       {/* Routes Coach */}
-      <Route path="coach" element={<CoachDashboard />} />
+      <Route path="coach" element={<Clients />} />
       <Route path="coach/clients/:clientId" element={<ClientDetails />} />
       <Route path="coach/exercises" element={<Exercises />} />
       <Route path="coach/exercises/new" element={<ExerciseForm />} />
@@ -40,15 +44,17 @@ const router = createBrowserRouter(
       />
 
       {/* Routes Client */}
-      <Route path="client" element={<ClientDashboard />} />
+      <Route path="client" element={<ClientLayout />}>
+        <Route index element={<Today />} />
+        <Route path="programme" element={<Program />} />
+        <Route path="seance" element={<SessionScreen />} />
+        <Route path="historique" element={<History />} />
+      </Route>
 
       {/* Routes Admin */}
-      <Route path="admin">
-        <Route index element={<AdminDashboard />} />
-        <Route path="create-coach" element={<AdminCreateCoach />} />
-      </Route>
-    </Route>,
-  ),
+      <Route path="admin" element={<AdminDashboard />} />
+    </Route>
+  )
 );
 
 function App() {

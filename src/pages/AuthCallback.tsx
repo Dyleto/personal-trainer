@@ -4,7 +4,7 @@ import { Box, Heading, Spinner, VStack } from '@chakra-ui/react';
 // Services & Hooks
 import { authService } from '@/services/authService';
 import { useAuth } from '@/contexts/useAuth';
-import { getDefaultRoleRoute } from '@/utils/navigation';
+import { getDefaultRoleRoute } from '@/config/routes';
 import storage from '@/utils/storage';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { toaster } from '@/components/ui/toasterInstance';

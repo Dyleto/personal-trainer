@@ -1,6 +1,6 @@
-import { useGoogleOAuth } from "@/hooks/useGoogleOAuth";
-import { Button, Icon } from "@chakra-ui/react";
-import { FcGoogle } from "react-icons/fc";
+import { useGoogleOAuth } from '@/features/auth';
+import { Button, Icon } from '@chakra-ui/react';
+import { FcGoogle } from 'react-icons/fc';
 
 interface GoogleLoginButtonProps {
   text?: string;
@@ -8,7 +8,7 @@ interface GoogleLoginButtonProps {
 }
 
 const GoogleLoginButton = ({
-  text = "Se connecter avec Google",
+  text = 'Se connecter avec Google',
   invitationToken,
 }: GoogleLoginButtonProps) => {
   const { loginWithGoogle } = useGoogleOAuth();
@@ -25,15 +25,16 @@ const GoogleLoginButton = ({
       borderColor="gray.200"
       onClick={() => loginWithGoogle(invitationToken)}
       _hover={{
-        bg: "gray.50",
-        borderColor: "gray.300",
-        shadow: "md",
-        transform: "translateY(-2px)",
-        transition: "all 0.3s ease",
+        bg: 'gray.50',
+        borderColor: 'gray.300',
+        shadow: 'md',
+        transform: 'translateY(-2px)',
+        transition: 'all 0.3s ease',
       }}
       _active={{
-        transform: "translateY(0px)",
+        transform: 'translateY(0px)',
       }}
+      _focusVisible={{ outlineColor: 'app.primary' }}
       borderRadius="xl"
       transition="all 0.3s ease"
       boxShadow="sm"

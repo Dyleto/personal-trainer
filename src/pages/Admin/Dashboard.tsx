@@ -1,7 +1,10 @@
 import { Header } from '@/components/Header';
 import { useAuth } from '@/contexts/useAuth';
-import { useAdminCoaches, useAdminStats } from '@/hooks/useAdminStats';
-import { useCreateCoach } from '@/hooks/useCreateCoach';
+import {
+  useCreateCoach,
+  useAdminStats,
+  useAdminCoaches,
+} from '@/features/admin';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/config/queryKeys';
 import { AdminCoach } from '@/services/adminService';
@@ -64,7 +67,7 @@ const StatCard = ({ label, value, sub, icon, color }: StatCardProps) => (
       <VStack align="start" gap={1}>
         <Text
           fontSize="xs"
-          color="gray.500"
+          color="fg.muted"
           fontWeight="medium"
           textTransform="uppercase"
           letterSpacing="wider"
@@ -79,7 +82,7 @@ const StatCard = ({ label, value, sub, icon, color }: StatCardProps) => (
           </Text>
         )}
         {sub && (
-          <Text fontSize="xs" color="gray.500">
+          <Text fontSize="xs" color="fg.muted">
             {sub}
           </Text>
         )}
@@ -142,7 +145,7 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
         <Text fontWeight="semibold" fontSize="sm" color="white" truncate>
           {coach.firstName} {coach.lastName}
         </Text>
-        <Text fontSize="xs" color="gray.500" truncate>
+        <Text fontSize="xs" color="fg.muted" truncate>
           {coach.email}
         </Text>
       </VStack>
@@ -163,7 +166,7 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
         </HStack>
         <Text
           fontSize="xs"
-          color="gray.600"
+          color="fg.muted"
           display={{ base: 'none', md: 'block' }}
         >
           depuis {since}
@@ -217,11 +220,11 @@ const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
       size="sm"
     >
       <Drawer.Positioner>
-        <Drawer.Content bg="gray.900">
+        <Drawer.Content bg="bg.canvas">
           <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
             <HStack justify="space-between">
               <HStack gap={2}>
-                <LuShield size={18} color="#eab308" />
+                <LuShield size={18} color="app.primary" />
                 <Text fontWeight="bold">Créer un coach</Text>
               </HStack>
               <Button size="sm" variant="ghost" onClick={onClose}>
@@ -279,8 +282,8 @@ const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
 
                 <Button
                   type="submit"
-                  bg="yellow.400"
-                  color="gray.900"
+                  bg="app.primary"
+                  color="bg.canvas"
                   fontWeight="bold"
                   loading={mutation.isPending}
                   mt={2}
@@ -311,10 +314,10 @@ const AdminDashboard = () => {
         <HStack justify="space-between" align="start">
           <VStack align="start" gap={0.5}>
             <HStack gap={2}>
-              <LuShield size={16} color="#eab308" />
+              <LuShield size={16} color="app.primary" />
               <Text
                 fontSize="xs"
-                color="yellow.400"
+                color="app.primary"
                 fontWeight="bold"
                 textTransform="uppercase"
                 letterSpacing="wider"
@@ -336,7 +339,7 @@ const AdminDashboard = () => {
             label="Coachs"
             value={stats?.coachCount}
             icon={<LuShield size={18} />}
-            color="#eab308"
+            color="app.primary"
           />
           <StatCard
             label="Clients"
@@ -367,7 +370,7 @@ const AdminDashboard = () => {
         <VStack align="stretch" gap={0}>
           <HStack justify="space-between" mb={4}>
             <HStack gap={2}>
-              <LuChartBar size={16} color="#eab308" />
+              <LuChartBar size={16} color="app.primary" />
               <Heading size="md">Coachs</Heading>
               {coaches.length > 0 && (
                 <Box
@@ -384,10 +387,10 @@ const AdminDashboard = () => {
             </HStack>
             <Button
               size="sm"
-              bg="yellow.400"
-              color="gray.900"
+              bg="app.primary"
+              color="bg.canvas"
               fontWeight="bold"
-              _hover={{ bg: 'yellow.300' }}
+              _hover={{ bg: 'app.primary.hover' }}
               onClick={() => setIsDrawerOpen(true)}
             >
               <LuPlus />
@@ -427,10 +430,10 @@ const AdminDashboard = () => {
                   color="gray"
                   style={{ margin: '0 auto 8px' }}
                 />
-                <Text color="gray.500" fontSize="sm">
+                <Text color="fg.muted" fontSize="sm">
                   Aucun coach pour l'instant
                 </Text>
-                <Text color="gray.600" fontSize="xs" mt={1}>
+                <Text color="fg.muted" fontSize="xs" mt={1}>
                   Créez le premier compte coach pour commencer
                 </Text>
               </Box>

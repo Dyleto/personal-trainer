@@ -1,6 +1,5 @@
-import { SessionMetrics } from "@/types";
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { MetricStars } from "./MetricStars";
+import { SessionMetrics } from '@/types';
+import { MetricStars } from './MetricStars';
 import {
   Box,
   Button,
@@ -9,16 +8,20 @@ import {
   Separator,
   Text,
   VStack,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { AutoResizeTextarea } from "@/components/AutoResizeTextarea";
-import { DateInput } from "@/components/DateInput";
-import { METRICS_CONFIG } from "@/constants/metricsConfig";
+} from '@chakra-ui/react';
+import { useState } from 'react';
+import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
+import { DateInput } from '@/components/DateInput';
+import { METRICS_CONFIG } from '@/features/client/constants';
 
 interface CompleteSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (metrics: SessionMetrics, notes: string, completedAt?: string) => void;
+  onSubmit: (
+    metrics: SessionMetrics,
+    notes: string,
+    completedAt?: string
+  ) => void;
   isLoading?: boolean;
 }
 
@@ -38,9 +41,8 @@ export const CompleteSessionModal = ({
   onSubmit,
   isLoading,
 }: CompleteSessionModalProps) => {
-  const colors = useThemeColors();
   const [metrics, setMetrics] = useState<SessionMetrics>(DEFAULT_METRICS);
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState('');
   const [completedAt, setCompletedAt] = useState(toDateInputValue(new Date()));
 
   const handleSubmit = () => {
@@ -51,7 +53,7 @@ export const CompleteSessionModal = ({
 
   const handleClose = () => {
     setMetrics(DEFAULT_METRICS);
-    setNotes("");
+    setNotes('');
     setCompletedAt(toDateInputValue(new Date()));
     onClose();
   };
@@ -61,15 +63,15 @@ export const CompleteSessionModal = ({
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content
-          bg="gray.900"
+          bg="bg.canvas"
           borderColor="whiteAlpha.100"
           borderWidth="1px"
         >
           <Dialog.Header>
             <VStack align="start" gap={1}>
-              <Dialog.Title>Comment s'est passée la séance ?</Dialog.Title>
-              <Text fontSize="sm" color="gray.400" fontWeight="normal">
-                Note ton ressenti pour que ton coach puisse adapter le programme.
+              <Dialog.Title>Bilan de séance</Dialog.Title>
+              <Text fontSize="sm" color="fg.muted" fontWeight="normal">
+                Ton ressenti aide ton coach à adapter la suite.
               </Text>
             </VStack>
           </Dialog.Header>
@@ -78,7 +80,7 @@ export const CompleteSessionModal = ({
           <Dialog.Body>
             <VStack gap={4} align="stretch">
               <VStack align="center" gap={1.5}>
-                <Text fontSize="xs" color="gray.600" letterSpacing="wide">
+                <Text fontSize="xs" color="fg.muted" letterSpacing="wide">
                   Date de réalisation
                 </Text>
                 <Box w="45%">
@@ -93,14 +95,18 @@ export const CompleteSessionModal = ({
               <Separator borderColor="whiteAlpha.100" />
 
               <VStack gap={3} align="stretch">
-                {/* En-tête d'échelle commun */}
                 <HStack justify="flex-end">
-                  <HStack w="140px" justify="space-between" align="center" gap={2}>
-                    <Text fontSize="2xs" color="gray.500" whiteSpace="nowrap">
+                  <HStack
+                    w="140px"
+                    justify="space-between"
+                    align="center"
+                    gap={2}
+                  >
+                    <Text fontSize="2xs" color="fg.muted" whiteSpace="nowrap">
                       1 · Pas top
                     </Text>
-                    <Box flex={1} h="1px" bg="gray.800" />
-                    <Text fontSize="2xs" color="gray.500" whiteSpace="nowrap">
+                    <Box flex={1} h="1px" bg="whiteAlpha.100" />
+                    <Text fontSize="2xs" color="fg.muted" whiteSpace="nowrap">
                       5 · Pleine forme
                     </Text>
                   </HStack>
@@ -109,7 +115,12 @@ export const CompleteSessionModal = ({
                 {METRICS_CONFIG.map(({ key, Icon, label }) => (
                   <MetricStars
                     key={key}
-                    icon={<Icon size={16} color={colors.primaryHex} />}
+                    icon={
+                      <Icon
+                        size={16}
+                        color="var(--chakra-colors-app-primary)"
+                      />
+                    }
                     label={label}
                     value={metrics[key]}
                     starsW="140px"
@@ -123,7 +134,7 @@ export const CompleteSessionModal = ({
               <Separator borderColor="whiteAlpha.100" />
 
               <Box>
-                <Text fontSize="sm" color="gray.400" mb={2}>
+                <Text fontSize="sm" color="fg.muted" mb={2}>
                   Commentaire (facultatif)
                 </Text>
                 <AutoResizeTextarea
@@ -133,7 +144,7 @@ export const CompleteSessionModal = ({
                   size="sm"
                   border="1px solid"
                   borderColor="whiteAlpha.200"
-                  _focus={{ borderColor: colors.primaryBorder }}
+                  _focus={{ borderColor: 'app.primary.border' }}
                 />
               </Box>
             </VStack>
@@ -144,8 +155,8 @@ export const CompleteSessionModal = ({
               Annuler
             </Button>
             <Button
-              bg={colors.primary}
-              color="gray.900"
+              bg="app.primary"
+              color="bg.canvas"
               fontWeight="bold"
               onClick={handleSubmit}
               loading={isLoading}
