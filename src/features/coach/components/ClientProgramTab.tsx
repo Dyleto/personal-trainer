@@ -7,7 +7,15 @@ import {
   ExerciseSelectorPanel,
   CreateSessionCard,
 } from '@/features/program';
-import { Box, Button, Grid, Heading, HStack, Text } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Dialog,
+  Grid,
+  Heading,
+  HStack,
+  Text,
+} from '@chakra-ui/react';
 import { LuPencil, LuSave, LuX } from 'react-icons/lu';
 
 interface SelectorState {
@@ -25,6 +33,7 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
   const { program, initialize, actions } = useProgramEditor(null);
   const updateProgramMutation = useUpdateProgramSessions(clientId);
   const [isEditing, setIsEditing] = useState(false);
+  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [selectorState, setSelectorState] = useState<SelectorState>({
     isOpen: false,
     sessionId: null,
@@ -37,6 +46,11 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
     }
   }, [client, initialize, isEditing]);
 
+  const isDirty =
+    !!program &&
+    JSON.stringify(program.sessions) !==
+      JSON.stringify(client.program.sessions);
+
   const handleSave = () => {
     if (!program) return;
     updateProgramMutation.mutate(program.sessions, {
@@ -44,9 +58,18 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
     });
   };
 
-  const handleCancel = () => {
+  const confirmCancel = () => {
     if (client.program) initialize(client.program);
     setIsEditing(false);
+    setIsCancelConfirmOpen(false);
+  };
+
+  const handleCancelClick = () => {
+    if (isDirty) {
+      setIsCancelConfirmOpen(true);
+    } else {
+      confirmCancel();
+    }
   };
 
   const handleOpenSelector = (sessionId: string, blockId: string) => {
@@ -65,29 +88,10 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
 
   return (
     <>
-      <Box mt={4}>
+      <Box mt={4} pb={isEditing ? '80px' : 0}>
         <HStack justify="space-between" mb={6}>
           <Heading size="lg">Programme</Heading>
-          {isEditing ? (
-            <HStack>
-              <Button
-                variant="ghost"
-                onClick={handleCancel}
-                disabled={updateProgramMutation.isPending}
-              >
-                <LuX /> Annuler
-              </Button>
-              <Button
-                data-state="active"
-                bg="app.primary"
-                color="bg.canvas"
-                onClick={handleSave}
-                loading={updateProgramMutation.isPending}
-              >
-                <LuSave /> Enregistrer
-              </Button>
-            </HStack>
-          ) : (
+          {!isEditing && (
             <Button variant="outline" onClick={() => setIsEditing(true)}>
               <LuPencil /> Modifier
             </Button>
@@ -97,7 +101,7 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
         <Grid
           templateColumns={{
             base: '1fr',
-            md: 'repeat(auto-fill, minmax(400px, 1fr))',
+            md: 'repeat(auto-fill, minmax(380px, 1fr))',
           }}
           gap={8}
           alignItems="start"
@@ -122,7 +126,6 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
               onReorderBlocks={(orderedIds) =>
                 actions.reorderBlocks(session._id, orderedIds)
               }
-
               onAddExercise={(blockId) =>
                 handleOpenSelector(session._id, blockId)
               }
@@ -155,17 +158,25 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
         </Grid>
 
         {isEditing && (
-          <HStack justify="flex-end" mt={6} gap={3}>
+          <HStack
+            justify="flex-end"
+            gap={3}
+            position="sticky"
+            bottom={0}
+            bg="bg.canvas"
+            py={4}
+            mt={6}
+            borderTop="1px solid"
+            borderColor="whiteAlpha.100"
+          >
             <Button
-              size="sm"
               variant="ghost"
-              onClick={handleCancel}
+              onClick={handleCancelClick}
               disabled={updateProgramMutation.isPending}
             >
               <LuX /> Annuler
             </Button>
             <Button
-              size="sm"
               bg="app.primary"
               color="bg.canvas"
               onClick={handleSave}
@@ -186,6 +197,48 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
           onSelect={handleSelectExercise}
         />
       )}
+
+      <Dialog.Root
+        open={isCancelConfirmOpen}
+        onOpenChange={(e) => !e.open && setIsCancelConfirmOpen(false)}
+      >
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content
+            bg="bg.canvas"
+            borderColor="whiteAlpha.100"
+            borderWidth="1px"
+            maxW="sm"
+          >
+            <Dialog.Header>
+              <Dialog.Title>Annuler les modifications ?</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text color="fg.muted" fontSize="sm">
+                Les changements apportés à ce programme ne seront pas
+                enregistrés.
+              </Text>
+            </Dialog.Body>
+            <Dialog.Footer gap={3}>
+              <Button
+                bg="app.primary"
+                color="bg.canvas"
+                fontWeight="bold"
+                onClick={confirmCancel}
+              >
+                Annuler les modifications
+              </Button>
+              <Button
+                variant="ghost"
+                color="fg.muted"
+                onClick={() => setIsCancelConfirmOpen(false)}
+              >
+                Continuer l'édition
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
     </>
   );
 };

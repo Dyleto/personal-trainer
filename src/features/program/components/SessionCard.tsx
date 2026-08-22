@@ -1,12 +1,30 @@
 import { BlockExercise, BlockType, Session, SessionBlock } from '@/types';
-import { Box, Button, HStack, Separator, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Drawer,
+  HStack,
+  IconButton,
+  Separator,
+  Text,
+  VStack,
+  useBreakpointValue,
+} from '@chakra-ui/react';
 import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
-import { LuArrowRight, LuPlus, LuTrash2 } from 'react-icons/lu';
+import {
+  LuArrowRight,
+  LuMenu,
+  LuPencil,
+  LuPlus,
+  LuTrash2,
+  LuX,
+} from 'react-icons/lu';
 import { Card } from '@/components/Card';
 import { SessionHeader } from './SessionHeader';
 import { BlockCard } from './BlockCard';
 import { BlockEditor } from './BlockEditor';
 import { BlockTypeSelector } from './BlockTypeSelector';
+import { getBlockLabel } from '@/features/program/constants';
 import { useState } from 'react';
 import {
   SortableContext,
@@ -75,6 +93,55 @@ const SortableBlock = ({
   );
 };
 
+// Ligne compacte utilisée en mobile pendant l'édition : le détail complet
+// (avec tous les champs) s'ouvre en plein écran au tap, pour ne pas avoir
+// à faire défiler un formulaire entier par bloc dans la liste.
+const MobileBlockRow = ({
+  block,
+  dragHandleProps,
+  onOpen,
+}: {
+  block: SessionBlock;
+  dragHandleProps: Record<string, unknown>;
+  onOpen: () => void;
+}) => (
+  <HStack
+    p={3}
+    borderRadius="lg"
+    borderWidth="1px"
+    borderColor="whiteAlpha.200"
+    bg="whiteAlpha.50"
+    justify="space-between"
+    cursor="pointer"
+    onClick={onOpen}
+  >
+    <VStack align="start" gap={0} minW={0}>
+      <Text fontSize="sm" fontWeight="bold" truncate>
+        {getBlockLabel(block.type)}
+      </Text>
+      <Text fontSize="xs" color="fg.muted">
+        {block.exercises.length} exercice
+        {block.exercises.length > 1 ? 's' : ''}
+      </Text>
+    </VStack>
+    <HStack gap={1} flexShrink={0}>
+      <LuPencil size={14} color="var(--chakra-colors-fg-muted)" />
+      <IconButton
+        aria-label="Réorganiser le bloc"
+        size="xs"
+        variant="ghost"
+        color="fg.muted"
+        cursor="grab"
+        touchAction="none"
+        onClick={(e) => e.stopPropagation()}
+        {...dragHandleProps}
+      >
+        <LuMenu size={14} />
+      </IconButton>
+    </HStack>
+  </HStack>
+);
+
 export const SessionCard = ({
   session,
   interactive = true,
@@ -91,6 +158,8 @@ export const SessionCard = ({
   onUpdateExercise,
 }: SessionCardProps) => {
   const [showBlockSelector, setShowBlockSelector] = useState(false);
+  const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
@@ -114,6 +183,12 @@ export const SessionCard = ({
     const toIndex = session.blocks.findIndex((b) => b._id === over.id);
     moveBlock(fromIndex, toIndex);
   };
+
+  const editingBlockIndex = session.blocks.findIndex(
+    (b) => b._id === editingBlockId
+  );
+  const editingBlock =
+    editingBlockIndex >= 0 ? session.blocks[editingBlockIndex] : null;
 
   return (
     <Card
@@ -175,27 +250,35 @@ export const SessionCard = ({
               {session.blocks.map((block, index) =>
                 isEditing ? (
                   <SortableBlock key={block._id} id={block._id}>
-                    {(dragHandleProps) => (
-                      <BlockEditor
-                        block={block}
-                        dragHandleProps={dragHandleProps}
-                        canMoveUp={index > 0}
-                        canMoveDown={index < session.blocks.length - 1}
-                        onMoveUp={() => moveBlock(index, index - 1)}
-                        onMoveDown={() => moveBlock(index, index + 1)}
-                        onUpdate={(updates) =>
-                          onUpdateBlock?.(block._id, updates)
-                        }
-                        onRemove={() => onRemoveBlock?.(block._id)}
-                        onAddExercise={() => onAddExercise?.(block._id)}
-                        onRemoveExercise={(i) =>
-                          onRemoveExercise?.(block._id, i)
-                        }
-                        onUpdateExercise={(i, updates) =>
-                          onUpdateExercise?.(block._id, i, updates)
-                        }
-                      />
-                    )}
+                    {(dragHandleProps) =>
+                      isMobile ? (
+                        <MobileBlockRow
+                          block={block}
+                          dragHandleProps={dragHandleProps}
+                          onOpen={() => setEditingBlockId(block._id)}
+                        />
+                      ) : (
+                        <BlockEditor
+                          block={block}
+                          dragHandleProps={dragHandleProps}
+                          canMoveUp={index > 0}
+                          canMoveDown={index < session.blocks.length - 1}
+                          onMoveUp={() => moveBlock(index, index - 1)}
+                          onMoveDown={() => moveBlock(index, index + 1)}
+                          onUpdate={(updates) =>
+                            onUpdateBlock?.(block._id, updates)
+                          }
+                          onRemove={() => onRemoveBlock?.(block._id)}
+                          onAddExercise={() => onAddExercise?.(block._id)}
+                          onRemoveExercise={(i) =>
+                            onRemoveExercise?.(block._id, i)
+                          }
+                          onUpdateExercise={(i, updates) =>
+                            onUpdateExercise?.(block._id, i, updates)
+                          }
+                        />
+                      )
+                    }
                   </SortableBlock>
                 ) : (
                   <BlockCard key={block._id} block={block} />
@@ -310,6 +393,64 @@ export const SessionCard = ({
           </Box>
         )}
       </VStack>
+
+      {isMobile && editingBlock && (
+        <Drawer.Root
+          open={!!editingBlock}
+          onOpenChange={(e) => !e.open && setEditingBlockId(null)}
+          size="full"
+        >
+          <Drawer.Positioner>
+            <Drawer.Content bg="bg.canvas">
+              <Drawer.Header
+                borderBottomWidth="1px"
+                borderColor="whiteAlpha.100"
+              >
+                <HStack justify="space-between" flex={1}>
+                  <Text fontWeight="bold">
+                    {getBlockLabel(editingBlock.type)}
+                  </Text>
+                  <IconButton
+                    aria-label="Fermer"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setEditingBlockId(null)}
+                  >
+                    <LuX />
+                  </IconButton>
+                </HStack>
+              </Drawer.Header>
+              <Drawer.Body p={4}>
+                <BlockEditor
+                  block={editingBlock}
+                  canMoveUp={editingBlockIndex > 0}
+                  canMoveDown={editingBlockIndex < session.blocks.length - 1}
+                  onMoveUp={() =>
+                    moveBlock(editingBlockIndex, editingBlockIndex - 1)
+                  }
+                  onMoveDown={() =>
+                    moveBlock(editingBlockIndex, editingBlockIndex + 1)
+                  }
+                  onUpdate={(updates) =>
+                    onUpdateBlock?.(editingBlock._id, updates)
+                  }
+                  onRemove={() => {
+                    onRemoveBlock?.(editingBlock._id);
+                    setEditingBlockId(null);
+                  }}
+                  onAddExercise={() => onAddExercise?.(editingBlock._id)}
+                  onRemoveExercise={(i) =>
+                    onRemoveExercise?.(editingBlock._id, i)
+                  }
+                  onUpdateExercise={(i, updates) =>
+                    onUpdateExercise?.(editingBlock._id, i, updates)
+                  }
+                />
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Drawer.Root>
+      )}
     </Card>
   );
 };
