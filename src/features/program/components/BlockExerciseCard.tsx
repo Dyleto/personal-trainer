@@ -85,7 +85,7 @@ export const BlockExerciseView = ({
             </Text>
           </HStack>
           {hasVideo && (
-            <Box color="blue.400" flexShrink={0} opacity={0.6}>
+            <Box color="app.primary" flexShrink={0} opacity={0.6}>
               <LuVideo size={11} />
             </Box>
           )}
@@ -263,13 +263,13 @@ export const BlockExerciseEdit = ({
         <HStack justify="space-between">
           <HStack gap={1}>
             {indexPrefix && (
-              <Text fontSize="sm" color="gray.300" fontWeight="medium">
+              <Text fontSize="sm" color="fg.muted" fontWeight="medium">
                 {index + 1} ·
               </Text>
             )}
             <Text
               fontSize="sm"
-              color="gray.300"
+              color="fg.muted"
               fontWeight="medium"
               lineClamp={1}
               flex={1}
@@ -282,7 +282,7 @@ export const BlockExerciseEdit = ({
             size="xs"
             variant="ghost"
             color="fg.muted"
-            _hover={{ color: 'red.400' }}
+            _hover={{ color: 'app.error' }}
             onClick={onRemove}
           >
             <LuTrash2 size={13} />

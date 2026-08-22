@@ -1,7 +1,6 @@
 import { ExerciseSectionSkeleton } from '@/components/skeletons';
 import { useExerciseFilter } from '@/features/exercise/hooks/useExerciseFilter';
 import { useExercises } from '@/features/exercise/hooks/useExercises';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { useToastError } from '@/hooks/useToastError';
 import { Exercise } from '@/types';
 import {
@@ -43,21 +42,20 @@ interface DetailPanelProps {
 }
 
 const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
-  const colors = useThemeColors();
   const embedUrl = exercise.videoUrl
     ? getVideoEmbedUrl(exercise.videoUrl)
     : null;
 
   return (
     <Box
-      bg="gray.800"
+      bg="surface.card"
       borderRadius="xl"
       borderWidth="1px"
-      borderColor="gray.700"
+      borderColor="surface.card"
       overflow="hidden"
     >
       {/* Bande accent */}
-      <Box h="3px" bg={colors.primary} />
+      <Box h="3px" bg="app.primary" />
 
       <VStack gap={5} align="stretch" p={6}>
         <HStack justify="space-between" align="start">
@@ -76,7 +74,7 @@ const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
         </HStack>
 
         {exercise.description ? (
-          <Box fontSize="sm" color="gray.400" lineHeight="tall">
+          <Box fontSize="sm" color="fg.muted" lineHeight="tall">
             {exercise.description}
           </Box>
         ) : (
@@ -115,7 +113,7 @@ const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
                 fontSize="xs"
                 color="fg.muted"
                 cursor="pointer"
-                _hover={{ color: 'gray.300' }}
+                _hover={{ color: 'fg.muted' }}
                 onClick={() =>
                   window.open(
                     exercise.videoUrl,
@@ -131,7 +129,7 @@ const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
           ) : (
             <HStack
               gap={2}
-              color="blue.400"
+              color="app.primary"
               fontSize="sm"
               cursor="pointer"
               _hover={{ color: 'blue.300' }}
@@ -146,10 +144,10 @@ const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
 
         <Button
           size="sm"
-          bg={colors.primary}
+          bg="app.primary"
           color="black"
           fontWeight="semibold"
-          _hover={{ bg: colors.primaryHover }}
+          _hover={{ bg: 'app.primary.hover' }}
           onClick={onEdit}
         >
           <LuPencil size={13} />
@@ -164,7 +162,6 @@ const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
 
 const Exercises = () => {
   const navigate = useNavigate();
-  const colors = useThemeColors();
 
   const { data: exercises = [], isLoading, error } = useExercises();
   const [searchQuery, setSearchQuery] = useState('');
@@ -245,7 +242,7 @@ const Exercises = () => {
             <Text
               fontSize="xs"
               fontWeight="bold"
-              color={colors.primary}
+              color="app.primary"
               letterSpacing="wider"
               textTransform="uppercase"
             >
@@ -291,16 +288,19 @@ const Exercises = () => {
                       Retour
                     </Button>
                     <HStack gap={2}>
-                      <LuLibrary size={20} color={colors.primaryHex} />
+                      <LuLibrary
+                        size={20}
+                        color="var(--chakra-colors-app-primary)"
+                      />
                       <Heading size="lg">Mes exercices</Heading>
                     </HStack>
                   </HStack>
                   <Button
                     size="sm"
-                    bg={colors.primary}
+                    bg="app.primary"
                     color="black"
                     fontWeight="semibold"
-                    _hover={{ bg: colors.primaryHover }}
+                    _hover={{ bg: 'app.primary.hover' }}
                     onClick={() => navigate('/coach/exercises/new')}
                   >
                     <LuPlus />
@@ -310,12 +310,12 @@ const Exercises = () => {
 
                 {/* Barre de recherche */}
                 <HStack
-                  bg="gray.800"
+                  bg="surface.card"
                   borderRadius="xl"
                   borderWidth="1px"
-                  borderColor="gray.700"
+                  borderColor="surface.card"
                   px={4}
-                  _focusWithin={{ borderColor: colors.primary }}
+                  _focusWithin={{ borderColor: 'app.primary' }}
                   transition="border-color 0.2s ease"
                 >
                   <LuSearch size={16} color="gray" />
@@ -330,7 +330,7 @@ const Exercises = () => {
                     <Box
                       cursor="pointer"
                       color="fg.muted"
-                      _hover={{ color: 'gray.300' }}
+                      _hover={{ color: 'fg.muted' }}
                       onClick={() => setSearchQuery('')}
                       flexShrink={0}
                     >
@@ -351,7 +351,7 @@ const Exercises = () => {
                     borderRadius="xl"
                     borderWidth="1px"
                     borderStyle="dashed"
-                    borderColor="gray.700"
+                    borderColor="surface.card"
                   >
                     {searchQuery
                       ? `Aucun exercice pour « ${searchQuery} »`
@@ -382,11 +382,11 @@ const Exercises = () => {
                             />
                           ) : (
                             <Box
-                              bg="gray.800"
+                              bg="surface.card"
                               borderRadius="xl"
                               borderWidth="1px"
                               borderStyle="dashed"
-                              borderColor="gray.700"
+                              borderColor="surface.card"
                               p={8}
                               textAlign="center"
                               color="fg.muted"
@@ -426,7 +426,7 @@ const Exercises = () => {
                                 cursor="pointer"
                                 px={1}
                                 lineHeight="1.6"
-                                _hover={{ color: colors.primary }}
+                                _hover={{ color: 'app.primary' }}
                                 userSelect="none"
                               >
                                 {letter}

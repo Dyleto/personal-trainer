@@ -7,7 +7,6 @@ import {
   ExerciseSelectorPanel,
   CreateSessionCard,
 } from '@/features/program';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { Box, Button, Grid, Heading, HStack, Text } from '@chakra-ui/react';
 import { LuPencil, LuSave, LuX } from 'react-icons/lu';
 
@@ -23,7 +22,6 @@ interface Props {
 }
 
 export const ClientProgramTab = ({ client, clientId }: Props) => {
-  const colors = useThemeColors();
   const { program, initialize, actions } = useProgramEditor(null);
   const updateProgramMutation = useUpdateProgramSessions(clientId);
   const [isEditing, setIsEditing] = useState(false);
@@ -81,7 +79,7 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
               </Button>
               <Button
                 data-state="active"
-                bg={colors.primary}
+                bg="app.primary"
                 color="bg.canvas"
                 onClick={handleSave}
                 loading={updateProgramMutation.isPending}
@@ -149,7 +147,7 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
               borderWidth="1px"
               borderColor="whiteAlpha.200"
             >
-              <Text color="gray.400">
+              <Text color="fg.muted">
                 Ce programme ne contient aucune séance pour le moment.
               </Text>
             </Box>
@@ -168,7 +166,7 @@ export const ClientProgramTab = ({ client, clientId }: Props) => {
             </Button>
             <Button
               size="sm"
-              bg={colors.primary}
+              bg="app.primary"
               color="bg.canvas"
               onClick={handleSave}
               loading={updateProgramMutation.isPending}

@@ -1,7 +1,6 @@
 import { Card } from '@/components/Card';
 import { useExerciseStats } from '@/features/coach/hooks/useExerciseStats';
 import { useExercises } from '@/features/exercise/hooks/useExercises';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { useToastError } from '@/hooks/useToastError';
 import { Box, HStack, Skeleton, VStack } from '@chakra-ui/react';
 import { useMemo } from 'react';
@@ -10,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 
 export const ExercisesBlock = () => {
   const navigate = useNavigate();
-  const colors = useThemeColors();
 
   const {
     data: { count = 0 } = {},
@@ -38,7 +36,7 @@ export const ExercisesBlock = () => {
     return (
       <Card
         onClick={() => {}}
-        accentColor={colors.primary}
+        accentColor="app.primary"
         minW="50%"
         contentPadding={8}
       >
@@ -61,7 +59,7 @@ export const ExercisesBlock = () => {
   return (
     <Card
       onClick={() => navigate('/coach/exercises')}
-      accentColor={colors.primary}
+      accentColor="app.primary"
       minW="50%"
       contentPadding={8}
     >
@@ -71,18 +69,18 @@ export const ExercisesBlock = () => {
           <HStack gap={3}>
             <Box
               p={2}
-              bg={colors.primaryBg}
+              bg="app.primary"
               borderRadius="md"
               borderWidth="1px"
-              borderColor={colors.primaryBorder}
+              borderColor="app.primary"
             >
-              <LuLibrary size={18} color={colors.primaryHex} />
+              <LuLibrary size={18} color="var(--chakra-colors-app-primary)" />
             </Box>
             <Box fontWeight="semibold" fontSize="md" color="white">
               Mes exercices
             </Box>
           </HStack>
-          <Box color={colors.primary}>
+          <Box color="app.primary">
             <LuArrowRight size={18} />
           </Box>
         </HStack>
@@ -106,10 +104,10 @@ export const ExercisesBlock = () => {
                 display={{ base: index < 2 ? 'block' : 'none', md: 'block' }}
                 px={3}
                 py={1}
-                bg={colors.primaryBg}
+                bg="app.primary"
                 borderRadius="full"
                 borderWidth="1px"
-                borderColor={colors.primaryBorder}
+                borderColor="app.primary"
                 fontSize="xs"
                 fontWeight="medium"
                 color="white"
@@ -125,11 +123,11 @@ export const ExercisesBlock = () => {
                 display={{ base: 'block', md: 'none' }}
                 px={3}
                 py={1}
-                bg="gray.700"
+                bg="surface.card"
                 borderRadius="full"
                 fontSize="xs"
                 fontWeight="medium"
-                color="gray.400"
+                color="fg.muted"
               >
                 +{count - 2}
               </Box>
@@ -140,11 +138,11 @@ export const ExercisesBlock = () => {
                 display={{ base: 'none', md: 'block' }}
                 px={3}
                 py={1}
-                bg="gray.700"
+                bg="surface.card"
                 borderRadius="full"
                 fontSize="xs"
                 fontWeight="medium"
-                color="gray.400"
+                color="fg.muted"
               >
                 +{count - 5}
               </Box>

@@ -1,5 +1,5 @@
-import { Box, Text, VStack } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { Box, Text, VStack } from '@chakra-ui/react';
+import { ReactNode } from 'react';
 
 interface FieldProps {
   label: string;
@@ -14,8 +14,8 @@ export const Field = ({ label, required, children, flex }: FieldProps) => {
       <Text fontSize="sm" fontWeight="medium">
         {label}
         {required && (
-          <Text as="span" color="red.500">
-            {" "}
+          <Text as="span" color="app.error">
+            {' '}
             *
           </Text>
         )}

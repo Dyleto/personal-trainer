@@ -1,6 +1,6 @@
-import { DatePicker, Portal, Text, Box } from "@chakra-ui/react";
-import { parseDate, today, getLocalTimeZone } from "@internationalized/date";
-import { LuCalendar, LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { DatePicker, Portal, Text, Box } from '@chakra-ui/react';
+import { parseDate, today, getLocalTimeZone } from '@internationalized/date';
+import { LuCalendar, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 
 interface DateInputProps {
   label?: string;
@@ -27,7 +27,7 @@ export const DateInput = ({ label, value, max, onChange }: DateInputProps) => {
     >
       {label && (
         <Box mb={2}>
-          <Text fontSize="sm" color="gray.400">
+          <Text fontSize="sm" color="fg.muted">
             {label}
           </Text>
         </Box>

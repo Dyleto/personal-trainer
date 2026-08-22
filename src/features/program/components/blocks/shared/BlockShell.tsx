@@ -141,7 +141,7 @@ export const BlockShell = ({
                   _focus={{ borderColor: `app.primary/50` }}
                   borderRadius="md"
                   fontSize="xs"
-                  color="gray.300"
+                  color="fg.muted"
                 />
               </HStack>
 
@@ -150,7 +150,7 @@ export const BlockShell = ({
                 size="xs"
                 variant="ghost"
                 color="fg.muted"
-                _hover={{ color: 'red.400' }}
+                _hover={{ color: 'app.error' }}
                 onClick={onRemove}
               >
                 <LuTrash2 size={14} />
@@ -250,7 +250,7 @@ export const BlockShell = ({
             borderColor="whiteAlpha.100"
             _focus={{ borderColor: `app.primary/50` }}
             borderRadius="md"
-            color="gray.300"
+            color="fg.muted"
           />
         </VStack>
       ) : (

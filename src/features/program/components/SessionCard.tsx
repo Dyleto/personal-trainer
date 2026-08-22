@@ -1,5 +1,4 @@
 import { BlockExercise, BlockType, Session, SessionBlock } from '@/types';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { Box, Button, HStack, Separator, Text, VStack } from '@chakra-ui/react';
 import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import { LuArrowRight, LuPlus, LuTrash2 } from 'react-icons/lu';
@@ -91,7 +90,6 @@ export const SessionCard = ({
   onRemoveExercise,
   onUpdateExercise,
 }: SessionCardProps) => {
-  const colors = useThemeColors();
   const [showBlockSelector, setShowBlockSelector] = useState(false);
 
   const sensors = useSensors(
@@ -120,7 +118,7 @@ export const SessionCard = ({
   return (
     <Card
       p={0}
-      accentColor={colors.primary}
+      accentColor="app.primary"
       hoverEffect={interactive ? 'both' : 'none'}
     >
       <VStack align="stretch" gap={0}>
@@ -137,8 +135,8 @@ export const SessionCard = ({
                 placeholder="Notes pour cette séance..."
                 size="sm"
                 border="1px solid"
-                borderColor={colors.primaryBorder}
-                _focus={{ borderColor: colors.primary }}
+                borderColor="app.primaryBorder"
+                _focus={{ borderColor: 'app.primary' }}
                 borderRadius="md"
                 fontSize="sm"
               />
@@ -149,12 +147,12 @@ export const SessionCard = ({
                   bg="whiteAlpha.50"
                   borderRadius="md"
                   borderLeft="3px solid"
-                  borderLeftColor={colors.primaryBorder}
+                  borderLeftColor="app.primary.border"
                 >
-                  <Text fontSize="xs" color="gray.400" mb={1} fontWeight="bold">
+                  <Text fontSize="xs" color="fg.muted" mb={1} fontWeight="bold">
                     Note du coach
                   </Text>
-                  <Text fontSize="sm" color="gray.300" whiteSpace="pre-wrap">
+                  <Text fontSize="sm" color="fg.muted" whiteSpace="pre-wrap">
                     {session.notes}
                   </Text>
                 </Box>
@@ -216,7 +214,7 @@ export const SessionCard = ({
                       bg="whiteAlpha.50"
                     >
                       <HStack justify="space-between" mb={3}>
-                        <Text fontSize="sm" fontWeight="bold" color="gray.300">
+                        <Text fontSize="sm" fontWeight="bold" color="fg.muted">
                           Choisir un type de bloc
                         </Text>
                         <Button
@@ -239,13 +237,13 @@ export const SessionCard = ({
                     <Button
                       size="sm"
                       variant="ghost"
-                      color="gray.400"
+                      color="fg.muted"
                       borderWidth="1px"
                       borderColor="whiteAlpha.200"
                       borderStyle="dashed"
                       borderRadius="lg"
                       onClick={() => setShowBlockSelector(true)}
-                      _hover={{ bg: 'whiteAlpha.100', color: 'gray.200' }}
+                      _hover={{ bg: 'whiteAlpha.100', color: 'fg.muted' }}
                       w="full"
                     >
                       <LuPlus size={14} />
@@ -282,7 +280,7 @@ export const SessionCard = ({
               variant="ghost"
               size="sm"
               color="fg.muted"
-              _hover={{ color: 'red.400', bg: 'red.400/8' }}
+              _hover={{ color: 'app.error', bg: 'app.error/8' }}
               onClick={onRemoveSession}
               w="full"
               borderRadius={0}
@@ -300,12 +298,12 @@ export const SessionCard = ({
           <Box px={4} pb={4} pt={2}>
             <Button
               w="full"
-              bg={colors.primary}
+              bg="app.primary"
               color="bg.canvas"
               fontWeight="bold"
               size="lg"
               onClick={onComplete}
-              _hover={{ bg: colors.primaryHover }}
+              _hover={{ bg: 'app.primary.hover' }}
             >
               J'ai terminé cette séance <LuArrowRight />
             </Button>

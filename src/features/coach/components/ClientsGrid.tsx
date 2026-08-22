@@ -52,10 +52,10 @@ export const ClientsGrid = () => {
     return (
       <Box textAlign="center" py={12}>
         <VStack gap={4}>
-          <Text color="red.400" fontSize="lg" fontWeight="bold">
+          <Text color="app.error" fontSize="lg" fontWeight="bold">
             Erreur de chargement
           </Text>
-          <Text color="gray.400">
+          <Text color="fg.muted">
             Impossible de récupérer la liste de vos clients.
           </Text>
           <Button colorPalette="yellow" onClick={() => refetch()}>

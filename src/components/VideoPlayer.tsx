@@ -39,11 +39,11 @@ const VideoPlayer = ({ url }: VideoPlayerProps) => {
     return (
       <Box
         p={4}
-        bg="red.500/10"
+        bg="app.error/10"
         borderRadius="md"
         borderWidth="1px"
-        borderColor="red.500"
-        color="red.400"
+        borderColor="app.error"
+        color="app.error"
         fontSize="sm"
       >
         ⚠️ URL YouTube invalide. Formats supportés :

@@ -1,5 +1,4 @@
 import { useAuth } from '@/contexts/useAuth';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { Box, Menu, Avatar, Portal, HStack, Text } from '@chakra-ui/react';
 import {
   LuDumbbell,
@@ -12,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 export const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const colors = useThemeColors();
 
   const roles = [user?.isClient, user?.isCoach, user?.isAdmin].filter(Boolean);
   const hasMultipleRoles = roles.length > 1;
@@ -66,7 +64,7 @@ export const Header = () => {
                       cy="50%"
                       r="calc(50% - 2px)"
                       fill="none"
-                      stroke={colors.primaryHex}
+                      stroke="var(--chakra-colors-app-primary)"
                       strokeWidth="3"
                       strokeDasharray={menu.open ? '295 295' : '80 295'}
                       strokeLinecap="round"

@@ -2,15 +2,13 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Box, Grid, Spinner, VStack } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/useAuth';
 import { getDefaultRoleRoute, isPublicRoute } from '@/config/routes';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { Suspense } from 'react';
 
 const PageLoader = () => {
-  const colors = useThemeColors();
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minH="50vh">
       <VStack gap={4}>
-        <Spinner size="xl" color={colors.primary} />
+        <Spinner size="xl" color="app.primary" />
       </VStack>
     </Box>
   );

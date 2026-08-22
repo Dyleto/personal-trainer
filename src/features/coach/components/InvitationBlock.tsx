@@ -1,12 +1,10 @@
 import { useGenerateInvitation } from '@/features/coach/hooks/useGenerateInvitation';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { Button, useClipboard } from '@chakra-ui/react';
 import { useEffect } from 'react';
 
 export const InvitationBlock = () => {
   const { mutate, data, isPending } = useGenerateInvitation();
   const invitationLink = data?.link ?? '';
-  const colors = useThemeColors();
 
   const clipboard = useClipboard({
     value: invitationLink,
@@ -26,15 +24,15 @@ export const InvitationBlock = () => {
 
   return (
     <Button
-      bg={clipboard.copied ? colors.success : colors.primary}
+      bg={clipboard.copied ? 'app.success' : 'app.primary'}
       color="fg.inverted"
       _hover={{
-        bg: clipboard.copied ? colors.successHover : colors.primaryHover,
+        bg: clipboard.copied ? 'app.success.hover' : 'app.primary.hover',
         transform: 'translateY(-2px)',
         boxShadow: 'md',
       }}
       _active={{
-        bg: clipboard.copied ? colors.successActive : colors.primaryActive,
+        bg: clipboard.copied ? 'app.success.active' : 'app.primary.active',
         boxShadow: 'sm',
       }}
       pointerEvents={clipboard.copied ? 'none' : 'auto'}

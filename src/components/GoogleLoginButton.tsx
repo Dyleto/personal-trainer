@@ -20,13 +20,13 @@ const GoogleLoginButton = ({
       fontSize="md"
       fontWeight="600"
       bg="white"
-      color="gray.800"
+      color="surface.card"
       border="2px solid"
-      borderColor="gray.200"
+      borderColor="fg.muted"
       onClick={() => loginWithGoogle(invitationToken)}
       _hover={{
         bg: 'gray.50',
-        borderColor: 'gray.300',
+        borderColor: 'fg.muted',
         shadow: 'md',
         transform: 'translateY(-2px)',
         transition: 'all 0.3s ease',

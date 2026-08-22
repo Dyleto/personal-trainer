@@ -134,7 +134,7 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <Text fontSize="xs" fontWeight="bold" color="gray.300">
+          <Text fontSize="xs" fontWeight="bold" color="fg.muted">
             {initials || '?'}
           </Text>
         )}
@@ -152,13 +152,13 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
 
       {/* Stats */}
       <HStack gap={5} flexShrink={0}>
-        <HStack gap={1.5} color="gray.400" fontSize="xs">
+        <HStack gap={1.5} color="fg.muted" fontSize="xs">
           <LuUsers size={13} />
           <Text>
             {coach.clientCount} client{coach.clientCount !== 1 ? 's' : ''}
           </Text>
         </HStack>
-        <HStack gap={1.5} color="gray.400" fontSize="xs">
+        <HStack gap={1.5} color="fg.muted" fontSize="xs">
           <LuDumbbell size={13} />
           <Text>
             {coach.exerciseCount} exo{coach.exerciseCount !== 1 ? 's' : ''}
@@ -379,7 +379,7 @@ const AdminDashboard = () => {
                   bg="whiteAlpha.100"
                   borderRadius="full"
                   fontSize="xs"
-                  color="gray.400"
+                  color="fg.muted"
                 >
                   {coaches.length}
                 </Box>

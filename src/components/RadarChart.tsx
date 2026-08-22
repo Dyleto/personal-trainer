@@ -1,4 +1,3 @@
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { ReactNode } from 'react';
 
 interface RadarChartProps {
@@ -24,7 +23,6 @@ export const RadarChart = ({
   labelTexts,
   size = 160,
 }: RadarChartProps) => {
-  const colors = useThemeColors();
   const maxRadius = size * 0.35;
   const labelRadius = size * 0.52;
   const levels = 5;
@@ -94,7 +92,7 @@ export const RadarChart = ({
       {/* Zone données — remplissage */}
       <path
         d={pointsToPath(dataPoints)}
-        fill={colors.primaryHex}
+        fill="var(--chakra-colors-app-primary)"
         fillOpacity={0.25}
       />
 
@@ -102,7 +100,7 @@ export const RadarChart = ({
       <path
         d={pointsToPath(dataPoints)}
         fill="none"
-        stroke={colors.primaryHex}
+        stroke="var(--chakra-colors-app-primary)"
         strokeWidth={1.5}
         strokeOpacity={0.9}
       />
@@ -114,7 +112,7 @@ export const RadarChart = ({
           cx={pt.x}
           cy={pt.y}
           r={4}
-          fill={colors.primaryHex}
+          fill="var(--chakra-colors-app-primary)"
           opacity={0.9}
         />
       ))}

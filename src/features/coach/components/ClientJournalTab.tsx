@@ -22,7 +22,7 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
 
   if (history.length === 0) {
     return (
-      <Box p={4} color="gray.400">
+      <Box p={4} color="fg.muted">
         Aucune séance réalisée pour l'instant.
       </Box>
     );

@@ -1,5 +1,4 @@
 import { Card } from '@/components/Card';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { Exercise } from '@/types';
 import { Box, HStack, VStack } from '@chakra-ui/react';
 import { LuChevronRight, LuDumbbell, LuVideo } from 'react-icons/lu';
@@ -17,32 +16,30 @@ export const ExerciseLibraryCard = ({
   horizontal,
   selected,
 }: ExerciseLibraryCardProps) => {
-  const colors = useThemeColors();
-
   if (horizontal) {
     return (
       <Box
-        bg={selected ? colors.primaryBg : 'gray.800'}
+        bg={selected ? 'app.primary.bg' : 'surface.card'}
         borderRadius="xl"
         px={4}
         py={3}
         cursor={onClick ? 'pointer' : 'default'}
         transition="all 0.15s ease"
         borderWidth="1px"
-        borderColor={selected ? colors.primary : 'gray.700'}
-        _hover={onClick ? { borderColor: colors.primary } : undefined}
+        borderColor={selected ? 'app.primary' : 'surface.card'}
+        _hover={onClick ? { borderColor: 'app.primary' } : undefined}
         onClick={() => onClick?.()}
       >
         <HStack gap={3} align="center">
           <Box
             p={2}
-            bg={selected ? colors.primaryBg : 'gray.700'}
+            bg={selected ? 'app.primary.bg' : 'surface.card'}
             borderRadius="md"
             borderWidth="1px"
-            borderColor={selected ? colors.primary : 'transparent'}
+            borderColor={selected ? 'app.primary' : 'transparent'}
             flexShrink={0}
           >
-            <LuDumbbell size={16} color={colors.primaryHex} />
+            <LuDumbbell size={16} color="var(--chakra-colors-app-primary)" />
           </Box>
           <VStack gap={0} align="start" flex={1} minW={0}>
             <Box
@@ -64,15 +61,15 @@ export const ExerciseLibraryCard = ({
             <Box
               px={1.5}
               py={1}
-              bg="blue.400/15"
+              bg="app.primary/15"
               borderRadius="md"
-              color="blue.400"
+              color="app.primary"
               flexShrink={0}
             >
               <LuVideo size={13} />
             </Box>
           )}
-          <Box color={selected ? colors.primary : 'fg.muted'} flexShrink={0}>
+          <Box color={selected ? 'app.primary' : 'fg.muted'} flexShrink={0}>
             <LuChevronRight size={13} />
           </Box>
         </HStack>
@@ -84,25 +81,25 @@ export const ExerciseLibraryCard = ({
     <Card
       onClick={() => onClick?.()}
       contentPadding={6}
-      accentColor={colors.primary}
+      accentColor="app.primary"
       cursor={onClick ? 'pointer' : 'default'}
     >
       <VStack gap={3} align="stretch">
         <Box
           p={3}
-          bg={colors.primaryBg}
+          bg="app.primary.bg"
           borderRadius="md"
           borderWidth="1px"
-          borderColor={colors.primaryBorder}
+          borderColor="app.primary.border"
           alignSelf="center"
         >
-          <LuDumbbell size={28} color={colors.primaryHex} />
+          <LuDumbbell size={28} color="var(--chakra-colors-app-primary)" />
         </Box>
         <Box fontWeight="bold" fontSize="lg" textAlign="center" color="white">
           {exercise.name}
         </Box>
         {exercise.description && (
-          <Box fontSize="sm" color="gray.400" lineClamp={2} textAlign="center">
+          <Box fontSize="sm" color="fg.muted" lineClamp={2} textAlign="center">
             {exercise.description}
           </Box>
         )}

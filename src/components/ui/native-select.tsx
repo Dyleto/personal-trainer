@@ -70,7 +70,7 @@ export const NativeSelectField = forwardRef<
         borderRadius="md"
         borderWidth="1px"
         borderColor={isOpen ? 'app.primary' : 'fg.muted'}
-        bg="gray.800"
+        bg="surface.card"
         cursor="pointer"
         transition="all 0.2s"
         justify="space-between"
@@ -98,12 +98,12 @@ export const NativeSelectField = forwardRef<
             <Box color="white">{selectedOption.label}</Box>
           </HStack>
         ) : (
-          <Box color="gray.400">{placeholder || 'Sélectionner...'}</Box>
+          <Box color="fg.muted">{placeholder || 'Sélectionner...'}</Box>
         )}
         <Box
           transition="transform 0.2s"
           transform={isOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
-          color="gray.400"
+          color="fg.muted"
         >
           <LuChevronDown />
         </Box>
@@ -116,10 +116,10 @@ export const NativeSelectField = forwardRef<
           top="calc(100% + 4px)"
           left={0}
           right={0}
-          bg="gray.800"
+          bg="surface.card"
           borderRadius="md"
           borderWidth="1px"
-          borderColor="gray.700"
+          borderColor="surface.card"
           boxShadow="0 4px 12px rgba(0, 0, 0, 0.4)"
           zIndex={1000}
           gap={0}

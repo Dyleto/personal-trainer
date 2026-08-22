@@ -1,23 +1,20 @@
-import { useThemeColors } from "@/hooks/useThemeColors";
-import { Box, VStack, Text } from "@chakra-ui/react";
-import { LuPlus } from "react-icons/lu";
+import { Box, VStack, Text } from '@chakra-ui/react';
+import { LuPlus } from 'react-icons/lu';
 
 interface CreateSessionCardProps {
   onClick?: () => void;
 }
 
 export const CreateSessionCard = ({ onClick }: CreateSessionCardProps) => {
-  const colors = useThemeColors();
-
   return (
     <Box
       w="full"
       p={6}
       borderWidth="2px"
       borderStyle="dashed"
-      borderColor={colors.primary}
+      borderColor="app.primary"
       borderRadius="xl"
-      cursor={onClick ? "pointer" : "default"}
+      cursor={onClick ? 'pointer' : 'default'}
       transition="all 0.3s ease"
       display="flex"
       alignItems="center"
@@ -25,19 +22,19 @@ export const CreateSessionCard = ({ onClick }: CreateSessionCardProps) => {
       minH="557px"
       onClick={onClick}
       _hover={{
-        borderColor: colors.primaryHover,
-        bg: colors.primaryBg,
-        transform: "translateY(-2px)",
+        borderColor: 'app.primary.hover',
+        bg: 'app.primary.bg',
+        transform: 'translateY(-2px)',
       }}
     >
-      <VStack gap={3} color={colors.primary}>
+      <VStack gap={3} color="app.primary">
         <Box
           p={3}
-          bg={colors.primaryBg}
+          bg="app.primary.bg"
           borderRadius="full"
           borderWidth="2px"
           borderStyle="dashed"
-          borderColor={colors.primary}
+          borderColor="app.primary"
         >
           <LuPlus size={32} />
         </Box>

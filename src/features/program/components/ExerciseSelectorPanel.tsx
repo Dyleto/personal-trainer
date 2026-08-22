@@ -14,7 +14,6 @@ import { useExercises } from '@/features/exercise/hooks/useExercises';
 import { Exercise } from '@/types';
 import { useMemo, useState } from 'react';
 import { LuDumbbell, LuLibrary, LuPlus, LuSearch, LuX } from 'react-icons/lu';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { Heading } from '@chakra-ui/react';
 import { ExerciseEditor, ExerciseLibraryCard } from '@/features/exercise';
 
@@ -33,7 +32,6 @@ export const ExerciseSelectorPanel = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [onCreateMode, setOnCreateMode] = useState(false);
 
-  const colors = useThemeColors();
   const createMutation = useCreateExercise();
   const filteredExercises = useExerciseFilter(exercises, searchQuery);
 
@@ -75,9 +73,15 @@ export const ExerciseSelectorPanel = ({
             <HStack justify="space-between" align="center">
               <HStack gap={2}>
                 {onCreateMode ? (
-                  <LuDumbbell size={20} color={colors.primaryHex} />
+                  <LuDumbbell
+                    size={20}
+                    color="var(--chakra-colors-app-primary)"
+                  />
                 ) : (
-                  <LuLibrary size={20} color={colors.primaryHex} />
+                  <LuLibrary
+                    size={20}
+                    color="var(--chakra-colors-app-primary)"
+                  />
                 )}
                 <Heading size="lg">
                   {onCreateMode ? 'Créer un exercice' : 'Mes exercices'}
@@ -95,10 +99,10 @@ export const ExerciseSelectorPanel = ({
                 ) : (
                   <Button
                     size="sm"
-                    bg={colors.primary}
+                    bg="app.primary"
                     color="black"
                     fontWeight="semibold"
-                    _hover={{ bg: colors.primaryHover }}
+                    _hover={{ bg: 'app.primary.hover' }}
                     onClick={() => setOnCreateMode(true)}
                   >
                     <LuPlus />
@@ -124,12 +128,12 @@ export const ExerciseSelectorPanel = ({
               <VStack gap={4} align="stretch" h="full">
                 {/* Recherche */}
                 <HStack
-                  bg="gray.800"
+                  bg="surface.card"
                   borderRadius="xl"
                   borderWidth="1px"
-                  borderColor="gray.700"
+                  borderColor="surface.card"
                   px={3}
-                  _focusWithin={{ borderColor: colors.primary }}
+                  _focusWithin={{ borderColor: 'app.primary' }}
                   transition="border-color 0.2s ease"
                 >
                   <LuSearch size={14} color="gray" />
@@ -145,7 +149,7 @@ export const ExerciseSelectorPanel = ({
                     <Box
                       cursor="pointer"
                       color="fg.muted"
-                      _hover={{ color: 'gray.300' }}
+                      _hover={{ color: 'fg.muted' }}
                       onClick={() => setSearchQuery('')}
                       flexShrink={0}
                     >

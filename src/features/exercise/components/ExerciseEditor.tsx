@@ -1,5 +1,4 @@
 import { Field } from '@/components/ui/field';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import {
   Box,
   Button,
@@ -33,8 +32,6 @@ export const ExerciseEditor = ({
   onDelete,
   onCancel,
 }: ExerciseEditorProps) => {
-  const colors = useThemeColors();
-
   const [formData, setFormData] = useState<Partial<Exercise>>({
     name: '',
     description: '',
@@ -69,12 +66,15 @@ export const ExerciseEditor = ({
             <HStack gap={3}>
               <Box
                 p={3}
-                bg={colors.primaryBg}
+                bg="app.primary.bg"
                 borderRadius="md"
                 borderWidth="1px"
-                borderColor={colors.primaryBorder}
+                borderColor="app.primary.border"
               >
-                <LuDumbbell size={32} color={colors.primaryHex} />
+                <LuDumbbell
+                  size={32}
+                  color="var(--chakra-colors-app-primary)"
+                />
               </Box>
               <Heading size="xl">
                 {isEditing ? "Modifier l'exercice" : 'Créer un exercice'}
@@ -96,11 +96,11 @@ export const ExerciseEditor = ({
                     if (nameError) setNameError('');
                   }}
                   placeholder="Ex: Kettlebell Swing"
-                  borderColor={nameError ? 'red.400' : undefined}
-                  _focus={{ borderColor: nameError ? 'red.400' : undefined }}
+                  borderColor={nameError ? 'app.error' : undefined}
+                  _focus={{ borderColor: nameError ? 'app.error' : undefined }}
                 />
                 {nameError && (
-                  <Text fontSize="xs" color="red.400" mt={1}>
+                  <Text fontSize="xs" color="app.error" mt={1}>
                     {nameError}
                   </Text>
                 )}
@@ -166,7 +166,7 @@ export const ExerciseEditor = ({
           )}
           <Button
             type="submit"
-            bg={colors.primary}
+            bg="app.primary"
             color="bg.canvas"
             fontWeight="bold"
             loading={isLoading}

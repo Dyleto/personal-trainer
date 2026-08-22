@@ -6,7 +6,6 @@ import { authService } from '@/services/authService';
 import { useAuth } from '@/contexts/useAuth';
 import { getDefaultRoleRoute } from '@/config/routes';
 import storage from '@/utils/storage';
-import { useThemeColors } from '@/hooks/useThemeColors';
 import { toaster } from '@/components/ui/toasterInstance';
 
 // Temps mini avant redirection (pour ne pas flasher l'écran)
@@ -16,7 +15,6 @@ const AuthCallback = () => {
   const [searchParams] = useSearchParams();
   const { setUser } = useAuth();
   const navigate = useNavigate();
-  const colors = useThemeColors();
 
   useEffect(() => {
     // Flag pour éviter le double appel en React StrictMode (Dev)
@@ -92,7 +90,7 @@ const AuthCallback = () => {
       bg="bg.muted"
     >
       <VStack gap={4}>
-        <Spinner size="xl" color={colors.primary} />
+        <Spinner size="xl" color="app.primary" />
         <Heading size="md">Connexion en cours...</Heading>
       </VStack>
     </Box>
