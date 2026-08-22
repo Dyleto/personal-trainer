@@ -1,5 +1,5 @@
 import { CompletedSession } from '@/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMarkHistoryAsViewed } from '@/features/coach/hooks/useMarkHistoryAsViewed';
 import {
   CompletedSessionDrawer,
@@ -77,23 +77,26 @@ const JournalEntry = ({ completed, isUnseen, onOpen }: JournalEntryProps) => (
 
 export const ClientJournalTab = ({ history, clientId }: Props) => {
   const { mutate: markHistoryAsViewed } = useMarkHistoryAsViewed(clientId);
-  const [initialUnseenIds, setInitialUnseenIds] = useState<Set<string> | null>(
-    null
-  );
   const [openCompleted, setOpenCompleted] = useState<CompletedSession | null>(
     null
   );
 
-  useEffect(() => {
-    // Ne se fige qu'une fois, sur les vraies données — pas sur le premier
-    // rendu où `history` peut encore être vide le temps que la requête réponde.
-    if (initialUnseenIds !== null) return;
-    const unseen = new Set(
+  const frozenIdsRef = useRef<Set<string> | null>(null);
+  if (frozenIdsRef.current === null && history.length > 0) {
+    frozenIdsRef.current = new Set(
       history.filter((c) => c.viewedByCoach !== true).map((c) => c._id)
     );
-    setInitialUnseenIds(unseen);
-    if (unseen.size > 0) markHistoryAsViewed();
-  }, [history, initialUnseenIds, markHistoryAsViewed]);
+  }
+  const initialUnseenIds = frozenIdsRef.current ?? new Set<string>();
+
+  const hasMarkedRef = useRef(false);
+  useEffect(() => {
+    if (hasMarkedRef.current) return;
+    if (frozenIdsRef.current && frozenIdsRef.current.size > 0) {
+      hasMarkedRef.current = true;
+      markHistoryAsViewed();
+    }
+  }, [history, markHistoryAsViewed]);
 
   if (history.length === 0) {
     return (
