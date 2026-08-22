@@ -1,126 +1,189 @@
-import { CompletedSession } from '@/types';
+import { ClientWithDetails, Exercise } from '@/types';
 import { useEffect, useState } from 'react';
-import { useMarkHistoryAsViewed } from '@/features/coach/hooks/useMarkHistoryAsViewed';
+import { useProgramEditor } from '@/features/program/hooks/useProgramEditor';
+import { useUpdateProgramSessions } from '@/features/program/hooks/useProgramMutations';
 import {
-  CompletedSessionDrawer,
-  getAverageRating,
-  getRelativeDate,
-} from '@/features/client';
-import { Box, HStack, Text, VStack } from '@chakra-ui/react';
-import { LuChevronRight } from 'react-icons/lu';
+  SessionCard,
+  ExerciseSelectorPanel,
+  CreateSessionCard,
+} from '@/features/program';
+import { Box, Button, Grid, Heading, HStack, Text } from '@chakra-ui/react';
+import { LuPencil, LuSave, LuX } from 'react-icons/lu';
+
+interface SelectorState {
+  isOpen: boolean;
+  sessionId: string | null;
+  blockId: string | null;
+}
 
 interface Props {
-  history: CompletedSession[];
+  client: ClientWithDetails;
   clientId: string;
 }
 
-interface JournalEntryProps {
-  completed: CompletedSession;
-  isUnseen: boolean;
-  onOpen: () => void;
-}
-
-const JournalEntry = ({ completed, isUnseen, onOpen }: JournalEntryProps) => (
-  <Box
-    py={3}
-    px={2}
-    borderRadius="md"
-    borderBottom="1px solid"
-    borderColor="whiteAlpha.100"
-    cursor="pointer"
-    role="button"
-    tabIndex={0}
-    onClick={onOpen}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onOpen();
-      }
-    }}
-    _hover={{ bg: 'whiteAlpha.50' }}
-    _focusVisible={{
-      outline: '2px solid',
-      outlineColor: 'app.primary',
-      outlineOffset: '-2px',
-    }}
-  >
-    <HStack justify="space-between" align="baseline">
-      <HStack gap={2}>
-        <Text fontWeight="bold" fontSize="sm">
-          Séance {completed.sessionOrder}
-        </Text>
-        {isUnseen && (
-          <Box w="6px" h="6px" borderRadius="full" bg="session.work" />
-        )}
-      </HStack>
-      <HStack gap={2}>
-        <Text fontSize="xs" color="fg.muted">
-          {getRelativeDate(completed.completedAt)}
-        </Text>
-        <Text fontSize="xs" fontWeight="bold" color="app.primary">
-          {getAverageRating(completed.metrics).toFixed(1)} / 5
-        </Text>
-        <LuChevronRight size={13} color="var(--chakra-colors-fg-muted)" />
-      </HStack>
-    </HStack>
-    {completed.clientNotes ? (
-      <Text fontSize="sm" color="fg" fontStyle="italic" mt={1.5}>
-        "{completed.clientNotes}"
-      </Text>
-    ) : (
-      <Text fontSize="sm" color="fg.muted" fontStyle="italic" mt={1.5}>
-        Aucun commentaire laissé par le client.
-      </Text>
-    )}
-  </Box>
-);
-
-export const ClientJournalTab = ({ history, clientId }: Props) => {
-  const { mutate: markHistoryAsViewed } = useMarkHistoryAsViewed(clientId);
-  const [initialUnseenIds, setInitialUnseenIds] = useState<Set<string> | null>(
-    null
-  );
-  const [openCompleted, setOpenCompleted] = useState<CompletedSession | null>(
-    null
-  );
+export const ClientProgramTab = ({ client, clientId }: Props) => {
+  const { program, initialize, actions } = useProgramEditor(null);
+  const updateProgramMutation = useUpdateProgramSessions(clientId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectorState, setSelectorState] = useState<SelectorState>({
+    isOpen: false,
+    sessionId: null,
+    blockId: null,
+  });
 
   useEffect(() => {
-    // Ne se fige qu'une fois, sur les vraies données — pas sur le premier
-    // rendu où `history` peut encore être vide le temps que la requête réponde.
-    if (initialUnseenIds !== null) return;
-    const unseen = new Set(
-      history.filter((c) => c.viewedByCoach !== true).map((c) => c._id)
-    );
-    setInitialUnseenIds(unseen);
-    if (unseen.size > 0) markHistoryAsViewed();
-  }, [history, initialUnseenIds, markHistoryAsViewed]);
+    if (client.program && !isEditing) {
+      initialize(client.program);
+    }
+  }, [client, initialize, isEditing]);
 
-  if (history.length === 0) {
-    return (
-      <Box p={4} color="fg.muted">
-        Aucune séance réalisée pour l'instant.
-      </Box>
-    );
-  }
+  const handleSave = () => {
+    if (!program) return;
+    updateProgramMutation.mutate(program.sessions, {
+      onSuccess: () => setIsEditing(false),
+    });
+  };
+
+  const handleCancel = () => {
+    if (client.program) initialize(client.program);
+    setIsEditing(false);
+  };
+
+  const handleOpenSelector = (sessionId: string, blockId: string) => {
+    setSelectorState({ isOpen: true, sessionId, blockId });
+  };
+
+  const handleSelectExercise = (exercise: Exercise) => {
+    const { sessionId, blockId } = selectorState;
+    if (sessionId && blockId) {
+      actions.addExercise(sessionId, blockId, exercise);
+    }
+    setSelectorState((prev) => ({ ...prev, isOpen: false }));
+  };
+
+  if (!program) return null;
 
   return (
     <>
-      <VStack align="stretch" gap={0}>
-        {history.map((c) => (
-          <JournalEntry
-            key={c._id}
-            completed={c}
-            isUnseen={initialUnseenIds?.has(c._id) ?? false}
-            onOpen={() => setOpenCompleted(c)}
-          />
-        ))}
-      </VStack>
+      <Box mt={4}>
+        <HStack justify="space-between" mb={6}>
+          <Heading size="lg">Programme</Heading>
+          {isEditing ? (
+            <HStack>
+              <Button
+                variant="ghost"
+                onClick={handleCancel}
+                disabled={updateProgramMutation.isPending}
+              >
+                <LuX /> Annuler
+              </Button>
+              <Button
+                data-state="active"
+                bg="app.primary"
+                color="bg.canvas"
+                onClick={handleSave}
+                loading={updateProgramMutation.isPending}
+              >
+                <LuSave /> Enregistrer
+              </Button>
+            </HStack>
+          ) : (
+            <Button variant="outline" onClick={() => setIsEditing(true)}>
+              <LuPencil /> Modifier
+            </Button>
+          )}
+        </HStack>
 
-      {openCompleted && (
-        <CompletedSessionDrawer
-          completed={openCompleted}
-          isOpen={!!openCompleted}
-          onClose={() => setOpenCompleted(null)}
+        <Grid
+          templateColumns={{
+            base: '1fr',
+            md: 'repeat(auto-fill, minmax(400px, 1fr))',
+          }}
+          gap={8}
+          alignItems="start"
+        >
+          {program.sessions.map((session) => (
+            <SessionCard
+              key={session._id}
+              session={session}
+              interactive={false}
+              isEditing={isEditing}
+              onRemoveSession={() => actions.removeSession(session._id)}
+              onUpdateSessionNotes={(notes) =>
+                actions.updateSessionNotes(session._id, notes)
+              }
+              onAddBlock={(type) => actions.addBlock(session._id, type)}
+              onRemoveBlock={(blockId) =>
+                actions.removeBlock(session._id, blockId)
+              }
+              onUpdateBlock={(blockId, updates) =>
+                actions.updateBlock(session._id, blockId, updates)
+              }
+              onReorderBlocks={(orderedIds) =>
+                actions.reorderBlocks(session._id, orderedIds)
+              }
+
+              onAddExercise={(blockId) =>
+                handleOpenSelector(session._id, blockId)
+              }
+              onRemoveExercise={(blockId, index) =>
+                actions.removeExercise(session._id, blockId, index)
+              }
+              onUpdateExercise={(blockId, index, updates) =>
+                actions.updateExercise(session._id, blockId, index, updates)
+              }
+            />
+          ))}
+
+          {isEditing && <CreateSessionCard onClick={actions.addSession} />}
+
+          {!isEditing && program.sessions.length === 0 && (
+            <Box
+              gridColumn="1 / -1"
+              p={8}
+              bg="whiteAlpha.50"
+              borderRadius="lg"
+              textAlign="center"
+              borderWidth="1px"
+              borderColor="whiteAlpha.200"
+            >
+              <Text color="fg.muted">
+                Ce programme ne contient aucune séance pour le moment.
+              </Text>
+            </Box>
+          )}
+        </Grid>
+
+        {isEditing && (
+          <HStack justify="flex-end" mt={6} gap={3}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleCancel}
+              disabled={updateProgramMutation.isPending}
+            >
+              <LuX /> Annuler
+            </Button>
+            <Button
+              size="sm"
+              bg="app.primary"
+              color="bg.canvas"
+              onClick={handleSave}
+              loading={updateProgramMutation.isPending}
+            >
+              <LuSave /> Enregistrer
+            </Button>
+          </HStack>
+        )}
+      </Box>
+
+      {selectorState.isOpen && selectorState.blockId && (
+        <ExerciseSelectorPanel
+          isOpen={selectorState.isOpen}
+          onClose={() =>
+            setSelectorState((prev) => ({ ...prev, isOpen: false }))
+          }
+          onSelect={handleSelectExercise}
         />
       )}
     </>
