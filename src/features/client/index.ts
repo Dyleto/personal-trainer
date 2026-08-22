@@ -1,5 +1,6 @@
 ﻿export { SessionHistoryCard } from './components/SessionHistoryCard';
 export { CompleteSessionModal } from './components/CompleteSessionModal';
+export { CompletedSessionDrawer } from './components/CompletedSessionDrawer';
 export { MetricStars } from './components/MetricStars';
 export { useCompleteSession } from './hooks/useCompleteSession';
 export { useClientSessions } from './hooks/useClientSessions';
