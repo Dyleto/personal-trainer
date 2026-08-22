@@ -28,7 +28,7 @@ type ClientSessionsData = ReturnType<typeof useClientSessions>;
 const Today = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { sessions, nextSession, history, isLoading } =
+  const { sessions, nextSession, history, isLoading, isProgramComplete } =
     useOutletContext<ClientSessionsData>();
 
   const totalCount = sessions.length;
@@ -76,6 +76,37 @@ const Today = () => {
             <Text color="fg.muted" fontSize="sm">
               Ton coach n'a pas encore ajouté de séances. Reviens bientôt.
             </Text>
+          </Box>
+        ) : isProgramComplete ? (
+          <Box
+            p={4}
+            borderRadius="xl"
+            borderWidth="1px"
+            borderColor="session.rest"
+            bg="whiteAlpha.50"
+          >
+            <VStack align="stretch" gap={1.5}>
+              <HStack justify="space-between" align="center">
+                <Text fontWeight="bold" fontSize="sm">
+                  Programme terminé
+                </Text>
+                <Box
+                  px={2}
+                  py={0.5}
+                  borderRadius="full"
+                  bg="session.rest/16"
+                  fontSize="2xs"
+                  fontWeight="bold"
+                  color="session.rest"
+                >
+                  ✓
+                </Box>
+              </HStack>
+              <Text fontSize="xs" color="fg.muted">
+                Les {totalCount} séance{totalCount > 1 ? 's' : ''} sont faites.
+                Ton coach prépare la suite.
+              </Text>
+            </VStack>
           </Box>
         ) : (
           nextSession && (

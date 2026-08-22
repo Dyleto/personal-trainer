@@ -18,8 +18,8 @@ function getStatus(
   nextSession: Session | undefined,
   completedSessionIds: Set<string>
 ): SessionStatus {
-  if (session._id === nextSession?._id) return 'next';
   if (completedSessionIds.has(session._id)) return 'done';
+  if (session._id === nextSession?._id) return 'next';
   return 'upcoming';
 }
 

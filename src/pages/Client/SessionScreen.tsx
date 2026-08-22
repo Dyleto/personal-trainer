@@ -24,8 +24,10 @@ type ClientSessionsData = ReturnType<typeof useClientSessions>;
 const SessionScreen = () => {
   const navigate = useNavigate();
   const {
+    sessions,
     activeSession,
     isManualSelection,
+    isProgramComplete,
     handleSubmitLog,
     isLoading,
     isSubmitting,
@@ -45,7 +47,29 @@ const SessionScreen = () => {
     );
   }
 
-  if (!activeSession) {
+  if (sessions.length === 0) {
+    return (
+      <Container maxW={CLIENT_CONTENT_MAX_W} py={8} px={4}>
+        <Box
+          p={8}
+          textAlign="center"
+          bg="whiteAlpha.50"
+          borderRadius="xl"
+          borderWidth="1px"
+          borderColor="whiteAlpha.100"
+        >
+          <Text fontSize="lg" fontWeight="bold" mb={1}>
+            Pas encore de programme
+          </Text>
+          <Text color="fg.muted" fontSize="sm">
+            Ton coach n'a pas encore ajouté de séances. Reviens bientôt.
+          </Text>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (isProgramComplete) {
     return (
       <Container maxW={CLIENT_CONTENT_MAX_W} py={8} px={4}>
         <Box
@@ -59,9 +83,45 @@ const SessionScreen = () => {
           <Text fontSize="lg" fontWeight="bold" mb={1}>
             Programme terminé 🎉
           </Text>
-          <Text color="fg.muted" fontSize="sm">
+          <Text color="fg.muted" fontSize="sm" mb={4}>
             Toutes les séances sont complétées. Ton coach prépare la suite.
           </Text>
+          <Button
+            variant="outline"
+            borderColor="whiteAlpha.200"
+            onClick={() => navigate('/client/historique')}
+          >
+            Voir l'historique
+          </Button>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (!activeSession) {
+    return (
+      <Container maxW={CLIENT_CONTENT_MAX_W} py={8} px={4}>
+        <Box
+          p={8}
+          textAlign="center"
+          bg="whiteAlpha.50"
+          borderRadius="xl"
+          borderWidth="1px"
+          borderColor="whiteAlpha.100"
+        >
+          <Text fontSize="lg" fontWeight="bold" mb={1}>
+            Séance introuvable
+          </Text>
+          <Text color="fg.muted" fontSize="sm" mb={4}>
+            Cette séance n'existe plus dans ton programme.
+          </Text>
+          <Button
+            variant="outline"
+            borderColor="whiteAlpha.200"
+            onClick={() => navigate('/client/programme')}
+          >
+            Voir le programme
+          </Button>
         </Box>
       </Container>
     );
