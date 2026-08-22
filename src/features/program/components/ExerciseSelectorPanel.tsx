@@ -136,7 +136,7 @@ export const ExerciseSelectorPanel = ({
                   _focusWithin={{ borderColor: 'app.primary' }}
                   transition="border-color 0.2s ease"
                 >
-                  <LuSearch size={14} color="gray" />
+                  <LuSearch size={14} color="var(--chakra-colors-fg-muted)" />
                   <Input
                     placeholder="Rechercher un exercice..."
                     value={searchQuery}

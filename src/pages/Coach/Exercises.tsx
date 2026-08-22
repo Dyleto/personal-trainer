@@ -84,8 +84,8 @@ const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
         )}
 
         {/* Vidéo intégrée ou lien de fallback */}
-        {exercise.videoUrl &&
-          (embedUrl ? (
+        {exercise.videoUrl ? (
+          embedUrl ? (
             <VStack gap={2} align="stretch">
               <Box
                 borderRadius="lg"
@@ -140,7 +140,20 @@ const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
               <LuVideo size={14} />
               <Box>Voir la vidéo</Box>
             </HStack>
-          ))}
+          )
+        ) : (
+          <HStack
+            gap={2}
+            color="fg.muted"
+            fontSize="sm"
+            cursor="pointer"
+            onClick={onEdit}
+            _hover={{ color: 'app.primary' }}
+          >
+            <LuVideo size={14} />
+            <Box>Ajouter une vidéo</Box>
+          </HStack>
+        )}
 
         <Button
           size="sm"
@@ -318,7 +331,7 @@ const Exercises = () => {
                   _focusWithin={{ borderColor: 'app.primary' }}
                   transition="border-color 0.2s ease"
                 >
-                  <LuSearch size={16} color="gray" />
+                  <LuSearch size={16} color="var(--chakra-colors-fg-muted)" />
                   <Input
                     placeholder="Rechercher un exercice..."
                     value={searchQuery}
@@ -360,7 +373,11 @@ const Exercises = () => {
                 ) : (
                   <>
                     <Grid
-                      templateColumns={{ base: '1fr', lg: '1fr 320px' }}
+                      templateColumns={{
+                        base: '1fr',
+                        lg: '1fr 380px',
+                        xl: '1fr 460px',
+                      }}
                       gap={{ base: 0, lg: 8 }}
                       alignItems="start"
                     >
