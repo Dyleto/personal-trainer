@@ -1,0 +1,133 @@
+import {
+  Avatar,
+  Box,
+  Button,
+  HStack,
+  SkeletonCircle,
+  SkeletonText,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useClients } from '@/features/coach/hooks/useClients';
+import { useToastError } from '@/hooks/useToastError';
+import { Card } from '@/components/Card';
+import { COACH_ROUTES } from '@/config/routes';
+import { Client } from '@/types';
+
+const sortClients = (clients: Client[]): Client[] =>
+  [...clients].sort((a, b) => {
+    if (a.unseenCount > 0 && b.unseenCount === 0) return -1;
+    if (a.unseenCount === 0 && b.unseenCount > 0) return 1;
+    return `${a.firstName} ${a.lastName}`.localeCompare(
+      `${b.firstName} ${b.lastName}`
+    );
+  });
+
+interface ClientRowProps {
+  client: Client;
+  onSelect: () => void;
+}
+
+const ClientRow = ({ client, onSelect }: ClientRowProps) => (
+  <Card
+    accentColor="app.primary"
+    hoverEffect="border"
+    withGlow={false}
+    onClick={onSelect}
+    p={3}
+  >
+    <HStack justify="space-between" gap={3}>
+      <HStack gap={3} minW={0}>
+        <Avatar.Root size="sm" flexShrink={0}>
+          <Avatar.Fallback name={`${client.firstName} ${client.lastName}`} />
+          {client.picture && <Avatar.Image src={client.picture} />}
+        </Avatar.Root>
+        <Text fontWeight="semibold" fontSize="sm" truncate>
+          {client.firstName} {client.lastName}
+        </Text>
+      </HStack>
+      {client.unseenCount > 0 && (
+        <Box
+          w="8px"
+          h="8px"
+          borderRadius="full"
+          bg="session.work"
+          flexShrink={0}
+          aria-label={`${client.unseenCount} séance${client.unseenCount > 1 ? 's' : ''} non vue${client.unseenCount > 1 ? 's' : ''}`}
+        />
+      )}
+    </HStack>
+  </Card>
+);
+
+export const ClientsList = () => {
+  const navigate = useNavigate();
+  const { data: clients = [], isLoading, error, refetch } = useClients();
+
+  useToastError(error, 'Impossible de charger vos clients');
+
+  const sortedClients = useMemo(() => sortClients(clients), [clients]);
+
+  const handleSelect = (client: Client) => {
+    // Conserve le comportement existant : ouvre directement l'onglet Journal
+    // quand il y a des séances non vues, sinon l'onglet par défaut.
+    const query = client.unseenCount > 0 ? '?tab=journal' : '';
+    navigate(`${COACH_ROUTES.clientDetails(client._id)}${query}`);
+  };
+
+  if (isLoading) {
+    return (
+      <VStack align="stretch" gap={2}>
+        {[...Array(6)].map((_, index) => (
+          <Card key={index} onClick={() => {}} p={3}>
+            <HStack gap={3}>
+              <SkeletonCircle size="8" />
+              <SkeletonText noOfLines={1} width="140px" />
+            </HStack>
+          </Card>
+        ))}
+      </VStack>
+    );
+  }
+
+  if (error) {
+    return (
+      <VStack gap={4} py={12} textAlign="center">
+        <Text color="app.error" fontWeight="bold">
+          Erreur de chargement
+        </Text>
+        <Text color="fg.muted" fontSize="sm">
+          Impossible de récupérer la liste de vos clients.
+        </Text>
+        <Button bg="app.primary" color="bg.canvas" onClick={() => refetch()}>
+          Réessayer
+        </Button>
+      </VStack>
+    );
+  }
+
+  if (sortedClients.length === 0) {
+    return (
+      <VStack gap={2} py={12} textAlign="center">
+        <Text color="fg.muted">Aucun client pour le moment</Text>
+        <Text color="fg.muted" fontSize="sm">
+          Invitez votre premier client pour commencer.
+        </Text>
+      </VStack>
+    );
+  }
+
+  return (
+    <VStack align="stretch" gap={2}>
+      {sortedClients.map((client) => (
+        <ClientRow
+          key={client._id}
+          client={client}
+          onSelect={() => handleSelect(client)}
+        />
+      ))}
+    </VStack>
+  );
+};

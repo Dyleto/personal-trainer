@@ -20,3 +20,9 @@ export const CLIENT_ROUTES = {
   seance: '/client/seance',
   historique: '/client/historique',
 };
+
+export const COACH_ROUTES = {
+  clients: '/coach',
+  clientDetails: (clientId: string) => `/coach/clients/${clientId}`,
+  exercises: '/coach/exercises',
+};

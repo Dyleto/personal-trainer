@@ -14,6 +14,7 @@ const Join = React.lazy(() => import('./pages/Join'));
 
 const AdminDashboard = React.lazy(() => import('./pages/Admin/Dashboard'));
 
+const CoachLayout = React.lazy(() => import('./pages/Coach/CoachLayout'));
 const Clients = React.lazy(() => import('./pages/Coach/Clients'));
 const ClientDetails = React.lazy(() => import('./pages/Coach/ClientDetails'));
 const Exercises = React.lazy(() => import('./pages/Coach/Exercises'));
@@ -33,15 +34,14 @@ const router = createBrowserRouter(
       <Route path="join" element={<Join />} />
 
       {/* Routes Coach */}
-      <Route path="coach" element={<Clients />} />
-      <Route path="coach/clients/:clientId" element={<ClientDetails />} />
-      <Route path="coach/exercises" element={<Exercises />} />
-      <Route path="coach/exercises/new" element={<ExerciseForm />} />
-      <Route path="coach/exercises/:exerciseId" element={<ExerciseForm />} />
-      <Route
-        path="coach/exercises/:exerciseId/edit"
-        element={<ExerciseForm />}
-      />
+      <Route path="coach" element={<CoachLayout />}>
+        <Route index element={<Clients />} />
+        <Route path="clients/:clientId" element={<ClientDetails />} />
+        <Route path="exercises" element={<Exercises />} />
+        <Route path="exercises/new" element={<ExerciseForm />} />
+        <Route path="exercises/:exerciseId" element={<ExerciseForm />} />
+        <Route path="exercises/:exerciseId/edit" element={<ExerciseForm />} />
+      </Route>
 
       {/* Routes Client */}
       <Route path="client" element={<ClientLayout />}>
