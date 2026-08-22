@@ -1,5 +1,5 @@
 import { CompletedSession } from '@/types';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMarkHistoryAsViewed } from '@/features/coach/hooks/useMarkHistoryAsViewed';
 import {
   CompletedSessionDrawer,
@@ -81,22 +81,14 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
     null
   );
 
-  const frozenIdsRef = useRef<Set<string> | null>(null);
-  if (frozenIdsRef.current === null && history.length > 0) {
-    frozenIdsRef.current = new Set(
-      history.filter((c) => c.viewedByCoach !== true).map((c) => c._id)
-    );
-  }
-  const initialUnseenIds = frozenIdsRef.current ?? new Set<string>();
+  const [initialUnseenIds] = useState<Set<string>>(
+    () =>
+      new Set(history.filter((c) => c.viewedByCoach !== true).map((c) => c._id))
+  );
 
-  const hasMarkedRef = useRef(false);
   useEffect(() => {
-    if (hasMarkedRef.current) return;
-    if (frozenIdsRef.current && frozenIdsRef.current.size > 0) {
-      hasMarkedRef.current = true;
-      markHistoryAsViewed();
-    }
-  }, [history, markHistoryAsViewed]);
+    if (initialUnseenIds.size > 0) markHistoryAsViewed();
+  }, [initialUnseenIds, markHistoryAsViewed]);
 
   if (history.length === 0) {
     return (

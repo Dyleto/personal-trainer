@@ -23,7 +23,9 @@ const ClientDetails = () => {
   const navigate = useNavigate();
 
   const { data: client, isLoading } = useClientDetails(clientId!);
-  const { data: history = [] } = useClientHistory(clientId!);
+  const { data: history = [], isLoading: isHistoryLoading } = useClientHistory(
+    clientId!
+  );
 
   const [searchParams] = useSearchParams();
   const defaultTab =
@@ -96,7 +98,11 @@ const ClientDetails = () => {
             <Heading size="sm" mb={4}>
               Journal
             </Heading>
-            <ClientJournalTab history={history} clientId={clientId!} />
+            {isHistoryLoading ? (
+              <Spinner size="lg" />
+            ) : (
+              <ClientJournalTab history={history} clientId={clientId!} />
+            )}
           </Box>
           <Box>
             <Heading size="sm" mb={4}>
@@ -116,7 +122,11 @@ const ClientDetails = () => {
             </Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="journal">
-            <ClientJournalTab history={history} clientId={clientId!} />
+            {isHistoryLoading ? (
+              <Spinner size="lg" />
+            ) : (
+              <ClientJournalTab history={history} clientId={clientId!} />
+            )}
           </Tabs.Content>
           <Tabs.Content value="programme">
             <ClientProgramTab client={client} clientId={clientId!} />
