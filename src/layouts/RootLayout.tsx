@@ -42,7 +42,7 @@ const RootLayout: React.FC = () => {
         left="0"
         right="0"
         bottom="0"
-        bg="bg.muted"
+        bg="surface.wall"
         zIndex={-1}
         pointerEvents="none"
       />

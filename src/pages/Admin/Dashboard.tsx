@@ -224,7 +224,7 @@ const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
           <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
             <HStack justify="space-between">
               <HStack gap={2}>
-                <LuShield size={18} color="app.primary" />
+                <LuShield size={18} color="var(--chakra-colors-app-primary)" />
                 <Text fontWeight="bold">Créer un coach</Text>
               </HStack>
               <Button size="sm" variant="ghost" onClick={onClose}>
@@ -314,7 +314,7 @@ const AdminDashboard = () => {
         <HStack justify="space-between" align="start">
           <VStack align="start" gap={0.5}>
             <HStack gap={2}>
-              <LuShield size={16} color="app.primary" />
+              <LuShield size={16} color="var(--chakra-colors-app-primary)" />
               <Text
                 fontSize="xs"
                 color="app.primary"
@@ -345,7 +345,7 @@ const AdminDashboard = () => {
             label="Clients"
             value={stats?.clientCount}
             icon={<LuUsers size={18} />}
-            color="#3b82f6"
+            color="app.primary"
           />
           <StatCard
             label="Séances complétées"
@@ -356,13 +356,13 @@ const AdminDashboard = () => {
                 : undefined
             }
             icon={<LuZap size={18} />}
-            color="#22c55e"
+            color="app.primary"
           />
           <StatCard
             label="Exercices créés"
             value={stats?.exerciseCount}
             icon={<LuDumbbell size={18} />}
-            color="#a855f7"
+            color="app.primary"
           />
         </Grid>
 
@@ -370,7 +370,7 @@ const AdminDashboard = () => {
         <VStack align="stretch" gap={0}>
           <HStack justify="space-between" mb={4}>
             <HStack gap={2}>
-              <LuChartBar size={16} color="app.primary" />
+              <LuChartBar size={16} color="var(--chakra-colors-app-primary)" />
               <Heading size="md">Coachs</Heading>
               {coaches.length > 0 && (
                 <Box

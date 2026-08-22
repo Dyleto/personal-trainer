@@ -5,29 +5,41 @@ const customConfig = defineConfig({
     semanticTokens: {
       colors: {
         // Couleurs principales
-        'app.primary': { value: '#CF9F3F' },
-        'app.primary.hover': { value: '#DFB563' },
-        'app.primary.active': { value: '#B3852F' },
-        'app.primary.bg': { value: '#CF9F3F1A' },
-        'app.primary.border': { value: '#CF9F3F4D' },
+        app: {
+          primary: {
+            DEFAULT: { value: '#CF9F3F' },
+            hover: { value: '#DFB563' },
+            active: { value: '#B3852F' },
+            bg: { value: '#CF9F3F1A' },
+            border: { value: '#CF9F3F4D' },
+          },
+          // États
+          success: {
+            DEFAULT: { value: '#4F8F8A' },
+            hover: { value: '#5FA39D' },
+            active: { value: '#3F726D' },
+          },
+          error: { value: '#E2574C' },
+        },
 
-        // États
-        'app.success': { value: '#4F8F8A' },
-        'app.success.hover': { value: '#5FA39D' },
-        'app.success.active': { value: '#3F726D' },
+        bg: {
+          canvas: { value: '#17181B' },
+          surface: { value: '#26282D' },
+        },
+        surface: {
+          wall: { value: '#17181B' },
+          card: { value: '#1E2024' },
+        },
 
-        'app.error': { value: '#E2574C' },
+        fg: {
+          DEFAULT: { value: '#ECE8DE' },
+          muted: { value: '#A6A49A' },
+        },
 
-        'bg.canvas': { value: '#17181B' },
-        'bg.muted': { value: '#17181B' },
-        'bg.panel': { value: '#1E2024' },
-
-        fg: { value: '#ECE8DE' },
-        'fg.muted': { value: '#A6A49A' },
-        'bg.surface': { value: '#26282D' },
-
-        'session.work': { value: '#E2574C' },
-        'session.rest': { value: '#4F8F8A' },
+        session: {
+          work: { value: '#E2574C' },
+          rest: { value: '#4F8F8A' },
+        },
       },
     },
     tokens: {
