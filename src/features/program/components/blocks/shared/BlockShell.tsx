@@ -18,6 +18,7 @@ import {
 } from 'react-icons/lu';
 import { Button } from '@chakra-ui/react';
 import {
+  getBlockAccent,
   getBlockConfigSummary,
   getBlockDescription,
   getBlockLabel,
@@ -28,6 +29,12 @@ import {
   BlockExerciseView,
 } from '@/features/program/components/BlockExerciseCard';
 import { BlockProps } from './types';
+
+const ACCENT_COLOR = {
+  work: 'session.work',
+  rest: 'session.rest',
+  neutral: 'whiteAlpha.100',
+} as const;
 
 interface BlockShellProps extends BlockProps {
   /** Config inputs affichés en mode édition (sous le header) */
@@ -53,6 +60,7 @@ export const BlockShell = ({
   canMoveDown,
 }: BlockShellProps) => {
   const description = getBlockDescription(block.type);
+  const accentColor = ACCENT_COLOR[getBlockAccent(block.type)];
 
   return (
     <Box
@@ -60,13 +68,15 @@ export const BlockShell = ({
       overflow="hidden"
       borderWidth="1px"
       borderColor={isEditing ? `app.primary/30` : 'whiteAlpha.100'}
+      borderLeftWidth={isEditing ? undefined : '3px'}
+      borderLeftColor={isEditing ? undefined : accentColor}
       bg="blackAlpha.200"
     >
       {/* ── Header ── */}
       <Box
         px={4}
         py={isEditing ? 3 : 2.5}
-        bg={isEditing ? `app.primary/18` : `app.primary/15`}
+        bg={isEditing ? `app.primary/18` : 'whiteAlpha.50'}
       >
         {isEditing ? (
           <VStack align="stretch" gap={1}>
@@ -163,36 +173,24 @@ export const BlockShell = ({
           </VStack>
         ) : (
           <HStack justify="space-between" gap={2} align="start">
-            <HStack gap={2} align="start">
-              <Box
-                w="8px"
-                h="8px"
-                borderRadius="full"
-                bg="app.primary"
-                flexShrink={0}
-                mt="3px"
-              />
-              <Box>
-                <Text
-                  fontSize="xs"
-                  fontWeight="bold"
-                  color="app.primary"
-                  textTransform="uppercase"
-                  letterSpacing="wider"
-                  lineHeight="shorter"
-                >
-                  {getBlockLabel(block.type)} {block.label && '·'} {block.label}
-                </Text>
-                <Text
-                  fontSize="2xs"
-                  color="fg.muted"
-                  lineHeight="shorter"
-                  mt="2px"
-                >
-                  {description}
-                </Text>
-              </Box>
-            </HStack>
+            <Box>
+              <Text
+                fontSize="xs"
+                fontWeight="bold"
+                color="fg"
+                lineHeight="shorter"
+              >
+                {getBlockLabel(block.type)} {block.label && '·'} {block.label}
+              </Text>
+              <Text
+                fontSize="2xs"
+                color="fg.muted"
+                lineHeight="shorter"
+                mt="2px"
+              >
+                {description}
+              </Text>
+            </Box>
             {getBlockConfigSummary(block) && (
               <Text fontSize="xs" color="fg.muted" flexShrink={0}>
                 {getBlockConfigSummary(block)}

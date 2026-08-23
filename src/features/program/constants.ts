@@ -59,6 +59,18 @@ export const blockSupportsRepsOnly = (type: BlockType): boolean =>
 export const getBlockLabel = (type: BlockType): string =>
   BLOCK_TYPE_CONFIG[type]?.label ?? type;
 
+export type BlockAccent = 'work' | 'rest' | 'neutral';
+
+// Le repos y est une donnée nommée du schéma (Tabata, On/Off) : accent repos.
+// L'échauffement n'est ni l'effort principal ni du repos : neutre. Tout le
+// reste est de l'effort continu ou enchaîné, où un repos éventuel n'est
+// qu'un détail de réglage, pas ce que le bloc représente.
+export const getBlockAccent = (type: BlockType): BlockAccent => {
+  if (blockSupportsRepsOnly(type)) return 'rest';
+  if (type === 'warmup') return 'neutral';
+  return 'work';
+};
+
 export const blockIndexPrefix = (type: BlockType): boolean =>
   ['emom'].includes(type);
 
