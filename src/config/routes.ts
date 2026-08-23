@@ -25,5 +25,8 @@ export const CLIENT_ROUTES = {
 export const COACH_ROUTES = {
   clients: '/coach',
   clientDetails: (clientId: string) => `/coach/clients/${clientId}`,
+  clientSession: (clientId: string, sessionIndex: number) =>
+    `/coach/clients/${clientId}/s/${sessionIndex}`,
+  clientJournal: (clientId: string) => `/coach/clients/${clientId}/journal`,
   exercises: '/coach/exercises',
 };

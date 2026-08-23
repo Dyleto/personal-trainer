@@ -1,244 +1,76 @@
-import { ClientWithDetails, Exercise } from '@/types';
-import { useEffect, useState } from 'react';
-import { useProgramEditor } from '@/features/program/hooks/useProgramEditor';
-import { useUpdateProgramSessions } from '@/features/program/hooks/useProgramMutations';
+import { useState } from 'react';
 import {
-  SessionCard,
-  ExerciseSelectorPanel,
-  CreateSessionCard,
-} from '@/features/program';
-import {
-  Box,
-  Button,
-  Dialog,
-  Grid,
-  Heading,
-  HStack,
-  Text,
-} from '@chakra-ui/react';
-import { LuPencil, LuSave, LuX } from 'react-icons/lu';
-
-interface SelectorState {
-  isOpen: boolean;
-  sessionId: string | null;
-  blockId: string | null;
-}
+  BlockExercise,
+  BlockType,
+  Exercise,
+  Session,
+  SessionBlock,
+} from '@/types';
+import { SessionCard, ExerciseSelectorPanel } from '@/features/program';
 
 interface Props {
-  client: ClientWithDetails;
-  clientId: string;
+  session: Session;
+  onRemoveSession: () => void;
+  onUpdateSessionNotes: (notes: string) => void;
+  onAddBlock: (type: BlockType) => void;
+  onRemoveBlock: (blockId: string) => void;
+  onUpdateBlock: (blockId: string, updates: Partial<SessionBlock>) => void;
+  onReorderBlocks: (orderedBlockIds: string[]) => void;
+  onAddExercise: (blockId: string, exercise: Exercise) => void;
+  onRemoveExercise: (blockId: string, index: number) => void;
+  onUpdateExercise: (
+    blockId: string,
+    index: number,
+    updates: Partial<Omit<BlockExercise, 'exercise'>>
+  ) => void;
 }
 
-export const ClientProgramTab = ({ client, clientId }: Props) => {
-  const { program, initialize, actions } = useProgramEditor(null);
-  const updateProgramMutation = useUpdateProgramSessions(clientId);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
-  const [selectorState, setSelectorState] = useState<SelectorState>({
-    isOpen: false,
-    sessionId: null,
-    blockId: null,
-  });
-
-  useEffect(() => {
-    if (client.program && !isEditing) {
-      initialize(client.program);
-    }
-  }, [client, initialize, isEditing]);
-
-  const isDirty =
-    !!program &&
-    JSON.stringify(program.sessions) !==
-      JSON.stringify(client.program.sessions);
-
-  const handleSave = () => {
-    if (!program) return;
-    updateProgramMutation.mutate(program.sessions, {
-      onSuccess: () => setIsEditing(false),
-    });
-  };
-
-  const confirmCancel = () => {
-    if (client.program) initialize(client.program);
-    setIsEditing(false);
-    setIsCancelConfirmOpen(false);
-  };
-
-  const handleCancelClick = () => {
-    if (isDirty) {
-      setIsCancelConfirmOpen(true);
-    } else {
-      confirmCancel();
-    }
-  };
-
-  const handleOpenSelector = (sessionId: string, blockId: string) => {
-    setSelectorState({ isOpen: true, sessionId, blockId });
-  };
+// Ne rend plus qu'une seule séance (l'atelier, Phase 15) : la coquille
+// (titre "Programme", bouton "Modifier", grille de séances) est montée
+// d'un cran dans ClientDetails.tsx.
+export const ClientProgramTab = ({
+  session,
+  onRemoveSession,
+  onUpdateSessionNotes,
+  onAddBlock,
+  onRemoveBlock,
+  onUpdateBlock,
+  onReorderBlocks,
+  onAddExercise,
+  onRemoveExercise,
+  onUpdateExercise,
+}: Props) => {
+  const [selectorBlockId, setSelectorBlockId] = useState<string | null>(null);
 
   const handleSelectExercise = (exercise: Exercise) => {
-    const { sessionId, blockId } = selectorState;
-    if (sessionId && blockId) {
-      actions.addExercise(sessionId, blockId, exercise);
-    }
-    setSelectorState((prev) => ({ ...prev, isOpen: false }));
+    if (selectorBlockId) onAddExercise(selectorBlockId, exercise);
+    setSelectorBlockId(null);
   };
-
-  if (!program) return null;
 
   return (
     <>
-      <Box mt={4} pb={isEditing ? '80px' : 0}>
-        <HStack justify="space-between" mb={6}>
-          <Heading size="lg">Programme</Heading>
-          {!isEditing && (
-            <Button variant="outline" onClick={() => setIsEditing(true)}>
-              <LuPencil /> Modifier
-            </Button>
-          )}
-        </HStack>
+      <SessionCard
+        session={session}
+        interactive={false}
+        isEditing
+        onRemoveSession={onRemoveSession}
+        onUpdateSessionNotes={onUpdateSessionNotes}
+        onAddBlock={onAddBlock}
+        onRemoveBlock={onRemoveBlock}
+        onUpdateBlock={onUpdateBlock}
+        onReorderBlocks={onReorderBlocks}
+        onAddExercise={(blockId) => setSelectorBlockId(blockId)}
+        onRemoveExercise={onRemoveExercise}
+        onUpdateExercise={onUpdateExercise}
+      />
 
-        <Grid
-          templateColumns={{
-            base: '1fr',
-            md: 'repeat(auto-fill, minmax(380px, 1fr))',
-          }}
-          gap={8}
-          alignItems="start"
-        >
-          {program.sessions.map((session) => (
-            <SessionCard
-              key={session._id}
-              session={session}
-              interactive={false}
-              isEditing={isEditing}
-              onRemoveSession={() => actions.removeSession(session._id)}
-              onUpdateSessionNotes={(notes) =>
-                actions.updateSessionNotes(session._id, notes)
-              }
-              onAddBlock={(type) => actions.addBlock(session._id, type)}
-              onRemoveBlock={(blockId) =>
-                actions.removeBlock(session._id, blockId)
-              }
-              onUpdateBlock={(blockId, updates) =>
-                actions.updateBlock(session._id, blockId, updates)
-              }
-              onReorderBlocks={(orderedIds) =>
-                actions.reorderBlocks(session._id, orderedIds)
-              }
-              onAddExercise={(blockId) =>
-                handleOpenSelector(session._id, blockId)
-              }
-              onRemoveExercise={(blockId, index) =>
-                actions.removeExercise(session._id, blockId, index)
-              }
-              onUpdateExercise={(blockId, index, updates) =>
-                actions.updateExercise(session._id, blockId, index, updates)
-              }
-            />
-          ))}
-
-          {isEditing && <CreateSessionCard onClick={actions.addSession} />}
-
-          {!isEditing && program.sessions.length === 0 && (
-            <Box
-              gridColumn="1 / -1"
-              p={8}
-              bg="whiteAlpha.50"
-              borderRadius="lg"
-              textAlign="center"
-              borderWidth="1px"
-              borderColor="whiteAlpha.200"
-            >
-              <Text color="fg.muted">
-                Ce programme ne contient aucune séance pour le moment.
-              </Text>
-            </Box>
-          )}
-        </Grid>
-
-        {isEditing && (
-          <HStack
-            justify="flex-end"
-            gap={3}
-            position="sticky"
-            bottom={0}
-            bg="bg.canvas"
-            py={4}
-            mt={6}
-            borderTop="1px solid"
-            borderColor="whiteAlpha.100"
-          >
-            <Button
-              variant="ghost"
-              onClick={handleCancelClick}
-              disabled={updateProgramMutation.isPending}
-            >
-              <LuX /> Annuler
-            </Button>
-            <Button
-              bg="app.primary"
-              color="bg.canvas"
-              onClick={handleSave}
-              loading={updateProgramMutation.isPending}
-            >
-              <LuSave /> Enregistrer
-            </Button>
-          </HStack>
-        )}
-      </Box>
-
-      {selectorState.isOpen && selectorState.blockId && (
+      {selectorBlockId && (
         <ExerciseSelectorPanel
-          isOpen={selectorState.isOpen}
-          onClose={() =>
-            setSelectorState((prev) => ({ ...prev, isOpen: false }))
-          }
+          isOpen={!!selectorBlockId}
+          onClose={() => setSelectorBlockId(null)}
           onSelect={handleSelectExercise}
         />
       )}
-
-      <Dialog.Root
-        open={isCancelConfirmOpen}
-        onOpenChange={(e) => !e.open && setIsCancelConfirmOpen(false)}
-      >
-        <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content
-            bg="bg.canvas"
-            borderColor="whiteAlpha.100"
-            borderWidth="1px"
-            maxW="sm"
-          >
-            <Dialog.Header>
-              <Dialog.Title>Annuler les modifications ?</Dialog.Title>
-            </Dialog.Header>
-            <Dialog.Body>
-              <Text color="fg.muted" fontSize="sm">
-                Les changements apportés à ce programme ne seront pas
-                enregistrés.
-              </Text>
-            </Dialog.Body>
-            <Dialog.Footer gap={3}>
-              <Button
-                bg="app.primary"
-                color="bg.canvas"
-                fontWeight="bold"
-                onClick={confirmCancel}
-              >
-                Annuler les modifications
-              </Button>
-              <Button
-                variant="ghost"
-                color="fg.muted"
-                onClick={() => setIsCancelConfirmOpen(false)}
-              >
-                Continuer l'édition
-              </Button>
-            </Dialog.Footer>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Dialog.Root>
     </>
   );
 };

@@ -31,18 +31,21 @@ export const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
 export const getBlockDescription = (type: BlockType): string =>
   BLOCK_DESCRIPTIONS[type] ?? '';
 
-export const BLOCK_TYPES_ORDERED: BlockType[] = [
-  'warmup',
-  'classic',
-  'emom',
-  'every',
-  'amrap',
-  'timecap',
-  'chipper',
-  'tabata',
-  'onoff',
-  'pyramid',
-  'ladder',
+export type BlockFamily = 'warmup' | 'series' | 'timed' | 'progressive';
+
+export const BLOCK_FAMILIES: {
+  key: BlockFamily;
+  label: string;
+  types: BlockType[];
+}[] = [
+  { key: 'warmup', label: 'Échauffement', types: ['warmup'] },
+  { key: 'series', label: 'Séries', types: ['classic', 'chipper'] },
+  {
+    key: 'timed',
+    label: 'Chronométré',
+    types: ['emom', 'every', 'amrap', 'timecap', 'tabata', 'onoff'],
+  },
+  { key: 'progressive', label: 'Progressif', types: ['pyramid', 'ladder'] },
 ];
 
 export const blockSupportsSets = (type: BlockType): boolean =>

@@ -3,10 +3,13 @@ import {
   createRoutesFromElements,
   createBrowserRouter,
   RouterProvider,
+  Navigate,
+  useParams,
 } from 'react-router-dom';
 import RootLayout from './layouts/RootLayout';
 import React from 'react';
 import { RouteError } from './components/RouteError';
+import { COACH_ROUTES } from './config/routes';
 
 const Login = React.lazy(() => import('./pages/Login'));
 const AuthCallback = React.lazy(() => import('./pages/AuthCallback'));
@@ -17,6 +20,7 @@ const AdminDashboard = React.lazy(() => import('./pages/Admin/Dashboard'));
 const CoachLayout = React.lazy(() => import('./pages/Coach/CoachLayout'));
 const Clients = React.lazy(() => import('./pages/Coach/Clients'));
 const ClientDetails = React.lazy(() => import('./pages/Coach/ClientDetails'));
+const ClientJournal = React.lazy(() => import('./pages/Coach/ClientJournal'));
 const Exercises = React.lazy(() => import('./pages/Coach/Exercises'));
 const ExerciseForm = React.lazy(() => import('./pages/Coach/ExerciseForm'));
 
@@ -25,6 +29,11 @@ const Today = React.lazy(() => import('./pages/Client/Today'));
 const Program = React.lazy(() => import('./pages/Client/Program'));
 const SessionScreen = React.lazy(() => import('./pages/Client/SessionScreen'));
 const History = React.lazy(() => import('./pages/Client/History'));
+
+const ClientDetailsRedirect = () => {
+  const { clientId } = useParams();
+  return <Navigate to={COACH_ROUTES.clientSession(clientId!, 1)} replace />;
+};
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,7 +45,12 @@ const router = createBrowserRouter(
       {/* Routes Coach */}
       <Route path="coach" element={<CoachLayout />}>
         <Route index element={<Clients />} />
-        <Route path="clients/:clientId" element={<ClientDetails />} />
+        <Route path="clients/:clientId" element={<ClientDetailsRedirect />} />
+        <Route
+          path="clients/:clientId/s/:sessionIndex"
+          element={<ClientDetails />}
+        />
+        <Route path="clients/:clientId/journal" element={<ClientJournal />} />
         <Route path="exercises" element={<Exercises />} />
         <Route path="exercises/new" element={<ExerciseForm />} />
         <Route path="exercises/:exerciseId" element={<ExerciseForm />} />

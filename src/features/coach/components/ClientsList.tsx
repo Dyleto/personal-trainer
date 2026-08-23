@@ -71,10 +71,13 @@ export const ClientsList = () => {
   const sortedClients = useMemo(() => sortClients(clients), [clients]);
 
   const handleSelect = (client: Client) => {
-    // Conserve le comportement existant : ouvre directement l'onglet Journal
-    // quand il y a des séances non vues, sinon l'onglet par défaut.
-    const query = client.unseenCount > 0 ? '?tab=journal' : '';
-    navigate(`${COACH_ROUTES.clientDetails(client._id)}${query}`);
+    // Une séance non vue ouvre directement le journal ; sinon l'atelier
+    // s'ouvre sur la première séance.
+    if (client.unseenCount > 0) {
+      navigate(COACH_ROUTES.clientJournal(client._id));
+    } else {
+      navigate(COACH_ROUTES.clientSession(client._id, 1));
+    }
   };
 
   if (isLoading) {
