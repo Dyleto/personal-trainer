@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import { DateInput } from '@/components/DateInput';
 import { METRICS_CONFIG } from '@/features/client/constants';
+import { LuX } from 'react-icons/lu';
 
 interface CompleteSessionModalProps {
   isOpen: boolean;
@@ -67,7 +68,9 @@ export const CompleteSessionModal = ({
               </Text>
             </VStack>
           </Dialog.Header>
-          <Dialog.CloseTrigger />
+          <Dialog.CloseTrigger aria-label="Fermer">
+            <LuX size={16} />
+          </Dialog.CloseTrigger>
 
           <Dialog.Body>
             <VStack gap={4} align="stretch">

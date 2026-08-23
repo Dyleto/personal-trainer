@@ -100,6 +100,7 @@ const SessionScreen = () => {
 
   const pillLabel = isManualSelection ? 'Séance choisie' : 'À faire';
   const pillColor = isManualSelection ? 'app.primary' : 'session.work';
+  const pillTextColor = isManualSelection ? 'app.primary' : 'session.work.fg';
   const hasExercises = activeSession.blocks.some((b) => b.exercises.length > 0);
   const summary =
     activeSession.blocks.length === 0
@@ -139,7 +140,7 @@ const SessionScreen = () => {
             bg={`${pillColor}/16`}
             fontSize="2xs"
             fontWeight="bold"
-            color={pillColor}
+            color={pillTextColor}
             textTransform="uppercase"
             letterSpacing="wider"
           >

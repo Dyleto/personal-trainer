@@ -26,11 +26,26 @@ function getStatus(
 
 const STATUS_CONFIG: Record<
   SessionStatus,
-  { label: string; color: string; bg: string }
+  { label: string; color: string; textColor: string; bg: string }
 > = {
-  done: { label: 'Terminée', color: 'session.rest', bg: 'session.rest/16' },
-  next: { label: 'À faire', color: 'session.work', bg: 'session.work/16' },
-  upcoming: { label: 'À venir', color: 'fg.muted', bg: 'whiteAlpha.50' },
+  done: {
+    label: 'Terminée',
+    color: 'session.rest',
+    textColor: 'session.rest.fg',
+    bg: 'session.rest/16',
+  },
+  next: {
+    label: 'À faire',
+    color: 'session.work',
+    textColor: 'session.work.fg',
+    bg: 'session.work/16',
+  },
+  upcoming: {
+    label: 'À venir',
+    color: 'fg.muted',
+    textColor: 'fg.muted',
+    bg: 'whiteAlpha.50',
+  },
 };
 
 interface SessionRowProps {
@@ -49,7 +64,6 @@ const SessionRow = ({ session, status, onSelect }: SessionRowProps) => {
       withGlow={false}
       onClick={onSelect}
       p={4}
-      opacity={status === 'upcoming' ? 0.7 : 1}
     >
       <VStack align="stretch" gap={1.5}>
         <HStack justify="space-between" align="center">
@@ -63,7 +77,7 @@ const SessionRow = ({ session, status, onSelect }: SessionRowProps) => {
             bg={config.bg}
             fontSize="2xs"
             fontWeight="bold"
-            color={config.color}
+            color={config.textColor}
             textTransform="uppercase"
             letterSpacing="wider"
           >

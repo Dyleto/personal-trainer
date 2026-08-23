@@ -109,7 +109,7 @@ const Today = () => {
                       bg="session.work/16"
                       fontSize="2xs"
                       fontWeight="bold"
-                      color="session.work"
+                      color="session.work.fg"
                       textTransform="uppercase"
                       letterSpacing="wider"
                     >

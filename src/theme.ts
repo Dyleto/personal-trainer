@@ -37,8 +37,14 @@ const customConfig = defineConfig({
         },
 
         session: {
-          work: { value: '#E2574C' },
-          rest: { value: '#4F8F8A' },
+          work: {
+            DEFAULT: { value: '#E2574C' },
+            fg: { value: '#EC8079' },
+          },
+          rest: {
+            DEFAULT: { value: '#4F8F8A' },
+            fg: { value: '#7BB8B2' },
+          },
         },
       },
     },
