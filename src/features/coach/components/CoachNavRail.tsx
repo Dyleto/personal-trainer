@@ -47,7 +47,7 @@ export const CoachNavRail = () => {
           ))}
         </VStack>
       </VStack>
-      <Header />
+      <Header variant="rail" />
     </VStack>
   );
 };

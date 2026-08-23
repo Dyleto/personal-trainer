@@ -47,7 +47,7 @@ export const ClientNavRail = () => {
           ))}
         </VStack>
       </VStack>
-      <Header />
+      <Header variant="rail" />
     </VStack>
   );
 };
