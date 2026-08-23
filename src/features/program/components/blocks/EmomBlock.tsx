@@ -8,10 +8,10 @@ export const EmomBlock = (props: BlockProps) => (
     configNode={
       props.isEditing && (
         <NumField
-          label="Durée (min)"
-          value={props.block.durationMinutes}
+          label="Tours"
+          value={props.block.rounds}
           min={1}
-          onChange={(v) => props.onUpdate?.({ durationMinutes: v })}
+          onChange={(v) => props.onUpdate?.({ rounds: v })}
         />
       )
     }

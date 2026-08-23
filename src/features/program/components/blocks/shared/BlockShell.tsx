@@ -67,17 +67,13 @@ export const BlockShell = ({
       borderRadius={isEditing ? 'xl' : 'lg'}
       overflow="hidden"
       borderWidth="1px"
-      borderColor={isEditing ? `app.primary/30` : 'whiteAlpha.100'}
-      borderLeftWidth={isEditing ? undefined : '3px'}
-      borderLeftColor={isEditing ? undefined : accentColor}
+      borderColor={isEditing ? `${accentColor}/30` : 'whiteAlpha.100'}
+      borderLeftWidth="3px"
+      borderLeftColor={accentColor}
       bg="blackAlpha.200"
     >
       {/* ── Header ── */}
-      <Box
-        px={4}
-        py={isEditing ? 3 : 2.5}
-        bg={isEditing ? `app.primary/18` : 'whiteAlpha.50'}
-      >
+      <Box px={4} py={isEditing ? 3 : 2.5} bg="whiteAlpha.50">
         {isEditing ? (
           <VStack align="stretch" gap={1}>
             {/* Ligne d'action : réorganisation */}
@@ -126,13 +122,13 @@ export const BlockShell = ({
                   w="8px"
                   h="8px"
                   borderRadius="full"
-                  bg="app.primary"
+                  bg="fg.muted"
                   flexShrink={0}
                 />
                 <Text
                   fontSize="xs"
                   fontWeight="bold"
-                  color="app.primary"
+                  color="fg"
                   textTransform="uppercase"
                   letterSpacing="wider"
                   flexShrink={0}

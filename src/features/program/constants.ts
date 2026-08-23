@@ -77,7 +77,7 @@ export const blockIndexPrefix = (type: BlockType): boolean =>
 export const getBlockConfigSummary = (block: SessionBlock): string => {
   switch (block.type) {
     case 'emom':
-      return block.durationMinutes ? `${block.durationMinutes} min` : '';
+      return block.rounds ? `${block.rounds} tours` : '';
     case 'amrap':
       return block.durationMinutes ? `${block.durationMinutes} min` : '';
     case 'timecap':

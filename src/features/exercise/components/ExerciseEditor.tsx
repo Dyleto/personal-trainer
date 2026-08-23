@@ -6,6 +6,7 @@ import {
   Heading,
   HStack,
   Input,
+  Stack,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -147,9 +148,18 @@ export const ExerciseEditor = ({
         </Card.Root>
 
         {/* Actions */}
-        <HStack gap={4} justify="flex-end" w="100%">
+        <Stack
+          direction={{ base: 'column-reverse', sm: 'row' }}
+          gap={3}
+          justify="flex-end"
+          w="100%"
+        >
           {onCancel && (
-            <Button variant="ghost" onClick={onCancel}>
+            <Button
+              variant="ghost"
+              onClick={onCancel}
+              w={{ base: '100%', sm: 'auto' }}
+            >
               Annuler
             </Button>
           )}
@@ -159,6 +169,7 @@ export const ExerciseEditor = ({
               colorPalette="red"
               onClick={onDelete}
               loading={isLoading}
+              w={{ base: '100%', sm: 'auto' }}
             >
               <LuTrash2 style={{ marginRight: '8px' }} />
               Supprimer
@@ -170,10 +181,11 @@ export const ExerciseEditor = ({
             color="bg.canvas"
             fontWeight="bold"
             loading={isLoading}
+            w={{ base: '100%', sm: 'auto' }}
           >
             {isEditing ? 'Enregistrer' : 'Créer'}
           </Button>
-        </HStack>
+        </Stack>
       </VStack>
     </form>
   );
