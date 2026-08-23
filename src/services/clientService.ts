@@ -1,28 +1,33 @@
-﻿import api from "@/config/api";
-import { ClientProgram, CompletedSession, SessionMetrics } from "@/types";
+﻿import api from '@/config/api';
+import { ClientProgram, CompletedSession, SessionMetrics } from '@/types';
 
 export const clientService = {
   getProgram: async (): Promise<ClientProgram> => {
     const { data } = await api.get<{ program: ClientProgram }>(
-      "/api/client/program",
+      '/api/client/program'
     );
     return data.program;
   },
 
   getHistory: async (): Promise<CompletedSession[]> => {
     const { data } = await api.get<{ history: CompletedSession[] }>(
-      "/api/client/history",
+      '/api/client/history',
+      { params: { limit: 200 } }
     );
     return data.history;
   },
 
   completeSession: async (
     sessionId: string,
-    payload: { metrics: SessionMetrics; clientNotes?: string; completedAt?: string },
+    payload: {
+      metrics: SessionMetrics;
+      clientNotes?: string;
+      completedAt?: string;
+    }
   ): Promise<CompletedSession> => {
     const { data } = await api.post<{ completed: CompletedSession }>(
       `/api/client/sessions/${sessionId}/complete`,
-      payload,
+      payload
     );
     return data.completed;
   },
