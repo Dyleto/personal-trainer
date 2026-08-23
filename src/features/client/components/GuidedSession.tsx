@@ -1,13 +1,56 @@
 import { Session } from '@/types';
 import { buildGuidedSteps } from '../guidedSteps';
+import { useCountdown } from '../useCountdown';
 import { Box, HStack, Button, VStack, Text } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface GuidedSessionProps {
   session: Session;
   onExit: () => void;
   onFinish: () => void;
 }
+
+interface RestCountdownProps {
+  duration: number;
+  onComplete: () => void;
+}
+
+const RestCountdown = ({ duration, onComplete }: RestCountdownProps) => {
+  const { remaining, isRunning, pause, resume } = useCountdown(duration, {
+    onComplete,
+  });
+
+  useEffect(() => {
+    if (remaining > 0 && remaining <= 3) {
+      navigator.vibrate?.(150);
+    }
+  }, [remaining]);
+
+  return (
+    <Box
+      as="button"
+      onClick={() => (isRunning ? pause() : resume())}
+      cursor="pointer"
+      aria-label={isRunning ? 'Mettre en pause' : 'Reprendre le décompte'}
+    >
+      <Text
+        fontSize="72px"
+        fontWeight="800"
+        fontFamily="mono"
+        lineHeight="1"
+        color="bg.canvas"
+        opacity={isRunning ? 1 : 0.5}
+      >
+        {remaining}s
+      </Text>
+      {!isRunning && (
+        <Text fontSize="xs" color="bg.canvas" opacity={0.75} mt={1}>
+          En pause — toucher pour reprendre
+        </Text>
+      )}
+    </Box>
+  );
+};
 
 export const GuidedSession = ({
   session,
@@ -38,6 +81,43 @@ export const GuidedSession = ({
       onExit();
     }
   };
+
+  // Empêche l'écran de s'éteindre pendant toute la séance guidée : sans ça,
+  // l'écran s'éteint entre deux exercices et il faut le déverrouiller les
+  // mains moites.
+  useEffect(() => {
+    if (!('wakeLock' in navigator)) return;
+    let sentinel: WakeLockSentinel | null = null;
+    let cancelled = false;
+
+    const requestLock = async () => {
+      try {
+        const lock = await navigator.wakeLock.request('screen');
+        if (cancelled) {
+          lock.release().catch(() => {});
+          return;
+        }
+        sentinel = lock;
+      } catch {
+        // Refusé ou indisponible (hors écran actif, permissions...) : tant pis.
+      }
+    };
+
+    requestLock();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && !sentinel) {
+        requestLock();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', handleVisibility);
+      sentinel?.release().catch(() => {});
+    };
+  }, []);
 
   if (steps.length === 0) {
     return (
@@ -215,15 +295,11 @@ export const GuidedSession = ({
               >
                 Repos
               </Text>
-              <Text
-                fontSize="72px"
-                fontWeight="800"
-                fontFamily="mono"
-                lineHeight="1"
-                color="bg.canvas"
-              >
-                {step.duration}s
-              </Text>
+              <RestCountdown
+                key={index}
+                duration={step.duration}
+                onComplete={goNext}
+              />
               {step.nextExerciseName && (
                 <Text fontSize="sm" color="bg.canvas" opacity={0.75}>
                   Ensuite : {step.nextExerciseName}
