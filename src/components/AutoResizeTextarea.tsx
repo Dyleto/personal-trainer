@@ -1,6 +1,6 @@
-import { useLayoutEffect, useRef } from "react";
-import { Textarea } from "@chakra-ui/react";
-import type { ComponentProps } from "react";
+import { useLayoutEffect, useRef } from 'react';
+import { Textarea } from '@chakra-ui/react';
+import type { ComponentProps } from 'react';
 
 type Props = ComponentProps<typeof Textarea>;
 
@@ -10,7 +10,7 @@ export const AutoResizeTextarea = ({ value, onChange, ...props }: Props) => {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.height = "auto";
+    el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
   }, [value]);
 

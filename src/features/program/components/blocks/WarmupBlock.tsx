@@ -1,4 +1,4 @@
-import { BlockShell } from "./shared/BlockShell";
-import { BlockProps } from "./shared/types";
+import { BlockShell } from './shared/BlockShell';
+import { BlockProps } from './shared/types';
 
 export const WarmupBlock = (props: BlockProps) => <BlockShell {...props} />;

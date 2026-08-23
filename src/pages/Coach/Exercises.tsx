@@ -7,7 +7,6 @@ import {
   Box,
   Button,
   Container,
-  Drawer,
   Grid,
   Heading,
   HStack,
@@ -18,7 +17,6 @@ import {
 } from '@chakra-ui/react';
 import { useMemo, useRef, useState } from 'react';
 import {
-  LuArrowLeft,
   LuExternalLink,
   LuLibrary,
   LuPencil,
@@ -279,188 +277,161 @@ const Exercises = () => {
   );
 
   return (
-    <Drawer.Root
-      open={true}
-      size="full"
-      onOpenChange={(e) => !e.open && navigate('/coach')}
-    >
-      <Drawer.Positioner>
-        <Drawer.Content bg="bg.canvas">
-          <Drawer.Body>
-            <Container maxW="container.xl" py={6}>
-              <VStack gap={6} align="stretch">
-                {/* Header */}
-                <HStack justify="space-between" align="center">
-                  <HStack gap={3}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate('/coach')}
-                    >
-                      <LuArrowLeft />
-                      Retour
-                    </Button>
-                    <HStack gap={2}>
-                      <LuLibrary
-                        size={20}
-                        color="var(--chakra-colors-app-primary)"
-                      />
-                      <Heading size="lg">Mes exercices</Heading>
-                    </HStack>
-                  </HStack>
-                  <Button
-                    size="sm"
-                    bg="app.primary"
-                    color="black"
-                    fontWeight="semibold"
-                    _hover={{ bg: 'app.primary.hover' }}
-                    onClick={() => navigate('/coach/exercises/new')}
-                  >
-                    <LuPlus />
-                    Créer
-                  </Button>
-                </HStack>
+    <Container maxW="container.xl" py={6}>
+      <VStack gap={6} align="stretch">
+        {/* Header */}
+        <HStack justify="space-between" align="center">
+          <HStack gap={2}>
+            <LuLibrary size={20} color="var(--chakra-colors-app-primary)" />
+            <Heading size="lg">Mes exercices</Heading>
+          </HStack>
+          <Button
+            size="sm"
+            bg="app.primary"
+            color="black"
+            fontWeight="semibold"
+            _hover={{ bg: 'app.primary.hover' }}
+            onClick={() => navigate('/coach/exercises/new')}
+          >
+            <LuPlus />
+            Créer
+          </Button>
+        </HStack>
 
-                {/* Barre de recherche */}
-                <HStack
-                  bg="surface.card"
-                  borderRadius="xl"
-                  borderWidth="1px"
-                  borderColor="surface.card"
-                  px={4}
-                  _focusWithin={{ borderColor: 'app.primary' }}
-                  transition="border-color 0.2s ease"
-                >
-                  <LuSearch size={16} color="var(--chakra-colors-fg-muted)" />
-                  <Input
-                    placeholder="Rechercher un exercice..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    border="none"
-                    _focus={{ boxShadow: 'none' }}
-                  />
-                  {searchQuery && (
+        {/* Barre de recherche */}
+        <HStack
+          bg="surface.card"
+          borderRadius="xl"
+          borderWidth="1px"
+          borderColor="surface.card"
+          px={4}
+          _focusWithin={{ borderColor: 'app.primary' }}
+          transition="border-color 0.2s ease"
+        >
+          <LuSearch size={16} color="var(--chakra-colors-fg-muted)" />
+          <Input
+            placeholder="Rechercher un exercice..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            border="none"
+            _focus={{ boxShadow: 'none' }}
+          />
+          {searchQuery && (
+            <Box
+              cursor="pointer"
+              color="fg.muted"
+              _hover={{ color: 'fg.muted' }}
+              onClick={() => setSearchQuery('')}
+              flexShrink={0}
+            >
+              <LuX size={14} />
+            </Box>
+          )}
+        </HStack>
+
+        {/* Contenu */}
+        {isLoading ? (
+          <ExerciseSectionSkeleton titleWidth="250px" count={8} />
+        ) : filtered.length === 0 ? (
+          <Box
+            py={16}
+            textAlign="center"
+            color="fg.muted"
+            fontSize="sm"
+            borderRadius="xl"
+            borderWidth="1px"
+            borderStyle="dashed"
+            borderColor="surface.card"
+          >
+            {searchQuery
+              ? `Aucun exercice pour « ${searchQuery} »`
+              : 'Aucun exercice — créez votre premier exercice'}
+          </Box>
+        ) : (
+          <>
+            <Grid
+              templateColumns={{
+                base: '1fr',
+                lg: '1fr 380px',
+                xl: '1fr 460px',
+              }}
+              gap={{ base: 0, lg: 8 }}
+              alignItems="start"
+            >
+              {/* Liste alphabétique */}
+              {alphabetList}
+
+              {/* Panneau détail (desktop uniquement) */}
+              {isDesktop && (
+                <Box position="sticky" top="80px" alignSelf="start">
+                  {selectedExercise ? (
+                    <DetailPanel
+                      exercise={selectedExercise}
+                      onClose={() => setSelectedExercise(null)}
+                      onEdit={() =>
+                        navigate(`/coach/exercises/${selectedExercise._id}`)
+                      }
+                    />
+                  ) : (
                     <Box
-                      cursor="pointer"
+                      bg="surface.card"
+                      borderRadius="xl"
+                      borderWidth="1px"
+                      borderStyle="dashed"
+                      borderColor="surface.card"
+                      p={8}
+                      textAlign="center"
                       color="fg.muted"
-                      _hover={{ color: 'fg.muted' }}
-                      onClick={() => setSearchQuery('')}
-                      flexShrink={0}
+                      fontSize="sm"
                     >
-                      <LuX size={14} />
+                      Sélectionnez un exercice pour voir ses détails
                     </Box>
                   )}
-                </HStack>
+                </Box>
+              )}
+            </Grid>
 
-                {/* Contenu */}
-                {isLoading ? (
-                  <ExerciseSectionSkeleton titleWidth="250px" count={8} />
-                ) : filtered.length === 0 ? (
-                  <Box
-                    py={16}
-                    textAlign="center"
-                    color="fg.muted"
-                    fontSize="sm"
-                    borderRadius="xl"
-                    borderWidth="1px"
-                    borderStyle="dashed"
-                    borderColor="surface.card"
-                  >
-                    {searchQuery
-                      ? `Aucun exercice pour « ${searchQuery} »`
-                      : 'Aucun exercice — créez votre premier exercice'}
-                  </Box>
-                ) : (
-                  <>
-                    <Grid
-                      templateColumns={{
-                        base: '1fr',
-                        lg: '1fr 380px',
-                        xl: '1fr 460px',
-                      }}
-                      gap={{ base: 0, lg: 8 }}
-                      alignItems="start"
-                    >
-                      {/* Liste alphabétique */}
-                      {alphabetList}
-
-                      {/* Panneau détail (desktop uniquement) */}
-                      {isDesktop && (
-                        <Box position="sticky" top="80px" alignSelf="start">
-                          {selectedExercise ? (
-                            <DetailPanel
-                              exercise={selectedExercise}
-                              onClose={() => setSelectedExercise(null)}
-                              onEdit={() =>
-                                navigate(
-                                  `/coach/exercises/${selectedExercise._id}`
-                                )
-                              }
-                            />
-                          ) : (
-                            <Box
-                              bg="surface.card"
-                              borderRadius="xl"
-                              borderWidth="1px"
-                              borderStyle="dashed"
-                              borderColor="surface.card"
-                              p={8}
-                              textAlign="center"
-                              color="fg.muted"
-                              fontSize="sm"
-                            >
-                              Sélectionnez un exercice pour voir ses détails
-                            </Box>
-                          )}
-                        </Box>
-                      )}
-                    </Grid>
-
-                    {/* Index alphabétique mobile — portail fixe, toujours visible */}
-                    {!isDesktop &&
-                      letters.length > 1 &&
-                      createPortal(
-                        <Box
-                          position="fixed"
-                          right={3}
-                          top="50%"
-                          style={{ transform: 'translateY(-50%)' }}
-                          zIndex={1000}
-                          bg="blackAlpha.700"
-                          backdropFilter="blur(6px)"
-                          borderRadius="full"
-                          py={2}
-                          px={1.5}
-                        >
-                          <VStack gap={0}>
-                            {letters.map((letter) => (
-                              <Box
-                                key={letter}
-                                onClick={() => scrollToLetter(letter)}
-                                fontSize="9px"
-                                fontWeight="bold"
-                                color="whiteAlpha.800"
-                                cursor="pointer"
-                                px={1}
-                                lineHeight="1.6"
-                                _hover={{ color: 'app.primary' }}
-                                userSelect="none"
-                              >
-                                {letter}
-                              </Box>
-                            ))}
-                          </VStack>
-                        </Box>,
-                        document.body
-                      )}
-                  </>
-                )}
-              </VStack>
-            </Container>
-          </Drawer.Body>
-        </Drawer.Content>
-      </Drawer.Positioner>
-    </Drawer.Root>
+            {/* Index alphabétique mobile — portail fixe, toujours visible */}
+            {!isDesktop &&
+              letters.length > 1 &&
+              createPortal(
+                <Box
+                  position="fixed"
+                  right={3}
+                  top="50%"
+                  style={{ transform: 'translateY(-50%)' }}
+                  zIndex={1000}
+                  bg="blackAlpha.700"
+                  backdropFilter="blur(6px)"
+                  borderRadius="full"
+                  py={2}
+                  px={1.5}
+                >
+                  <VStack gap={0}>
+                    {letters.map((letter) => (
+                      <Box
+                        key={letter}
+                        onClick={() => scrollToLetter(letter)}
+                        fontSize="9px"
+                        fontWeight="bold"
+                        color="whiteAlpha.800"
+                        cursor="pointer"
+                        px={1}
+                        lineHeight="1.6"
+                        _hover={{ color: 'app.primary' }}
+                        userSelect="none"
+                      >
+                        {letter}
+                      </Box>
+                    ))}
+                  </VStack>
+                </Box>,
+                document.body
+              )}
+          </>
+        )}
+      </VStack>
+    </Container>
   );
 };
 

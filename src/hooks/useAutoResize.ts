@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from 'react';
 
 export const useAutoResize = (value: string | undefined) => {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -6,7 +6,7 @@ export const useAutoResize = (value: string | undefined) => {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.height = "auto";
+    el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
   }, [value]);
 

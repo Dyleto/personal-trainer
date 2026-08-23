@@ -1,4 +1,4 @@
-import api from "@/config/api";
+import api from '@/config/api';
 
 export interface AdminStats {
   coachCount: number;
@@ -21,17 +21,21 @@ export interface AdminCoach {
 
 export const adminService = {
   getStats: async (): Promise<AdminStats> => {
-    const { data } = await api.get<AdminStats>("/api/admin/stats");
+    const { data } = await api.get<AdminStats>('/api/admin/stats');
     return data;
   },
 
   getCoaches: async (): Promise<AdminCoach[]> => {
-    const { data } = await api.get<AdminCoach[]>("/api/admin/coaches");
+    const { data } = await api.get<AdminCoach[]>('/api/admin/coaches');
     return data;
   },
 
-  createCoach: async (payload: { firstName: string; lastName: string; email: string }) => {
-    const { data } = await api.post("/api/admin/create-coach", payload);
+  createCoach: async (payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  }) => {
+    const { data } = await api.post('/api/admin/create-coach', payload);
     return data;
   },
 };

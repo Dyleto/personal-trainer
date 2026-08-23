@@ -1,5 +1,5 @@
-import { SessionBlock } from "@/types";
-import { Block } from "./blocks";
+import { SessionBlock } from '@/types';
+import { Block } from './blocks';
 
 interface BlockCardProps {
   block: SessionBlock;

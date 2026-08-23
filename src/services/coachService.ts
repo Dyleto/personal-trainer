@@ -1,28 +1,28 @@
-import api from "@/config/api";
+import api from '@/config/api';
 import {
   Client,
   ClientWithDetails,
   CompletedSession,
   Exercise,
   ExerciseStats,
-} from "@/types";
+} from '@/types';
 
 export const coachService = {
   getClients: async () => {
-    const { data } = await api.get<Client[]>("/api/coach/clients");
+    const { data } = await api.get<Client[]>('/api/coach/clients');
     return data;
   },
 
   getClientDetails: async (clientId: string) => {
     const { data } = await api.get<ClientWithDetails>(
-      `/api/coach/clients/${clientId}`,
+      `/api/coach/clients/${clientId}`
     );
     return data;
   },
 
   getClientHistory: async (clientId: string) => {
     const { data } = await api.get<CompletedSession[]>(
-      `/api/coach/clients/${clientId}/history`,
+      `/api/coach/clients/${clientId}/history`
     );
     return data;
   },
@@ -32,22 +32,27 @@ export const coachService = {
   },
 
   getExercises: async () => {
-    const { data } = await api.get<Exercise[]>("/api/coach/exercises");
+    const { data } = await api.get<Exercise[]>('/api/coach/exercises');
     return data;
   },
 
   getExerciseStats: async () => {
-    const { data } = await api.get<ExerciseStats>("/api/coach/exercises/stats");
+    const { data } = await api.get<ExerciseStats>('/api/coach/exercises/stats');
     return data;
   },
 
   createExercise: async (exerciseData: Partial<Exercise>) => {
-    const { data } = await api.post<Exercise>("/api/coach/exercises", exerciseData);
+    const { data } = await api.post<Exercise>(
+      '/api/coach/exercises',
+      exerciseData
+    );
     return data;
   },
 
   generateInvitation: async (expiresIn = 7) => {
-    const { data } = await api.post("/api/coach/generate-invitation", { expiresIn });
+    const { data } = await api.post('/api/coach/generate-invitation', {
+      expiresIn,
+    });
     return data;
   },
 };

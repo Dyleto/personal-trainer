@@ -1,5 +1,5 @@
-import { Skeleton, SkeletonCircle, VStack } from "@chakra-ui/react";
-import { Card } from "@/components/Card";
+import { Skeleton, SkeletonCircle, VStack } from '@chakra-ui/react';
+import { Card } from '@/components/Card';
 
 export const ExerciseCardSkeleton = () => {
   return (

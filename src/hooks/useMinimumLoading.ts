@@ -1,5 +1,5 @@
-import { MINIMUM_LOADING_TIME_IN_MS } from "@/config/constants";
-import { useState, useCallback } from "react";
+import { MINIMUM_LOADING_TIME_IN_MS } from '@/config/constants';
+import { useState, useCallback } from 'react';
 
 export const useMinimumLoading = (
   minimumTime: number = MINIMUM_LOADING_TIME_IN_MS

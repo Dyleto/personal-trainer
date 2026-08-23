@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
 
 /**
  * Génère un message d'erreur lisible selon le contexte
@@ -21,7 +21,7 @@ export const getErrorMessage = (error: unknown, context: string): string => {
       case 500:
         return `${context} : Erreur serveur. Réessayez plus tard.`;
       default:
-        return `${context} : ${error.response.data?.message || "Une erreur est survenue."}`;
+        return `${context} : ${error.response.data?.message || 'Une erreur est survenue.'}`;
     }
   }
 

@@ -52,17 +52,17 @@ export interface ExerciseStats {
 // ─── Blocks ──────────────────────────────────────────────────────────────────
 
 export type BlockType =
-  | "warmup"
-  | "emom"
-  | "every"
-  | "amrap"
-  | "timecap"
-  | "chipper"
-  | "classic"
-  | "tabata"
-  | "onoff"
-  | "pyramid"
-  | "ladder";
+  | 'warmup'
+  | 'emom'
+  | 'every'
+  | 'amrap'
+  | 'timecap'
+  | 'chipper'
+  | 'classic'
+  | 'tabata'
+  | 'onoff'
+  | 'pyramid'
+  | 'ladder';
 
 export interface CustomMetric {
   value: number;
