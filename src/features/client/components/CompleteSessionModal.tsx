@@ -1,14 +1,6 @@
 import { SessionMetrics } from '@/types';
-import { MetricStars } from './MetricStars';
-import {
-  Box,
-  Button,
-  Dialog,
-  HStack,
-  Separator,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { MetricScale } from './MetricScale';
+import { Box, Button, Dialog, Separator, Text, VStack } from '@chakra-ui/react';
 import { useState } from 'react';
 import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import { DateInput } from '@/components/DateInput';
@@ -94,41 +86,27 @@ export const CompleteSessionModal = ({
 
               <Separator borderColor="whiteAlpha.100" />
 
-              <VStack gap={3} align="stretch">
-                <HStack justify="flex-end">
-                  <HStack
-                    w="140px"
-                    justify="space-between"
-                    align="center"
-                    gap={2}
-                  >
-                    <Text fontSize="2xs" color="fg.muted" whiteSpace="nowrap">
-                      1 · Pas top
-                    </Text>
-                    <Box flex={1} h="1px" bg="whiteAlpha.100" />
-                    <Text fontSize="2xs" color="fg.muted" whiteSpace="nowrap">
-                      5 · Pleine forme
-                    </Text>
-                  </HStack>
-                </HStack>
-
-                {METRICS_CONFIG.map(({ key, Icon, label }) => (
-                  <MetricStars
-                    key={key}
-                    icon={
-                      <Icon
-                        size={16}
-                        color="var(--chakra-colors-app-primary)"
-                      />
-                    }
-                    label={label}
-                    value={metrics[key]}
-                    starsW="140px"
-                    onChange={(val) =>
-                      setMetrics((prev) => ({ ...prev, [key]: val }))
-                    }
-                  />
-                ))}
+              <VStack gap={4} align="stretch">
+                {METRICS_CONFIG.map(
+                  ({ key, Icon, label, lowLabel, highLabel }) => (
+                    <MetricScale
+                      key={key}
+                      icon={
+                        <Icon
+                          size={16}
+                          color="var(--chakra-colors-app-primary)"
+                        />
+                      }
+                      label={label}
+                      lowLabel={lowLabel}
+                      highLabel={highLabel}
+                      value={metrics[key]}
+                      onChange={(val) =>
+                        setMetrics((prev) => ({ ...prev, [key]: val }))
+                      }
+                    />
+                  )
+                )}
               </VStack>
 
               <Separator borderColor="whiteAlpha.100" />

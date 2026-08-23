@@ -16,9 +16,8 @@ import {
   BlockType,
 } from '@/types';
 import { METRICS_CONFIG } from '@/features/client/constants';
-import { MetricStars } from './MetricStars';
+import { MetricScale } from './MetricScale';
 import { BlockCard } from '@/features/program/components/BlockCard';
-import { RadarChart } from '@/components/RadarChart';
 import { LuX } from 'react-icons/lu';
 
 const toSessionBlock = (
@@ -115,7 +114,7 @@ export const CompletedSessionDrawer = ({
 
               <Drawer.Body p={4}>
                 <VStack align="stretch" gap={5}>
-                  <VStack align="stretch" gap={3}>
+                  <VStack align="stretch" gap={4}>
                     <Text
                       fontSize="xs"
                       fontWeight="bold"
@@ -126,44 +125,24 @@ export const CompletedSessionDrawer = ({
                       Ressenti
                     </Text>
 
-                    <Box display="flex" justifyContent="center" py={2}>
-                      <RadarChart
-                        values={METRICS_CONFIG.map(
-                          ({ key }) => completed.metrics[key]
-                        )}
-                        labels={METRICS_CONFIG.map(({ key, Icon, label }) => (
-                          <VStack key={key} gap={0.5} align="center">
+                    {METRICS_CONFIG.map(
+                      ({ key, Icon, label, lowLabel, highLabel }) => (
+                        <MetricScale
+                          key={key}
+                          icon={
                             <Icon
                               size={16}
                               color="var(--chakra-colors-app-primary)"
                             />
-                            <Text
-                              fontSize="2xs"
-                              color="fg.muted"
-                              lineHeight={1.2}
-                            >
-                              {label}
-                            </Text>
-                          </VStack>
-                        ))}
-                        size={160}
-                      />
-                    </Box>
-
-                    {METRICS_CONFIG.map(({ key, Icon, label }) => (
-                      <MetricStars
-                        key={key}
-                        icon={
-                          <Icon
-                            size={16}
-                            color="var(--chakra-colors-app-primary)"
-                          />
-                        }
-                        label={label}
-                        value={completed.metrics[key]}
-                        readonly
-                      />
-                    ))}
+                          }
+                          label={label}
+                          lowLabel={lowLabel}
+                          highLabel={highLabel}
+                          value={completed.metrics[key]}
+                          readonly
+                        />
+                      )
+                    )}
                   </VStack>
 
                   {(completed.clientNotes || completed.coachNotes) && (
