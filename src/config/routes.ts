@@ -16,9 +16,10 @@ export const getDefaultRoleRoute = (user: User | null): string => {
 
 export const CLIENT_ROUTES = {
   today: '/client',
-  programme: '/client/programme',
-  seance: '/client/seance',
-  historique: '/client/historique',
+  program: '/client/program',
+  session: '/client/session',
+  sessionById: (sessionId: string) => `/client/session/${sessionId}`,
+  history: '/client/history',
 };
 
 export const COACH_ROUTES = {

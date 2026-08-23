@@ -22,6 +22,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { LuArrowRight } from 'react-icons/lu';
+import { CLIENT_ROUTES } from '@/config/routes';
 
 type ClientSessionsData = ReturnType<typeof useClientSessions>;
 
@@ -128,7 +129,7 @@ const Today = () => {
                 bg="app.primary"
                 color="bg.canvas"
                 fontWeight="bold"
-                onClick={() => navigate('/client/seance')}
+                onClick={() => navigate(CLIENT_ROUTES.session)}
                 _hover={{ bg: 'app.primary.hover' }}
               >
                 Voir la séance <LuArrowRight />

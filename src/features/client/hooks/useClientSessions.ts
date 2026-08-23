@@ -1,11 +1,17 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { clientService } from '@/services/clientService';
 import { queryKeys } from '@/config/queryKeys';
+import { CLIENT_ROUTES } from '@/config/routes';
+import { toaster } from '@/components/ui/toasterInstance';
 import { useCompleteSession } from './useCompleteSession';
 import { SessionMetrics } from '@/types';
 
 export const useClientSessions = () => {
+  const { sessionId } = useParams<{ sessionId?: string }>();
+  const navigate = useNavigate();
+
   const programQuery = useQuery({
     queryKey: queryKeys.client.program.get(),
     queryFn: clientService.getProgram,
@@ -46,34 +52,36 @@ export const useClientSessions = () => {
     return sortedSessions[(lastIndex + 1) % sortedSessions.length];
   }, [sessions, history]);
 
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
-    null
-  );
+  const isLoading = programQuery.isLoading || historyQuery.isLoading;
 
-  const activeSession = useMemo(
-    () =>
-      selectedSessionId
-        ? sessions.find((s) => s._id === selectedSessionId)
-        : nextSession,
-    [selectedSessionId, sessions, nextSession]
-  );
-  const isManualSelection =
-    selectedSessionId !== null && selectedSessionId !== nextSession?._id;
+  const requestedSession = sessionId
+    ? sessions.find((s) => s._id === sessionId)
+    : undefined;
+  const activeSession = sessionId ? requestedSession : nextSession;
+  const isManualSelection = !!sessionId && sessionId !== nextSession?._id;
 
-  const selectSession = useCallback(
-    (sessionId: string | null) => setSelectedSessionId(sessionId),
-    []
-  );
+  // Un identifiant qui ne correspond à aucune séance (lien périmé, séance
+  // supprimée par le coach) ramène au programme plutôt que de rester bloqué.
+  useEffect(() => {
+    if (!isLoading && sessionId && !requestedSession) {
+      toaster.create({
+        title: 'Séance introuvable',
+        description: "Cette séance n'existe plus dans ton programme.",
+        type: 'info',
+      });
+      navigate(CLIENT_ROUTES.program, { replace: true });
+    }
+  }, [isLoading, sessionId, requestedSession, navigate]);
 
   const handleSubmitLog = useCallback(
     (metrics: SessionMetrics, clientNotes: string, completedAt?: string) => {
       if (!activeSession) return;
       completeSession.mutate(
         { sessionId: activeSession._id, metrics, clientNotes, completedAt },
-        { onSuccess: () => setSelectedSessionId(null) }
+        { onSuccess: () => navigate(CLIENT_ROUTES.today) }
       );
     },
-    [activeSession, completeSession]
+    [activeSession, completeSession, navigate]
   );
 
   return {
@@ -81,10 +89,9 @@ export const useClientSessions = () => {
     nextSession,
     activeSession,
     isManualSelection,
-    selectSession,
     history,
     handleSubmitLog,
-    isLoading: programQuery.isLoading || historyQuery.isLoading,
+    isLoading,
     isError: programQuery.isError || historyQuery.isError,
     isSubmitting: completeSession.isPending,
   };

@@ -9,6 +9,7 @@ import {
   getSessionSummary,
   useClientSessions,
 } from '@/features/client';
+import { CLIENT_ROUTES } from '@/config/routes';
 
 type ClientSessionsData = ReturnType<typeof useClientSessions>;
 type SessionStatus = 'done' | 'next' | 'upcoming';
@@ -90,7 +91,7 @@ const SessionRow = ({ session, status, onSelect }: SessionRowProps) => {
 
 const Program = () => {
   const navigate = useNavigate();
-  const { sessions, nextSession, selectSession, history } =
+  const { sessions, nextSession, history } =
     useOutletContext<ClientSessionsData>();
 
   const completedSessionIds = useMemo(
@@ -99,8 +100,7 @@ const Program = () => {
   );
 
   const handleSelect = (sessionId: string) => {
-    selectSession(sessionId);
-    navigate('/client/seance');
+    navigate(CLIENT_ROUTES.sessionById(sessionId));
   };
 
   return (

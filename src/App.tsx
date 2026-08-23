@@ -46,9 +46,10 @@ const router = createBrowserRouter(
       {/* Routes Client */}
       <Route path="client" element={<ClientLayout />}>
         <Route index element={<Today />} />
-        <Route path="programme" element={<Program />} />
-        <Route path="seance" element={<SessionScreen />} />
-        <Route path="historique" element={<History />} />
+        <Route path="program" element={<Program />} />
+        <Route path="session" element={<SessionScreen />} />
+        <Route path="session/:sessionId" element={<SessionScreen />} />
+        <Route path="history" element={<History />} />
       </Route>
 
       {/* Routes Admin */}

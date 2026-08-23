@@ -18,6 +18,7 @@ import {
   getSessionSummary,
   useClientSessions,
 } from '@/features/client';
+import { CLIENT_ROUTES } from '@/config/routes';
 
 type ClientSessionsData = ReturnType<typeof useClientSessions>;
 
@@ -88,7 +89,7 @@ const SessionScreen = () => {
           <Button
             variant="outline"
             borderColor="whiteAlpha.200"
-            onClick={() => navigate('/client/programme')}
+            onClick={() => navigate(CLIENT_ROUTES.program)}
           >
             Voir le programme
           </Button>
@@ -117,7 +118,7 @@ const SessionScreen = () => {
           gap={1.5}
           color="fg.muted"
           cursor="pointer"
-          onClick={() => navigate('/client/programme')}
+          onClick={() => navigate(CLIENT_ROUTES.program)}
           _hover={{ color: 'app.primary' }}
           transition="color 0.15s"
           w="fit-content"
