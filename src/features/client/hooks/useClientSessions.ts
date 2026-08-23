@@ -29,24 +29,22 @@ export const useClientSessions = () => {
     [historyQuery.data]
   );
 
-  const completedSessionIds = useMemo(
-    () => new Set(history.map((h) => h.originalSessionId)),
-    [history]
-  );
+  // Le programme est un cycle : une fois la dernière séance faite, on
+  // reprend à la première. Il n'y a pas de « fin » de programme.
+  const nextSession = useMemo(() => {
+    const sortedSessions = [...sessions].sort((a, b) => a.order - b.order);
+    if (sortedSessions.length === 0) return undefined;
 
-  const sortedSessions = useMemo(
-    () => [...sessions].sort((a, b) => a.order - b.order),
-    [sessions]
-  );
+    const lastCompleted = history[0];
+    if (!lastCompleted) return sortedSessions[0];
 
-  // Première séance triée qui n'a pas encore été complétée — pas un calcul
-  // par index, pour rester correct même si le client saute une séance.
-  const nextSession = useMemo(
-    () => sortedSessions.find((s) => !completedSessionIds.has(s._id)),
-    [sortedSessions, completedSessionIds]
-  );
+    const lastIndex = sortedSessions.findIndex(
+      (s) => s._id === lastCompleted.originalSessionId
+    );
+    if (lastIndex === -1) return sortedSessions[0];
 
-  const isProgramComplete = sortedSessions.length > 0 && !nextSession;
+    return sortedSessions[(lastIndex + 1) % sortedSessions.length];
+  }, [sessions, history]);
 
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null
@@ -83,7 +81,6 @@ export const useClientSessions = () => {
     nextSession,
     activeSession,
     isManualSelection,
-    isProgramComplete,
     selectSession,
     history,
     handleSubmitLog,
