@@ -16,13 +16,13 @@ export const OnOffBlock = (props: BlockProps) => (
             onChange={(v) => props.onUpdate?.({ rounds: v })}
           />
           <NumField
-            label="On (min)"
+            label="On (sec)"
             value={props.block.workDuration}
             min={1}
             onChange={(v) => props.onUpdate?.({ workDuration: v })}
           />
           <NumField
-            label="Off (min)"
+            label="Off (sec)"
             value={props.block.restDuration}
             min={1}
             onChange={(v) => props.onUpdate?.({ restDuration: v })}

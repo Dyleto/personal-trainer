@@ -10,6 +10,7 @@ import {
   Spinner,
   Stack,
   Text,
+  useBreakpointValue,
   VStack,
 } from '@chakra-ui/react';
 import { LuArrowLeft, LuSave, LuX } from 'react-icons/lu';
@@ -35,6 +36,10 @@ const ClientDetails = () => {
   useEffect(() => {
     if (client?.program) initialize(client.program);
   }, [client, initialize]);
+
+  // À partir de 2xl (1536px), le retour du client passe en colonne de droite
+  // plutôt qu'en bandeau : c'est ce qui occupe la largeur d'un 1920.
+  const isWide = useBreakpointValue({ base: false, '2xl': true });
 
   const currentIndex = Math.max(0, (Number(sessionIndex) || 1) - 1);
   const activeSession = program?.sessions[currentIndex] ?? null;
@@ -138,7 +143,7 @@ const ClientDetails = () => {
       <Stack
         direction={{ base: 'column', md: 'row' }}
         align={{ base: 'stretch', md: 'flex-start' }}
-        gap={6}
+        gap={{ base: 4, md: 6 }}
       >
         <SessionRail
           sessions={program.sessions}
@@ -147,11 +152,27 @@ const ClientDetails = () => {
           onAddSession={handleAddSession}
         />
 
-        <Box flex="0 1 640px" minW={0} pb={isDirty ? '90px' : 0}>
+        <Box
+          flex="1 1 auto"
+          minW={0}
+          maxW={{ base: 'none', md: '980px' }}
+          pb={isDirty ? '90px' : 0}
+        >
           {activeSession ? (
             <>
-              <SessionFeedbackStrip history={sessionHistory} />
+              <HStack justify="space-between" align="baseline" mb={3}>
+                <Heading size="md">Séance {activeSession.order}</Heading>
+                {sessionHistory.length > 0 && (
+                  <Text fontSize="xs" color="fg.muted" flexShrink={0}>
+                    faite {sessionHistory.length} fois
+                  </Text>
+                )}
+              </HStack>
+
+              {!isWide && <SessionFeedbackStrip history={sessionHistory} />}
+
               <ClientProgramTab
+                key={activeSession._id}
                 session={activeSession}
                 onRemoveSession={handleRemoveActiveSession}
                 onUpdateSessionNotes={(notes) =>
@@ -198,6 +219,12 @@ const ClientDetails = () => {
             </Box>
           )}
         </Box>
+
+        {isWide && activeSession && (
+          <Box w="320px" flexShrink={0}>
+            <SessionFeedbackStrip history={sessionHistory} variant="panel" />
+          </Box>
+        )}
       </Stack>
 
       {isDirty && (

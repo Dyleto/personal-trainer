@@ -20,7 +20,7 @@ const BLOCK_DEFAULTS: Record<BlockType, Partial<SessionBlock>> = {
   amrap: { durationMinutes: 8 },
   timecap: { durationMinutes: 15 },
   every: { intervalMinutes: 3, rounds: 5 },
-  tabata: { workDuration: 20, restDuration: 10 },
+  tabata: { rounds: 8, workDuration: 20, restDuration: 10 },
   onoff: { rounds: 10, workDuration: 30, restDuration: 30 },
   pyramid: { repsScheme: [5, 10, 15, 20, 15, 10, 5], restBetweenRounds: 60 },
   ladder: { repsScheme: [5, 10, 15, 20], restBetweenRounds: 60 },

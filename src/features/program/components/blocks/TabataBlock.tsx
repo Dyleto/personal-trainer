@@ -10,6 +10,12 @@ export const TabataBlock = (props: BlockProps) => (
       props.isEditing && (
         <HStack gap={3}>
           <NumField
+            label="Tours"
+            value={props.block.rounds}
+            min={1}
+            onChange={(v) => props.onUpdate?.({ rounds: v })}
+          />
+          <NumField
             label="Travail (sec)"
             value={props.block.workDuration}
             min={1}

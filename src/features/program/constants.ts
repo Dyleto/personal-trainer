@@ -94,6 +94,7 @@ export const getBlockConfigSummary = (block: SessionBlock): string => {
         .join(' ');
     case 'tabata':
       return [
+        block.rounds && `${block.rounds} ×`,
         block.workDuration !== undefined && `${block.workDuration}s`,
         block.restDuration !== undefined && `/ ${block.restDuration}s`,
       ]
@@ -103,8 +104,8 @@ export const getBlockConfigSummary = (block: SessionBlock): string => {
     case 'onoff':
       return [
         block.rounds && `${block.rounds}×`,
-        block.workDuration !== undefined && `${block.workDuration}min`,
-        block.restDuration !== undefined && `/ ${block.restDuration}min`,
+        block.workDuration !== undefined && `${block.workDuration}s`,
+        block.restDuration !== undefined && `/ ${block.restDuration}s`,
       ]
         .filter(Boolean)
         .join(' ');
