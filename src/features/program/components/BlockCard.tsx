@@ -1,10 +1,15 @@
 import { SessionBlock } from '@/types';
-import { Block } from './blocks';
+import { Block, BlockProps } from './blocks';
 
 interface BlockCardProps {
   block: SessionBlock;
+  renderExerciseExtra?: BlockProps['renderExerciseExtra'];
 }
 
-export const BlockCard = ({ block }: BlockCardProps) => (
-  <Block block={block} isEditing={false} />
+export const BlockCard = ({ block, renderExerciseExtra }: BlockCardProps) => (
+  <Block
+    block={block}
+    isEditing={false}
+    renderExerciseExtra={renderExerciseExtra}
+  />
 );

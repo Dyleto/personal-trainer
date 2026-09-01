@@ -1,10 +1,14 @@
 import { Card } from '@/components/Card';
 import { CompletedSession } from '@/types';
-import { getCompletedSessionBlockTypes } from '@/features/client';
+import {
+  getCompletedSessionBlockTypes,
+  getEffortSummary,
+} from '@/features/client';
 import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { LuChevronRight } from 'react-icons/lu';
 import { useState } from 'react';
 import { CompletedSessionDrawer } from './CompletedSessionDrawer';
+import { EFFORT_ZONE_COLOR } from '@/features/client/constants';
 
 interface SessionHistoryCardProps {
   completed: CompletedSession;
@@ -23,9 +27,9 @@ export const SessionHistoryCard = ({
     month: 'short',
   }).format(new Date(completed.completedAt));
 
-  const avgScore =
-    Object.values(completed.metrics).reduce((a, b) => a + b, 0) /
-    Object.values(completed.metrics).length;
+  // Un mot que le client et le coach lisent pareil, au lieu d'un nombre
+  // qu'aucun des deux ne peut interpréter.
+  const effort = getEffortSummary(completed);
 
   return (
     <Card
@@ -57,9 +61,15 @@ export const SessionHistoryCard = ({
               </Box>
             )}
           </HStack>
-          <Text fontSize="xs" fontWeight="bold" color="app.primary">
-            {avgScore.toFixed(1)} / 5
-          </Text>
+          {effort && (
+            <Text
+              fontSize="xs"
+              fontWeight="bold"
+              color={EFFORT_ZONE_COLOR[effort.zone]}
+            >
+              {effort.label}
+            </Text>
+          )}
         </HStack>
 
         <Text fontSize="xs" color="fg.muted">
@@ -84,6 +94,7 @@ export const SessionHistoryCard = ({
         completed={completed}
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
+        editable
       />
     </Card>
   );

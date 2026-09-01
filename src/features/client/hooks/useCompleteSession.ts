@@ -1,8 +1,11 @@
 ﻿import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toaster } from '@/components/ui/toasterInstance';
-import { clientService } from '@/services/clientService';
+import {
+  clientService,
+  CompleteSessionPayload,
+  UpdateCompletedSessionPayload,
+} from '@/services/clientService';
 import { queryKeys } from '@/config/queryKeys';
-import { SessionMetrics } from '@/types';
 
 export const useCompleteSession = () => {
   const queryClient = useQueryClient();
@@ -10,20 +13,9 @@ export const useCompleteSession = () => {
   return useMutation({
     mutationFn: ({
       sessionId,
-      metrics,
-      clientNotes,
-      completedAt,
-    }: {
-      sessionId: string;
-      metrics: SessionMetrics;
-      clientNotes?: string;
-      completedAt?: string;
-    }) =>
-      clientService.completeSession(sessionId, {
-        metrics,
-        clientNotes,
-        completedAt,
-      }),
+      ...payload
+    }: CompleteSessionPayload & { sessionId: string }) =>
+      clientService.completeSession(sessionId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.client.history.all(),
@@ -33,6 +25,31 @@ export const useCompleteSession = () => {
       toaster.create({
         title: 'Erreur',
         description: 'Impossible de valider la séance, réessaie.',
+        type: 'error',
+      });
+    },
+  });
+};
+
+export const useUpdateCompletedSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      completedId,
+      ...payload
+    }: UpdateCompletedSessionPayload & { completedId: string }) =>
+      clientService.updateCompletedSession(completedId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.client.history.all(),
+      });
+      toaster.create({ title: 'Bilan corrigé', type: 'success' });
+    },
+    onError: () => {
+      toaster.create({
+        title: 'Erreur',
+        description: 'Impossible de corriger ce bilan, réessaie.',
         type: 'error',
       });
     },

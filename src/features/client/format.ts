@@ -1,6 +1,7 @@
-import { CompletedSession, Session, SessionMetrics } from '@/types';
+import { CompletedSession, Session } from '@/types';
 import { BlockType } from '@/types';
 import { getBlockLabel } from '@/features/program/constants';
+import { getEffortLevel } from './constants';
 
 export const getSessionSummary = (session: Session): string => {
   const blockCount = session.blocks.length;
@@ -23,10 +24,13 @@ export const getCompletedSessionBlockTypes = (
   return uniqueTypes.map((t) => getBlockLabel(t as BlockType)).join(' · ');
 };
 
-export const getAverageRating = (metrics: SessionMetrics): number => {
-  const { stress, mood, energy, sleep, soreness } = metrics;
-  return (stress + mood + energy + sleep + soreness) / 5;
-};
+/**
+ * Le mot que le client a choisi pour cette séance — « Juste », « Dure ».
+ * `null` pour un bilan enregistré avant la refonte du ressenti : la question
+ * ne lui a jamais été posée, on n'invente pas de réponse.
+ */
+export const getEffortSummary = (completed: CompletedSession) =>
+  getEffortLevel(completed.feedback?.effort) ?? null;
 
 export const getRelativeDate = (date: Date | string): string => {
   const d = new Date(date);

@@ -1,8 +1,13 @@
 ﻿export { SessionHistoryCard } from './components/SessionHistoryCard';
 export { CompleteSessionModal } from './components/CompleteSessionModal';
 export { CompletedSessionDrawer } from './components/CompletedSessionDrawer';
-export { MetricScale } from './components/MetricScale';
-export { useCompleteSession } from './hooks/useCompleteSession';
+export { EffortScale } from './components/EffortScale';
+export { FeedbackTags } from './components/FeedbackTags';
+export { PerformedFields } from './components/PerformedFields';
+export {
+  useCompleteSession,
+  useUpdateCompletedSession,
+} from './hooks/useCompleteSession';
 export { useClientSessions } from './hooks/useClientSessions';
 export { ClientTabBar } from './components/ClientTabBar';
 export { GuidedSession } from './components/GuidedSession';
@@ -13,8 +18,14 @@ export {
   getSessionSummary,
   getSessionBlockTypes,
   getCompletedSessionBlockTypes,
-  getAverageRating,
+  getEffortSummary,
   getRelativeDate,
 } from './format';
 export { buildGuidedSteps } from './guidedSteps';
 export type { GuidedStep } from './guidedSteps';
+export {
+  buildLastPerformanceIndex,
+  formatLastPerformance,
+  performedKey,
+} from './lastPerformance';
+export type { LastPerformance } from './lastPerformance';

@@ -1,30 +1,22 @@
-import { SessionMetrics } from '@/types';
-import { MetricScale } from './MetricScale';
+import { FeedbackTag, SessionFeedback } from '@/types';
 import { Box, Button, Dialog, Separator, Text, VStack } from '@chakra-ui/react';
 import { useState } from 'react';
 import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import { DateInput } from '@/components/DateInput';
-import { METRICS_CONFIG } from '@/features/client/constants';
 import { LuX } from 'react-icons/lu';
+import { EffortScale } from './EffortScale';
+import { FeedbackTags } from './FeedbackTags';
 
 interface CompleteSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (
-    metrics: SessionMetrics,
+    feedback: SessionFeedback,
     notes: string,
     completedAt?: string
   ) => void;
   isLoading?: boolean;
 }
-
-const DEFAULT_METRICS: SessionMetrics = {
-  stress: 3,
-  mood: 3,
-  energy: 3,
-  sleep: 3,
-  soreness: 3,
-};
 
 const toDateInputValue = (d: Date) => d.toISOString().slice(0, 10);
 
@@ -34,21 +26,28 @@ export const CompleteSessionModal = ({
   onSubmit,
   isLoading,
 }: CompleteSessionModalProps) => {
-  const [metrics, setMetrics] = useState<SessionMetrics>(DEFAULT_METRICS);
+  const [effort, setEffort] = useState<number | undefined>(undefined);
+  const [tags, setTags] = useState<FeedbackTag[]>([]);
   const [notes, setNotes] = useState('');
   const [completedAt, setCompletedAt] = useState(toDateInputValue(new Date()));
 
-  const handleSubmit = () => {
-    const today = toDateInputValue(new Date());
-    onSubmit(metrics, notes, completedAt !== today ? completedAt : undefined);
-    handleClose();
-  };
-
   const handleClose = () => {
-    setMetrics(DEFAULT_METRICS);
+    setEffort(undefined);
+    setTags([]);
     setNotes('');
     setCompletedAt(toDateInputValue(new Date()));
     onClose();
+  };
+
+  const handleSubmit = () => {
+    if (effort === undefined) return;
+    const today = toDateInputValue(new Date());
+    onSubmit(
+      { effort, ...(tags.length > 0 ? { tags } : {}) },
+      notes,
+      completedAt !== today ? completedAt : undefined
+    );
+    handleClose();
   };
 
   return (
@@ -62,7 +61,7 @@ export const CompleteSessionModal = ({
         >
           <Dialog.Header>
             <VStack align="start" gap={1}>
-              <Dialog.Title>Bilan de séance</Dialog.Title>
+              <Dialog.Title>Cette séance, c'était&nbsp;?</Dialog.Title>
               <Text fontSize="sm" color="fg.muted" fontWeight="normal">
                 Ton ressenti aide ton coach à adapter la suite.
               </Text>
@@ -74,45 +73,16 @@ export const CompleteSessionModal = ({
 
           <Dialog.Body>
             <VStack gap={4} align="stretch">
-              <VStack align="center" gap={1.5}>
-                <Text fontSize="xs" color="fg.muted" letterSpacing="wide">
-                  Date de réalisation
+              <EffortScale value={effort} onChange={setEffort} />
+
+              <Separator borderColor="whiteAlpha.100" />
+
+              <Box>
+                <Text fontSize="sm" color="fg.muted" mb={2}>
+                  Quelque chose à signaler&nbsp;? (facultatif)
                 </Text>
-                <Box w="45%">
-                  <DateInput
-                    value={completedAt}
-                    max={toDateInputValue(new Date())}
-                    onChange={setCompletedAt}
-                  />
-                </Box>
-              </VStack>
-
-              <Separator borderColor="whiteAlpha.100" />
-
-              <VStack gap={4} align="stretch">
-                {METRICS_CONFIG.map(
-                  ({ key, Icon, label, lowLabel, highLabel }) => (
-                    <MetricScale
-                      key={key}
-                      icon={
-                        <Icon
-                          size={16}
-                          color="var(--chakra-colors-app-primary)"
-                        />
-                      }
-                      label={label}
-                      lowLabel={lowLabel}
-                      highLabel={highLabel}
-                      value={metrics[key]}
-                      onChange={(val) =>
-                        setMetrics((prev) => ({ ...prev, [key]: val }))
-                      }
-                    />
-                  )
-                )}
-              </VStack>
-
-              <Separator borderColor="whiteAlpha.100" />
+                <FeedbackTags value={tags} onChange={setTags} />
+              </Box>
 
               <Box>
                 <Text fontSize="sm" color="fg.muted" mb={2}>
@@ -128,6 +98,21 @@ export const CompleteSessionModal = ({
                   _focus={{ borderColor: 'app.primary.border' }}
                 />
               </Box>
+
+              <Separator borderColor="whiteAlpha.100" />
+
+              <VStack align="center" gap={1.5}>
+                <Text fontSize="xs" color="fg.muted" letterSpacing="wide">
+                  Date de réalisation
+                </Text>
+                <Box w="45%">
+                  <DateInput
+                    value={completedAt}
+                    max={toDateInputValue(new Date())}
+                    onChange={setCompletedAt}
+                  />
+                </Box>
+              </VStack>
             </VStack>
           </Dialog.Body>
 
@@ -135,11 +120,15 @@ export const CompleteSessionModal = ({
             <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
               Annuler
             </Button>
+            {/* Seul champ obligatoire du formulaire, et il le reste vraiment :
+                pré-cocher « 3 » enregistrerait une valeur que le client n'a
+                jamais choisie, et elle nourrirait la tendance lue par le coach. */}
             <Button
               bg="app.primary"
               color="bg.canvas"
               fontWeight="bold"
               onClick={handleSubmit}
+              disabled={effort === undefined}
               loading={isLoading}
             >
               Valider

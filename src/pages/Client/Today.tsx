@@ -6,7 +6,7 @@ import { CompletedSession } from '@/types';
 import {
   CLIENT_CONTENT_MAX_W,
   CompletedSessionDrawer,
-  getAverageRating,
+  getEffortSummary,
   getRelativeDate,
   getSessionBlockTypes,
   getSessionSummary,
@@ -23,6 +23,7 @@ import {
 } from '@chakra-ui/react';
 import { LuArrowRight } from 'react-icons/lu';
 import { CLIENT_ROUTES } from '@/config/routes';
+import { EFFORT_ZONE_COLOR } from '@/features/client/constants';
 
 type ClientSessionsData = ReturnType<typeof useClientSessions>;
 
@@ -150,28 +151,37 @@ const Today = () => {
               Séances récentes
             </Text>
             <VStack align="stretch" gap={2}>
-              {recentSessions.map((completed) => (
-                <Card
-                  key={completed._id}
-                  accentColor="app.primary"
-                  hoverEffect="border"
-                  withGlow={false}
-                  onClick={() => openDrawer(completed)}
-                  p={3}
-                >
-                  <HStack justify="space-between" align="baseline">
-                    <Text fontSize="sm" fontWeight="bold">
-                      Séance {completed.sessionOrder}
+              {recentSessions.map((completed) => {
+                const effort = getEffortSummary(completed);
+                return (
+                  <Card
+                    key={completed._id}
+                    accentColor="app.primary"
+                    hoverEffect="border"
+                    withGlow={false}
+                    onClick={() => openDrawer(completed)}
+                    p={3}
+                  >
+                    <HStack justify="space-between" align="baseline">
+                      <Text fontSize="sm" fontWeight="bold">
+                        Séance {completed.sessionOrder}
+                      </Text>
+                      {effort && (
+                        <Text
+                          fontSize="xs"
+                          fontWeight="bold"
+                          color={EFFORT_ZONE_COLOR[effort.zone]}
+                        >
+                          {effort.label}
+                        </Text>
+                      )}
+                    </HStack>
+                    <Text fontSize="xs" color="fg.muted" mt={0.5}>
+                      {getRelativeDate(completed.completedAt)}
                     </Text>
-                    <Text fontSize="xs" fontWeight="bold" color="app.primary">
-                      {getAverageRating(completed.metrics).toFixed(1)} / 5
-                    </Text>
-                  </HStack>
-                  <Text fontSize="xs" color="fg.muted" mt={0.5}>
-                    {getRelativeDate(completed.completedAt)}
-                  </Text>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </VStack>
           </VStack>
         )}
@@ -182,6 +192,7 @@ const Today = () => {
           completed={selectedCompleted}
           isOpen={isDrawerOpen}
           onClose={() => setIsDrawerOpen(false)}
+          editable
         />
       )}
     </Container>

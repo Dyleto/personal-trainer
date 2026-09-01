@@ -1,0 +1,54 @@
+import { Box, Wrap } from '@chakra-ui/react';
+import { FeedbackTag } from '@/types';
+import { FEEDBACK_TAGS, FEEDBACK_TAG_LABELS } from '../constants';
+
+interface FeedbackTagsProps {
+  value: FeedbackTag[];
+  onChange: (tags: FeedbackTag[]) => void;
+}
+
+// Aucune étiquette cochée par défaut : une étiquette n'existe que si elle est
+// vraie, donc chaque étiquette présente est du signal. Le cas normal — rien à
+// signaler — coûte zéro tap.
+export const FeedbackTags = ({ value, onChange }: FeedbackTagsProps) => {
+  const toggle = (tag: FeedbackTag) =>
+    onChange(
+      value.includes(tag) ? value.filter((t) => t !== tag) : [...value, tag]
+    );
+
+  return (
+    <Wrap gap={2}>
+      {FEEDBACK_TAGS.map((tag) => {
+        const isActive = value.includes(tag);
+        return (
+          <Box
+            key={tag}
+            as="button"
+            aria-pressed={isActive}
+            px={3}
+            py={1.5}
+            borderRadius="full"
+            borderWidth="1px"
+            fontSize="xs"
+            fontWeight="medium"
+            bg={isActive ? 'app.primary/16' : 'transparent'}
+            borderColor={isActive ? 'app.primary' : 'whiteAlpha.200'}
+            color={isActive ? 'app.primary' : 'fg.muted'}
+            onClick={() => toggle(tag)}
+            _hover={{
+              borderColor: isActive ? 'app.primary' : 'whiteAlpha.400',
+            }}
+            _focusVisible={{
+              outline: '2px solid',
+              outlineColor: 'app.primary',
+              outlineOffset: '2px',
+            }}
+            transition="background-color 0.15s, border-color 0.15s"
+          >
+            {FEEDBACK_TAG_LABELS[tag]}
+          </Box>
+        );
+      })}
+    </Wrap>
+  );
+};

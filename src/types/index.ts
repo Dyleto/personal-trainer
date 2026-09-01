@@ -125,6 +125,7 @@ export interface BlockExerciseSnapshot {
   reps?: number;
   duration?: number;
   customMetric?: CustomMetric;
+  performed?: PerformedValues;
 }
 
 export interface BlockSnapshot {
@@ -149,15 +150,55 @@ export interface CompletedSession {
   sessionOrder: number;
   blocks: BlockSnapshot[];
   coachNotes?: string;
-  metrics: SessionMetrics;
+  feedback?: SessionFeedback;
+  /** @deprecated Ancien bilan en 5 axes. Encore lu, plus jamais écrit. */
+  metrics?: SessionMetrics;
   clientNotes?: string;
   viewedByCoach: boolean;
+  editedAt?: Date;
 }
 
+// ─── Ressenti ────────────────────────────────────────────────────────────────
+
+export type FeedbackTag =
+  'poor_sleep' | 'pain' | 'stress' | 'fatigue' | 'illness' | 'great_shape';
+
+export interface SessionFeedback {
+  /** 1 « trop facile » … 5 « trop dure ». La cible est 3, au centre. */
+  effort: number;
+  tags?: FeedbackTag[];
+  note?: string;
+}
+
+/** @deprecated Remplacé par `SessionFeedback`. Conservé pour relire l'historique. */
 export interface SessionMetrics {
   stress: number;
   mood: number;
   energy: number;
   sleep: number;
   soreness: number;
+}
+
+/**
+ * Une valeur réalisée, adressée par sa position dans l'instantané.
+ * `null` demande l'effacement de la valeur, une clé absente n'y touche pas.
+ */
+export interface PerformedEntry {
+  blockOrder: number;
+  exerciseOrder: number;
+  weight?: number | null;
+  reps?: number | null;
+  sets?: number | null;
+  duration?: number | null;
+}
+
+/**
+ * Ce que le client a réellement fait, à côté de la prescription.
+ * Une clé absente veut dire « non renseignée » — jamais zéro.
+ */
+export interface PerformedValues {
+  weight?: number;
+  reps?: number;
+  sets?: number;
+  duration?: number;
 }

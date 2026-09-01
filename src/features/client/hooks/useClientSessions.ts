@@ -6,7 +6,8 @@ import { queryKeys } from '@/config/queryKeys';
 import { CLIENT_ROUTES } from '@/config/routes';
 import { toaster } from '@/components/ui/toasterInstance';
 import { useCompleteSession } from './useCompleteSession';
-import { SessionMetrics } from '@/types';
+import { PerformedEntry, SessionFeedback } from '@/types';
+import { buildLastPerformanceIndex } from '../lastPerformance';
 
 export const useClientSessions = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -52,6 +53,13 @@ export const useClientSessions = () => {
     return sortedSessions[(lastIndex + 1) % sortedSessions.length];
   }, [sessions, history]);
 
+  // « J'avais mis combien la dernière fois ? » se répond depuis l'historique
+  // déjà chargé : aucune requête, aucune route supplémentaire.
+  const lastPerformance = useMemo(
+    () => buildLastPerformanceIndex(history),
+    [history]
+  );
+
   const isLoading = programQuery.isLoading || historyQuery.isLoading;
 
   const requestedSession = sessionId
@@ -74,10 +82,21 @@ export const useClientSessions = () => {
   }, [isLoading, sessionId, requestedSession, navigate]);
 
   const handleSubmitLog = useCallback(
-    (metrics: SessionMetrics, clientNotes: string, completedAt?: string) => {
+    (
+      feedback: SessionFeedback,
+      clientNotes: string,
+      completedAt?: string,
+      performed?: PerformedEntry[]
+    ) => {
       if (!activeSession) return;
       completeSession.mutate(
-        { sessionId: activeSession._id, metrics, clientNotes, completedAt },
+        {
+          sessionId: activeSession._id,
+          feedback,
+          clientNotes,
+          completedAt,
+          ...(performed && performed.length > 0 ? { performed } : {}),
+        },
         { onSuccess: () => navigate(CLIENT_ROUTES.today) }
       );
     },
@@ -90,6 +109,7 @@ export const useClientSessions = () => {
     activeSession,
     isManualSelection,
     history,
+    lastPerformance,
     handleSubmitLog,
     isLoading,
     isError: programQuery.isError || historyQuery.isError,

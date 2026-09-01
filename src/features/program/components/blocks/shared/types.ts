@@ -1,4 +1,5 @@
 import { BlockExercise, SessionBlock } from '@/types';
+import { ReactNode } from 'react';
 
 export interface BlockProps {
   block: SessionBlock;
@@ -16,4 +17,14 @@ export interface BlockProps {
   onMoveDown?: () => void;
   canMoveUp?: boolean;
   canMoveDown?: boolean;
+  /**
+   * Contenu inséré sous chaque exercice, en mode lecture uniquement.
+   * Sert au Client à saisir ce qu'il a réellement fait sans que le rendu
+   * partagé avec le Coach change d'un pixel quand la prop est absente.
+   */
+  renderExerciseExtra?: (ctx: {
+    blockOrder: number;
+    exerciseOrder: number;
+    exerciseId?: string;
+  }) => ReactNode;
 }

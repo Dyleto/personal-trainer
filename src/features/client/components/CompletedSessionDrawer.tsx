@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Drawer,
   HStack,
   IconButton,
@@ -7,6 +8,7 @@ import {
   Separator,
   Text,
   VStack,
+  Wrap,
 } from '@chakra-ui/react';
 import {
   CompletedSession,
@@ -14,11 +16,25 @@ import {
   SessionBlock,
   Exercise,
   BlockType,
+  FeedbackTag,
+  PerformedEntry,
+  PerformedValues,
 } from '@/types';
-import { METRICS_CONFIG } from '@/features/client/constants';
-import { MetricScale } from './MetricScale';
+import {
+  EFFORT_ZONE_COLOR,
+  FEEDBACK_TAG_LABELS,
+  getEffortLevel,
+  LEGACY_METRIC_LABELS,
+} from '@/features/client/constants';
 import { BlockCard } from '@/features/program/components/BlockCard';
-import { LuX } from 'react-icons/lu';
+import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
+import { LuPencil, LuX } from 'react-icons/lu';
+import { useState } from 'react';
+import { EffortScale } from './EffortScale';
+import { FeedbackTags } from './FeedbackTags';
+import { PerformedFields } from './PerformedFields';
+import { performedKey } from '../lastPerformance';
+import { useUpdateCompletedSession } from '../hooks/useCompleteSession';
 
 const toSessionBlock = (
   block: CompletedSession['blocks'][number],
@@ -50,17 +66,108 @@ const toSessionBlock = (
   ),
 });
 
+const collectPerformed = (
+  completed: CompletedSession
+): Record<string, PerformedValues> => {
+  const map: Record<string, PerformedValues> = {};
+  completed.blocks.forEach((block) => {
+    block.exercises.forEach((ex) => {
+      if (ex.performed) {
+        map[performedKey(block.order, ex.order)] = { ...ex.performed };
+      }
+    });
+  });
+  return map;
+};
+
+/** « 26 kg · 10 reps » — uniquement ce qui a été renseigné. */
+const formatPerformed = (p?: PerformedValues): string | null => {
+  if (!p) return null;
+  const parts: string[] = [];
+  if (p.weight !== undefined) parts.push(`${p.weight} kg`);
+  if (p.sets !== undefined && p.reps !== undefined)
+    parts.push(`${p.sets} × ${p.reps}`);
+  else if (p.reps !== undefined) parts.push(`${p.reps} reps`);
+  else if (p.sets !== undefined) parts.push(`${p.sets} séries`);
+  if (p.duration !== undefined) parts.push(`${p.duration}s`);
+  return parts.length > 0 ? parts.join(' · ') : null;
+};
+
+const PERFORMED_FIELDS: (keyof PerformedValues)[] = [
+  'weight',
+  'reps',
+  'sets',
+  'duration',
+];
+
+// Ne renvoie que ce qui a bougé. Une valeur effacée part en `null` — l'API
+// distingue « efface » d'« n'y touche pas », il ne faut pas perdre l'intention.
+const diffPerformed = (
+  original: Record<string, PerformedValues>,
+  edited: Record<string, PerformedValues>
+): PerformedEntry[] => {
+  const entries: PerformedEntry[] = [];
+  const keys = new Set([...Object.keys(original), ...Object.keys(edited)]);
+
+  keys.forEach((key) => {
+    const before = original[key] ?? {};
+    const after = edited[key] ?? {};
+    const changed: Partial<Record<keyof PerformedValues, number | null>> = {};
+    let hasChange = false;
+
+    PERFORMED_FIELDS.forEach((field) => {
+      if (before[field] === after[field]) return;
+      changed[field] = after[field] ?? null;
+      hasChange = true;
+    });
+
+    if (!hasChange) return;
+    const [blockOrder, exerciseOrder] = key.split(':').map(Number);
+    entries.push({ blockOrder, exerciseOrder, ...changed });
+  });
+
+  return entries;
+};
+
+const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+  <Text
+    fontSize="xs"
+    fontWeight="bold"
+    color="fg.muted"
+    textTransform="uppercase"
+    letterSpacing="wider"
+  >
+    {children}
+  </Text>
+);
+
 interface CompletedSessionDrawerProps {
   completed: CompletedSession;
   isOpen: boolean;
   onClose: () => void;
+  /** Seul le client propriétaire du bilan peut le corriger. */
+  editable?: boolean;
 }
 
 export const CompletedSessionDrawer = ({
   completed,
   isOpen,
   onClose,
+  editable = false,
 }: CompletedSessionDrawerProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [effort, setEffort] = useState(completed.feedback?.effort);
+  const [tags, setTags] = useState<FeedbackTag[]>(
+    completed.feedback?.tags ?? []
+  );
+  const [notes, setNotes] = useState(completed.clientNotes ?? '');
+  const [performed, setPerformed] = useState(() => collectPerformed(completed));
+  const update = useUpdateCompletedSession();
+
+  const original = collectPerformed(completed);
+  const level = getEffortLevel(completed.feedback?.effort);
+  const blocks = completed.blocks.map(toSessionBlock);
+
   const completedDate = new Intl.DateTimeFormat('fr-FR', {
     weekday: 'long',
     day: 'numeric',
@@ -68,7 +175,28 @@ export const CompletedSessionDrawer = ({
     year: 'numeric',
   }).format(new Date(completed.completedAt));
 
-  const blocks = completed.blocks.map(toSessionBlock);
+  const startEditing = () => {
+    setEffort(completed.feedback?.effort);
+    setTags(completed.feedback?.tags ?? []);
+    setNotes(completed.clientNotes ?? '');
+    setPerformed(collectPerformed(completed));
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    const performedDiff = diffPerformed(original, performed);
+    update.mutate(
+      {
+        completedId: completed._id,
+        ...(effort !== undefined
+          ? { feedback: { effort, ...(tags.length > 0 ? { tags } : {}) } }
+          : {}),
+        ...(performedDiff.length > 0 ? { performed: performedDiff } : {}),
+        clientNotes: notes,
+      },
+      { onSuccess: () => setIsEditing(false) }
+    );
+  };
 
   return (
     <Drawer.Root
@@ -98,77 +226,140 @@ export const CompletedSessionDrawer = ({
                       {completedDate}
                     </Text>
                   </VStack>
-                  <IconButton
-                    aria-label="Fermer"
-                    size="sm"
-                    variant="ghost"
-                    color="fg.muted"
-                    _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
-                    borderRadius="full"
-                    onClick={onClose}
-                  >
-                    <LuX size={16} />
-                  </IconButton>
+                  <HStack gap={1}>
+                    {editable && !isEditing && (
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        color="fg.muted"
+                        onClick={startEditing}
+                      >
+                        <LuPencil size={13} />
+                        Corriger
+                      </Button>
+                    )}
+                    <IconButton
+                      aria-label="Fermer"
+                      size="sm"
+                      variant="ghost"
+                      color="fg.muted"
+                      _hover={{ color: 'white', bg: 'whiteAlpha.100' }}
+                      borderRadius="full"
+                      onClick={onClose}
+                    >
+                      <LuX size={16} />
+                    </IconButton>
+                  </HStack>
                 </HStack>
               </Drawer.Header>
 
               <Drawer.Body p={4}>
                 <VStack align="stretch" gap={5}>
-                  <VStack align="stretch" gap={4}>
-                    <Text
-                      fontSize="xs"
-                      fontWeight="bold"
-                      color="fg.muted"
-                      textTransform="uppercase"
-                      letterSpacing="wider"
-                    >
-                      Ressenti
-                    </Text>
+                  {/* ── Ressenti ── */}
+                  <VStack align="stretch" gap={3}>
+                    <SectionTitle>Ressenti</SectionTitle>
 
-                    {METRICS_CONFIG.map(
-                      ({ key, Icon, label, lowLabel, highLabel }) => (
-                        <MetricScale
-                          key={key}
-                          icon={
-                            <Icon
-                              size={16}
-                              color="var(--chakra-colors-app-primary)"
-                            />
-                          }
-                          label={label}
-                          lowLabel={lowLabel}
-                          highLabel={highLabel}
-                          value={completed.metrics[key]}
-                          readonly
-                        />
-                      )
+                    {isEditing ? (
+                      <>
+                        <EffortScale value={effort} onChange={setEffort} />
+                        <FeedbackTags value={tags} onChange={setTags} />
+                      </>
+                    ) : level ? (
+                      <VStack align="stretch" gap={2}>
+                        <HStack gap={2} align="baseline">
+                          <Text
+                            fontSize="lg"
+                            fontWeight="bold"
+                            color={EFFORT_ZONE_COLOR[level.zone]}
+                          >
+                            {level.label}
+                          </Text>
+                          <Text fontSize="xs" color="fg.muted">
+                            {level.description}
+                          </Text>
+                        </HStack>
+                        {completed.feedback?.tags &&
+                          completed.feedback.tags.length > 0 && (
+                            <Wrap gap={2}>
+                              {completed.feedback.tags.map((tag) => (
+                                <Box
+                                  key={tag}
+                                  px={2.5}
+                                  py={1}
+                                  borderRadius="full"
+                                  borderWidth="1px"
+                                  borderColor="whiteAlpha.200"
+                                  fontSize="2xs"
+                                  color="fg.muted"
+                                >
+                                  {FEEDBACK_TAG_LABELS[tag]}
+                                </Box>
+                              ))}
+                            </Wrap>
+                          )}
+                      </VStack>
+                    ) : (
+                      // Bilan antérieur à la refonte : la question de la
+                      // difficulté ne lui a jamais été posée. On le dit, on
+                      // n'invente pas de niveau, et on ne remoyenne rien.
+                      <VStack align="stretch" gap={2}>
+                        <Text fontSize="sm" color="fg.muted">
+                          Ressenti non comparable
+                        </Text>
+                        {completed.metrics && (
+                          <Wrap gap={3}>
+                            {(
+                              Object.keys(
+                                LEGACY_METRIC_LABELS
+                              ) as (keyof typeof LEGACY_METRIC_LABELS)[]
+                            ).map((key) => (
+                              <Text key={key} fontSize="xs" color="fg.muted">
+                                {LEGACY_METRIC_LABELS[key]}{' '}
+                                <Text as="span" color="fg" fontFamily="mono">
+                                  {completed.metrics?.[key]}/5
+                                </Text>
+                              </Text>
+                            ))}
+                          </Wrap>
+                        )}
+                      </VStack>
                     )}
                   </VStack>
 
-                  {(completed.clientNotes || completed.coachNotes) && (
+                  {/* ── Commentaires ── */}
+                  {(isEditing ||
+                    completed.clientNotes ||
+                    completed.coachNotes) && (
                     <>
                       <Separator borderColor="whiteAlpha.100" />
                       <VStack align="stretch" gap={3}>
-                        {completed.clientNotes && (
+                        {isEditing ? (
                           <Box>
-                            <Text
-                              fontSize="xs"
-                              fontWeight="bold"
-                              color="fg.muted"
-                              textTransform="uppercase"
-                              letterSpacing="wider"
-                              mb={1.5}
-                            >
-                              Ton commentaire
-                            </Text>
-                            <Text
-                              fontSize="sm"
-                              color="fg.muted"
-                              fontStyle="italic"
-                            >
-                              "{completed.clientNotes}"
-                            </Text>
+                            <SectionTitle>Ton commentaire</SectionTitle>
+                            <AutoResizeTextarea
+                              mt={1.5}
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              size="sm"
+                              border="1px solid"
+                              borderColor="whiteAlpha.200"
+                              _focus={{ borderColor: 'app.primary.border' }}
+                            />
                           </Box>
+                        ) : (
+                          completed.clientNotes && (
+                            <Box>
+                              <SectionTitle>Ton commentaire</SectionTitle>
+                              <Text
+                                mt={1.5}
+                                fontSize="sm"
+                                color="fg.muted"
+                                fontStyle="italic"
+                              >
+                                "{completed.clientNotes}"
+                              </Text>
+                            </Box>
+                          )
                         )}
                         {completed.coachNotes && (
                           <Box
@@ -178,17 +369,9 @@ export const CompletedSessionDrawer = ({
                             borderLeft="2px solid"
                             borderLeftColor="app.primary.border"
                           >
+                            <SectionTitle>Consigne du coach</SectionTitle>
                             <Text
-                              fontSize="xs"
-                              fontWeight="bold"
-                              color="fg.muted"
-                              textTransform="uppercase"
-                              letterSpacing="wider"
-                              mb={1}
-                            >
-                              Note du coach
-                            </Text>
-                            <Text
+                              mt={1}
                               fontSize="sm"
                               color="fg.muted"
                               whiteSpace="pre-wrap"
@@ -201,27 +384,90 @@ export const CompletedSessionDrawer = ({
                     </>
                   )}
 
+                  {/* ── Contenu : prescrit vs réalisé ── */}
                   {blocks.length > 0 && (
                     <>
                       <Separator borderColor="whiteAlpha.100" />
                       <VStack align="stretch" gap={3}>
-                        <Text
-                          fontSize="xs"
-                          fontWeight="bold"
-                          color="fg.muted"
-                          textTransform="uppercase"
-                          letterSpacing="wider"
-                        >
-                          Contenu de la séance
-                        </Text>
+                        <SectionTitle>Contenu de la séance</SectionTitle>
                         {blocks.map((block) => (
-                          <BlockCard key={block._id} block={block} />
+                          <BlockCard
+                            key={block._id}
+                            block={block}
+                            renderExerciseExtra={({
+                              blockOrder,
+                              exerciseOrder,
+                            }) => {
+                              const key = performedKey(
+                                blockOrder,
+                                exerciseOrder
+                              );
+                              if (isEditing) {
+                                return (
+                                  <PerformedFields
+                                    value={performed[key] ?? {}}
+                                    onChange={(next) =>
+                                      setPerformed((prev) => ({
+                                        ...prev,
+                                        [key]: next,
+                                      }))
+                                    }
+                                  />
+                                );
+                              }
+                              const done = formatPerformed(original[key]);
+                              return (
+                                <Text fontSize="2xs" color="fg.muted" pl={4}>
+                                  {/* Un tiret, jamais un zéro : « pas
+                                      renseigné » et « zéro » ne veulent pas
+                                      dire la même chose. */}
+                                  Fait&nbsp;: {done ?? '—'}
+                                </Text>
+                              );
+                            }}
+                          />
                         ))}
                       </VStack>
                     </>
                   )}
+
+                  {completed.editedAt && !isEditing && (
+                    <Text fontSize="2xs" color="fg.muted" textAlign="right">
+                      Corrigé le{' '}
+                      {new Intl.DateTimeFormat('fr-FR', {
+                        day: 'numeric',
+                        month: 'long',
+                      }).format(new Date(completed.editedAt))}
+                    </Text>
+                  )}
                 </VStack>
               </Drawer.Body>
+
+              {isEditing && (
+                <Drawer.Footer
+                  borderTopWidth="1px"
+                  borderColor="whiteAlpha.100"
+                  gap={3}
+                >
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsEditing(false)}
+                    disabled={update.isPending}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    bg="app.primary"
+                    color="bg.canvas"
+                    fontWeight="bold"
+                    onClick={handleSave}
+                    disabled={effort === undefined}
+                    loading={update.isPending}
+                  >
+                    Enregistrer
+                  </Button>
+                </Drawer.Footer>
+              )}
             </Drawer.Content>
           </Drawer.Positioner>
         </Box>

@@ -58,6 +58,7 @@ export const BlockShell = ({
   onMoveDown,
   canMoveUp,
   canMoveDown,
+  renderExerciseExtra,
 }: BlockShellProps) => {
   const description = getBlockDescription(block.type);
   const accentColor = ACCENT_COLOR[getBlockAccent(block.type)];
@@ -257,6 +258,11 @@ export const BlockShell = ({
                   exercise={ex}
                   blockType={block.type}
                   index={i}
+                  extra={renderExerciseExtra?.({
+                    blockOrder: block.order,
+                    exerciseOrder: ex.order,
+                    exerciseId: ex.exercise?._id,
+                  })}
                 />
               ))}
             </VStack>

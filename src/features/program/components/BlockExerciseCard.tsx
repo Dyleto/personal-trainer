@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { LuChevronDown, LuTrash2, LuVideo } from 'react-icons/lu';
 import VideoPlayer from '@/components/VideoPlayer';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 // ─── View mode ────────────────────────────────────────────────────────────────
 
@@ -25,12 +25,15 @@ interface ViewProps {
   exercise: BlockExercise;
   blockType: BlockType;
   index: number;
+  /** Bloc optionnel inséré sous la ligne (saisie du réalisé côté Client). */
+  extra?: ReactNode;
 }
 
 export const BlockExerciseView = ({
   exercise,
   blockType,
   index,
+  extra,
 }: ViewProps) => {
   const metric = formatExerciseMetric(exercise, blockType);
   const rest =
@@ -122,6 +125,8 @@ export const BlockExerciseView = ({
           )}
         </HStack>
       </HStack>
+
+      {extra && <Box pb={2.5}>{extra}</Box>}
 
       {isOpen && hasDetail && (
         <Box pt={2} pb={3} borderTopWidth="1px" borderColor="whiteAlpha.100">

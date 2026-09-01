@@ -11,6 +11,7 @@ export type GuidedStep =
       type: 'exercise';
       blockLabel: string;
       exerciseName: string;
+      exerciseId: string;
       metric: string;
     }
   | {
@@ -38,6 +39,7 @@ const pushExerciseSteps = (
       type: 'exercise',
       blockLabel,
       exerciseName: ex.exercise.name,
+      exerciseId: ex.exercise._id,
       metric: metricOverride
         ? metricOverride(ex)
         : formatExerciseMetric(ex, block.type),

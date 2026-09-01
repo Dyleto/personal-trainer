@@ -1,9 +1,10 @@
 import { CompletedSession } from '@/types';
 import { useEffect, useState } from 'react';
+import { EFFORT_ZONE_COLOR } from '@/features/client/constants';
 import { useMarkHistoryAsViewed } from '@/features/coach/hooks/useMarkHistoryAsViewed';
 import {
   CompletedSessionDrawer,
-  getAverageRating,
+  getEffortSummary,
   getRelativeDate,
 } from '@/features/client';
 import { Box, HStack, Text, VStack } from '@chakra-ui/react';
@@ -20,60 +21,70 @@ interface JournalEntryProps {
   onOpen: () => void;
 }
 
-const JournalEntry = ({ completed, isUnseen, onOpen }: JournalEntryProps) => (
-  <Box
-    py={3}
-    px={2}
-    borderRadius="md"
-    borderBottom="1px solid"
-    borderColor="whiteAlpha.100"
-    cursor="pointer"
-    role="button"
-    tabIndex={0}
-    onClick={onOpen}
-    onKeyDown={(e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        onOpen();
-      }
-    }}
-    _hover={{ bg: 'whiteAlpha.50' }}
-    _focusVisible={{
-      outline: '2px solid',
-      outlineColor: 'app.primary',
-      outlineOffset: '-2px',
-    }}
-  >
-    <HStack justify="space-between" align="baseline">
-      <HStack gap={2}>
-        <Text fontWeight="bold" fontSize="sm">
-          Séance {completed.sessionOrder}
-        </Text>
-        {isUnseen && (
-          <Box w="6px" h="6px" borderRadius="full" bg="session.work" />
-        )}
+const JournalEntry = ({ completed, isUnseen, onOpen }: JournalEntryProps) => {
+  const effort = getEffortSummary(completed);
+
+  return (
+    <Box
+      py={3}
+      px={2}
+      borderRadius="md"
+      borderBottom="1px solid"
+      borderColor="whiteAlpha.100"
+      cursor="pointer"
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      _hover={{ bg: 'whiteAlpha.50' }}
+      _focusVisible={{
+        outline: '2px solid',
+        outlineColor: 'app.primary',
+        outlineOffset: '-2px',
+      }}
+    >
+      <HStack justify="space-between" align="baseline">
+        <HStack gap={2}>
+          <Text fontWeight="bold" fontSize="sm">
+            Séance {completed.sessionOrder}
+          </Text>
+          {isUnseen && (
+            <Box w="6px" h="6px" borderRadius="full" bg="session.work" />
+          )}
+        </HStack>
+        <HStack gap={2}>
+          <Text fontSize="xs" color="fg.muted">
+            {getRelativeDate(completed.completedAt)}
+          </Text>
+          {effort && (
+            <Text
+              fontSize="xs"
+              fontWeight="bold"
+              color={EFFORT_ZONE_COLOR[effort.zone]}
+            >
+              {effort.label}
+            </Text>
+          )}
+          <LuChevronRight size={13} color="var(--chakra-colors-fg-muted)" />
+        </HStack>
       </HStack>
-      <HStack gap={2}>
-        <Text fontSize="xs" color="fg.muted">
-          {getRelativeDate(completed.completedAt)}
+      {completed.clientNotes ? (
+        <Text fontSize="sm" color="fg" fontStyle="italic" mt={1.5}>
+          "{completed.clientNotes}"
         </Text>
-        <Text fontSize="xs" fontWeight="bold" color="app.primary">
-          {getAverageRating(completed.metrics).toFixed(1)} / 5
+      ) : (
+        <Text fontSize="sm" color="fg.muted" fontStyle="italic" mt={1.5}>
+          Aucun commentaire laissé par le client.
         </Text>
-        <LuChevronRight size={13} color="var(--chakra-colors-fg-muted)" />
-      </HStack>
-    </HStack>
-    {completed.clientNotes ? (
-      <Text fontSize="sm" color="fg" fontStyle="italic" mt={1.5}>
-        "{completed.clientNotes}"
-      </Text>
-    ) : (
-      <Text fontSize="sm" color="fg.muted" fontStyle="italic" mt={1.5}>
-        Aucun commentaire laissé par le client.
-      </Text>
-    )}
-  </Box>
-);
+      )}
+    </Box>
+  );
+};
 
 export const ClientJournalTab = ({ history, clientId }: Props) => {
   const { mutate: markHistoryAsViewed } = useMarkHistoryAsViewed(clientId);

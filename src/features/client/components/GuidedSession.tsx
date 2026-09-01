@@ -1,6 +1,7 @@
 import { Session } from '@/types';
 import { buildGuidedSteps } from '../guidedSteps';
 import { useCountdown } from '../useCountdown';
+import { formatLastPerformance, LastPerformance } from '../lastPerformance';
 import { Box, HStack, Button, VStack, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
@@ -8,12 +9,46 @@ interface GuidedSessionProps {
   session: Session;
   onExit: () => void;
   onFinish: () => void;
+  lastPerformance?: Map<string, LastPerformance>;
 }
 
 interface RestCountdownProps {
   duration: number;
   onComplete: () => void;
 }
+
+// C'est le seul écran utilisé pendant l'effort, celui où l'on peut le moins se
+// permettre de perdre sa place : un appel entrant ou un écran verrouillé trop
+// longtemps ne doit pas renvoyer à l'étape 1 d'une séance qui en compte
+// quarante.
+const progressKey = (sessionId: string) => `kettle-guided-${sessionId}`;
+
+const readSavedIndex = (sessionId: string): number => {
+  try {
+    const raw = sessionStorage.getItem(progressKey(sessionId));
+    if (raw === null) return 0;
+    const n = Number(raw);
+    return Number.isInteger(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+};
+
+const writeSavedIndex = (sessionId: string, index: number) => {
+  try {
+    sessionStorage.setItem(progressKey(sessionId), String(index));
+  } catch {
+    // Stockage indisponible (navigation privée, quota) : on continue sans.
+  }
+};
+
+const clearSavedIndex = (sessionId: string) => {
+  try {
+    sessionStorage.removeItem(progressKey(sessionId));
+  } catch {
+    // idem
+  }
+};
 
 const RestCountdown = ({ duration, onComplete }: RestCountdownProps) => {
   const { remaining, isRunning, pause, resume } = useCountdown(duration, {
@@ -56,23 +91,36 @@ export const GuidedSession = ({
   session,
   onExit,
   onFinish,
+  lastPerformance,
 }: GuidedSessionProps) => {
   const [steps] = useState(() => buildGuidedSteps(session));
+  const [savedIndex] = useState(() =>
+    Math.min(readSavedIndex(session._id), Math.max(0, steps.length - 1))
+  );
   const [index, setIndex] = useState(0);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  // Proposée, jamais imposée : un client qui veut vraiment recommencer ne doit
+  // pas se retrouver piégé au milieu de la séance précédente.
+  const [showResume, setShowResume] = useState(() => savedIndex > 0);
 
   const step = steps[index];
   const isLast = index === steps.length - 1;
 
+  const goTo = (next: number) => {
+    setIndex(next);
+    writeSavedIndex(session._id, next);
+  };
+
   const goNext = () => {
     if (isLast) {
+      clearSavedIndex(session._id);
       onFinish();
       return;
     }
-    setIndex((i) => i + 1);
+    goTo(index + 1);
   };
 
-  const goPrev = () => setIndex((i) => Math.max(0, i - 1));
+  const goPrev = () => goTo(Math.max(0, index - 1));
 
   const handleExitClick = () => {
     if (index > 0) {
@@ -80,6 +128,11 @@ export const GuidedSession = ({
     } else {
       onExit();
     }
+  };
+
+  const confirmExit = () => {
+    clearSavedIndex(session._id);
+    onExit();
   };
 
   // Empêche l'écran de s'éteindre pendant toute la séance guidée : sans ça,
@@ -152,6 +205,57 @@ export const GuidedSession = ({
     );
   }
 
+  if (showResume) {
+    return (
+      <Box
+        position="fixed"
+        inset={0}
+        zIndex={50}
+        bg="bg.canvas"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        px={8}
+        gap={6}
+        textAlign="center"
+      >
+        <Text fontSize="lg" fontWeight="bold">
+          Reprendre où tu en étais&nbsp;?
+        </Text>
+        <Text fontSize="sm" color="fg.muted">
+          Tu t'étais arrêté à l'étape {savedIndex + 1} sur {steps.length}.
+        </Text>
+        <VStack gap={2} w="full" maxW="280px">
+          <Button
+            w="full"
+            bg="app.primary"
+            color="bg.canvas"
+            fontWeight="bold"
+            onClick={() => {
+              setIndex(savedIndex);
+              setShowResume(false);
+            }}
+          >
+            Reprendre
+          </Button>
+          <Button
+            w="full"
+            variant="ghost"
+            color="fg.muted"
+            onClick={() => {
+              clearSavedIndex(session._id);
+              setIndex(0);
+              setShowResume(false);
+            }}
+          >
+            Recommencer depuis le début
+          </Button>
+        </VStack>
+      </Box>
+    );
+  }
+
   if (showExitConfirm) {
     return (
       <Box
@@ -179,7 +283,7 @@ export const GuidedSession = ({
             bg="app.primary"
             color="bg.canvas"
             fontWeight="bold"
-            onClick={onExit}
+            onClick={confirmExit}
           >
             Quitter
           </Button>
@@ -197,6 +301,10 @@ export const GuidedSession = ({
   }
 
   const isRest = step.type === 'rest';
+  const lastLabel =
+    step.type === 'exercise'
+      ? formatLastPerformance(lastPerformance?.get(step.exerciseId))
+      : null;
 
   const dotColor = (i: number) => {
     if (isRest) {
@@ -283,6 +391,11 @@ export const GuidedSession = ({
               >
                 {step.metric || '—'}
               </Text>
+              {lastLabel && (
+                <Text fontSize="sm" color="fg.muted">
+                  la dernière fois&nbsp;: {lastLabel}
+                </Text>
+              )}
             </>
           ) : (
             <>

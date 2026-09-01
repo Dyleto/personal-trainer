@@ -1,5 +1,5 @@
 import { useOutletContext, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Box,
   Button,
@@ -18,7 +18,21 @@ import {
   getSessionSummary,
   useClientSessions,
 } from '@/features/client';
+import { PerformedEntry, PerformedValues } from '@/types';
 import { CLIENT_ROUTES } from '@/config/routes';
+
+// Le réalisé se saisit exercice par exercice pendant la séance, puis part en
+// une fois avec le bilan. La clé est « ordre du bloc : ordre de l'exercice »,
+// exactement l'adressage attendu par l'API.
+const toPerformedEntries = (
+  performed: Record<string, PerformedValues>
+): PerformedEntry[] =>
+  Object.entries(performed)
+    .filter(([, v]) => v.weight !== undefined || v.reps !== undefined)
+    .map(([key, v]) => {
+      const [blockOrder, exerciseOrder] = key.split(':').map(Number);
+      return { blockOrder, exerciseOrder, ...v };
+    });
 
 type ClientSessionsData = ReturnType<typeof useClientSessions>;
 
@@ -31,9 +45,28 @@ const SessionScreen = () => {
     handleSubmitLog,
     isLoading,
     isSubmitting,
+    lastPerformance,
   } = useOutletContext<ClientSessionsData>();
   const [isGuidedOpen, setIsGuidedOpen] = useState(false);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+
+  const [performed, setPerformed] = useState<Record<string, PerformedValues>>(
+    {}
+  );
+
+  // La saisie appartient à une séance précise : passer à une autre depuis le
+  // programme ne doit pas traîner les poids de la précédente dans le bilan.
+  const [performedFor, setPerformedFor] = useState(activeSession?._id);
+  if (activeSession?._id !== performedFor) {
+    setPerformedFor(activeSession?._id);
+    setPerformed({});
+  }
+
+  const handlePerformedChange = useCallback(
+    (key: string, next: PerformedValues) =>
+      setPerformed((prev) => ({ ...prev, [key]: next })),
+    []
+  );
 
   if (isLoading) {
     return (
@@ -152,7 +185,12 @@ const SessionScreen = () => {
         </Text>
       </VStack>
 
-      <SessionDetail session={activeSession} />
+      <SessionDetail
+        session={activeSession}
+        performed={performed}
+        onPerformedChange={handlePerformedChange}
+        lastPerformance={lastPerformance}
+      />
 
       <VStack
         align="stretch"
@@ -202,14 +240,20 @@ const SessionScreen = () => {
             setIsGuidedOpen(false);
             setIsCompleteModalOpen(true);
           }}
+          lastPerformance={lastPerformance}
         />
       )}
 
       <CompleteSessionModal
         isOpen={isCompleteModalOpen}
         onClose={() => setIsCompleteModalOpen(false)}
-        onSubmit={(metrics, notes, completedAt) => {
-          handleSubmitLog(metrics, notes, completedAt);
+        onSubmit={(feedback, notes, completedAt) => {
+          handleSubmitLog(
+            feedback,
+            notes,
+            completedAt,
+            toPerformedEntries(performed)
+          );
           setIsCompleteModalOpen(false);
         }}
         isLoading={isSubmitting}

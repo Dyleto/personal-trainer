@@ -1,5 +1,24 @@
 ﻿import api from '@/config/api';
-import { ClientProgram, CompletedSession, SessionMetrics } from '@/types';
+import {
+  ClientProgram,
+  CompletedSession,
+  PerformedEntry,
+  SessionFeedback,
+} from '@/types';
+
+export interface CompleteSessionPayload {
+  feedback: SessionFeedback;
+  performed?: PerformedEntry[];
+  clientNotes?: string;
+  completedAt?: string;
+}
+
+export interface UpdateCompletedSessionPayload {
+  feedback?: SessionFeedback;
+  performed?: PerformedEntry[];
+  clientNotes?: string;
+  completedAt?: string;
+}
 
 export const clientService = {
   getProgram: async (): Promise<ClientProgram> => {
@@ -19,14 +38,23 @@ export const clientService = {
 
   completeSession: async (
     sessionId: string,
-    payload: {
-      metrics: SessionMetrics;
-      clientNotes?: string;
-      completedAt?: string;
-    }
+    payload: CompleteSessionPayload
   ): Promise<CompletedSession> => {
     const { data } = await api.post<{ completed: CompletedSession }>(
       `/api/client/sessions/${sessionId}/complete`,
+      payload
+    );
+    return data.completed;
+  },
+
+  // Corriger un bilan déjà envoyé. Toujours ouvert : un chiffre saisi de
+  // travers en plein effort doit pouvoir se réparer depuis l'historique.
+  updateCompletedSession: async (
+    completedId: string,
+    payload: UpdateCompletedSessionPayload
+  ): Promise<CompletedSession> => {
+    const { data } = await api.patch<{ completed: CompletedSession }>(
+      `/api/client/sessions/completed/${completedId}`,
       payload
     );
     return data.completed;
