@@ -49,10 +49,6 @@ export interface Exercise {
   usageCount?: number;
 }
 
-export interface ExerciseStats {
-  count: number;
-}
-
 // ─── Blocks ──────────────────────────────────────────────────────────────────
 
 export type BlockType =

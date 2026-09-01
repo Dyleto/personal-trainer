@@ -151,7 +151,7 @@ const CoachRow = ({ coach }: { coach: AdminCoach }) => {
       </VStack>
 
       {/* Stats */}
-      <HStack gap={5} flexShrink={0}>
+      <HStack gap={{ base: 3, sm: 5 }} flexShrink={0}>
         <HStack gap={1.5} color="fg.muted" fontSize="xs">
           <LuUsers size={13} />
           <Text>
@@ -227,7 +227,12 @@ const CreateCoachDrawer = ({ isOpen, onClose }: CreateCoachDrawerProps) => {
                 <LuShield size={18} color="var(--chakra-colors-app-primary)" />
                 <Text fontWeight="bold">Créer un coach</Text>
               </HStack>
-              <Button size="sm" variant="ghost" onClick={onClose}>
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label="Fermer"
+                onClick={onClose}
+              >
                 <LuX />
               </Button>
             </HStack>
@@ -332,7 +337,11 @@ const AdminDashboard = () => {
 
         {/* KPI */}
         <Grid
-          templateColumns={{ base: '1fr 1fr', lg: 'repeat(4, 1fr)' }}
+          templateColumns={{
+            base: '1fr',
+            sm: '1fr 1fr',
+            lg: 'repeat(4, 1fr)',
+          }}
           gap={4}
         >
           <StatCard
@@ -368,7 +377,7 @@ const AdminDashboard = () => {
 
         {/* Section coachs */}
         <VStack align="stretch" gap={0}>
-          <HStack justify="space-between" mb={4}>
+          <HStack justify="space-between" mb={4} gap={3} flexWrap="wrap">
             <HStack gap={2}>
               <LuChartBar size={16} color="var(--chakra-colors-app-primary)" />
               <Heading size="md">Coachs</Heading>

@@ -1,11 +1,5 @@
 import api from '@/config/api';
-import {
-  Client,
-  ClientWithDetails,
-  CompletedSession,
-  Exercise,
-  ExerciseStats,
-} from '@/types';
+import { Client, ClientWithDetails, CompletedSession, Exercise } from '@/types';
 
 export const coachService = {
   getClients: async () => {
@@ -33,11 +27,6 @@ export const coachService = {
 
   getExercises: async () => {
     const { data } = await api.get<Exercise[]>('/api/coach/exercises');
-    return data;
-  },
-
-  getExerciseStats: async () => {
-    const { data } = await api.get<ExerciseStats>('/api/coach/exercises/stats');
     return data;
   },
 

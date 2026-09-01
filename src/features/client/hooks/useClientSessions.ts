@@ -62,16 +62,17 @@ export const useClientSessions = () => {
 
   const isLoading = programQuery.isLoading || historyQuery.isLoading;
 
-  const requestedSession = sessionId
+  // `/client/session` redirige désormais vers l'identifiant de la séance
+  // suivante : l'écran n'a plus qu'une seule source, l'URL.
+  const activeSession = sessionId
     ? sessions.find((s) => s._id === sessionId)
     : undefined;
-  const activeSession = sessionId ? requestedSession : nextSession;
   const isManualSelection = !!sessionId && sessionId !== nextSession?._id;
 
   // Un identifiant qui ne correspond à aucune séance (lien périmé, séance
   // supprimée par le coach) ramène au programme plutôt que de rester bloqué.
   useEffect(() => {
-    if (!isLoading && sessionId && !requestedSession) {
+    if (!isLoading && sessionId && !activeSession) {
       toaster.create({
         title: 'Séance introuvable',
         description: "Cette séance n'existe plus dans ton programme.",
@@ -79,7 +80,7 @@ export const useClientSessions = () => {
       });
       navigate(CLIENT_ROUTES.program, { replace: true });
     }
-  }, [isLoading, sessionId, requestedSession, navigate]);
+  }, [isLoading, sessionId, activeSession, navigate]);
 
   const handleSubmitLog = useCallback(
     (

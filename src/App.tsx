@@ -28,11 +28,22 @@ const ClientLayout = React.lazy(() => import('./pages/Client/ClientLayout'));
 const Today = React.lazy(() => import('./pages/Client/Today'));
 const Program = React.lazy(() => import('./pages/Client/Program'));
 const SessionScreen = React.lazy(() => import('./pages/Client/SessionScreen'));
+const SessionRedirect = React.lazy(
+  () => import('./pages/Client/SessionRedirect')
+);
 const History = React.lazy(() => import('./pages/Client/History'));
 
 const ClientDetailsRedirect = () => {
   const { clientId } = useParams();
   return <Navigate to={COACH_ROUTES.clientSession(clientId!, 1)} replace />;
+};
+
+// `exercises/:id/edit` rendait exactement le même composant que
+// `exercises/:id`. On garde une seule adresse par écran, mais on redirige
+// plutôt que de laisser un ancien lien tomber sur la page d'erreur.
+const ExerciseEditRedirect = () => {
+  const { exerciseId } = useParams();
+  return <Navigate to={COACH_ROUTES.exerciseDetails(exerciseId!)} replace />;
 };
 
 const router = createBrowserRouter(
@@ -54,14 +65,17 @@ const router = createBrowserRouter(
         <Route path="exercises" element={<Exercises />} />
         <Route path="exercises/new" element={<ExerciseForm />} />
         <Route path="exercises/:exerciseId" element={<ExerciseForm />} />
-        <Route path="exercises/:exerciseId/edit" element={<ExerciseForm />} />
+        <Route
+          path="exercises/:exerciseId/edit"
+          element={<ExerciseEditRedirect />}
+        />
       </Route>
 
       {/* Routes Client */}
       <Route path="client" element={<ClientLayout />}>
         <Route index element={<Today />} />
         <Route path="program" element={<Program />} />
-        <Route path="session" element={<SessionScreen />} />
+        <Route path="session" element={<SessionRedirect />} />
         <Route path="session/:sessionId" element={<SessionScreen />} />
         <Route path="history" element={<History />} />
       </Route>

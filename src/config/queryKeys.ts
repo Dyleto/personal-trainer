@@ -27,7 +27,6 @@ export const queryKeys = {
       lists: () => [...queryKeys.coach.exercises.all(), 'list'] as const,
       detail: (exerciseId: string) =>
         [...queryKeys.coach.exercises.all(), exerciseId] as const,
-      stats: () => [...queryKeys.coach.exercises.all(), 'stats'] as const,
     },
 
     invitations: {

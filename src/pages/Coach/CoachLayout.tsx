@@ -7,7 +7,7 @@ const CoachLayout = () => {
   return (
     <Flex minH="100vh">
       <CoachNavRail />
-      <Box flex={1} pb={{ base: '70px', md: 0 }}>
+      <Box flex={1} minW={0} pb={{ base: '70px', md: 0 }}>
         <HStack justify="flex-end" p={4} display={{ base: 'flex', md: 'none' }}>
           <Header />
         </HStack>

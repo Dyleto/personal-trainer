@@ -29,4 +29,5 @@ export const COACH_ROUTES = {
     `/coach/clients/${clientId}/s/${sessionIndex}`,
   clientJournal: (clientId: string) => `/coach/clients/${clientId}/journal`,
   exercises: '/coach/exercises',
+  exerciseDetails: (exerciseId: string) => `/coach/exercises/${exerciseId}`,
 };

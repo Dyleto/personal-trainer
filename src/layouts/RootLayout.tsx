@@ -54,7 +54,7 @@ const RootLayout: React.FC = () => {
         w="100%"
         isolation="isolate"
       >
-        <Box gridArea={'content'}>
+        <Box gridArea={'content'} minW={0}>
           <Suspense fallback={<PageLoader />}>
             <Outlet />
           </Suspense>

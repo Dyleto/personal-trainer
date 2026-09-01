@@ -130,7 +130,13 @@ const Today = () => {
                 bg="app.primary"
                 color="bg.canvas"
                 fontWeight="bold"
-                onClick={() => navigate(CLIENT_ROUTES.session)}
+                onClick={() =>
+                  navigate(
+                    nextSession
+                      ? CLIENT_ROUTES.sessionById(nextSession._id)
+                      : CLIENT_ROUTES.session
+                  )
+                }
                 _hover={{ bg: 'app.primary.hover' }}
               >
                 Voir la séance <LuArrowRight />
