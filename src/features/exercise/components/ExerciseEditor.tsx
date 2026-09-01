@@ -23,6 +23,9 @@ interface ExerciseEditorProps {
   onSave: (data: Partial<Exercise>) => void;
   onDelete?: () => void;
   onCancel?: () => void;
+  /** Nombre de séances où l'exercice est utilisé. Au-delà de zéro, l'API
+   *  refusera la suppression : autant le dire avant le clic. */
+  usageCount?: number;
 }
 
 export const ExerciseEditor = ({
@@ -32,6 +35,7 @@ export const ExerciseEditor = ({
   onSave,
   onDelete,
   onCancel,
+  usageCount,
 }: ExerciseEditorProps) => {
   const [formData, setFormData] = useState<Partial<Exercise>>({
     name: '',
@@ -42,6 +46,7 @@ export const ExerciseEditor = ({
   const [prevInitialData, setPrevInitialData] = useState(initialData);
 
   const [nameError, setNameError] = useState('');
+  const isUsed = isEditing && (usageCount ?? 0) > 0;
 
   if (initialData && initialData !== prevInitialData) {
     setPrevInitialData(initialData);
@@ -147,6 +152,26 @@ export const ExerciseEditor = ({
           </Card.Body>
         </Card.Root>
 
+        {/* Aucun clic ne doit mener à un refus prévisible : l'API rejette déjà
+            la suppression d'un exercice utilisé, on le dit avant. */}
+        {isUsed && (
+          <HStack
+            gap={2}
+            px={3}
+            py={2}
+            borderRadius="md"
+            bg="whiteAlpha.50"
+            borderWidth="1px"
+            borderColor="whiteAlpha.100"
+          >
+            <Text fontSize="xs" color="fg.muted">
+              Utilisé dans <b>{usageCount}</b> séance
+              {usageCount! > 1 ? 's' : ''} — retirez-le de ces séances avant de
+              pouvoir le supprimer.
+            </Text>
+          </HStack>
+        )}
+
         {/* Actions */}
         <Stack
           direction={{ base: 'column-reverse', sm: 'row' }}
@@ -169,6 +194,12 @@ export const ExerciseEditor = ({
               colorPalette="red"
               onClick={onDelete}
               loading={isLoading}
+              disabled={isUsed}
+              title={
+                isUsed
+                  ? `Utilisé dans ${usageCount} séance${usageCount! > 1 ? 's' : ''} — retirez-le d'abord de ces séances.`
+                  : undefined
+              }
               w={{ base: '100%', sm: 'auto' }}
             >
               <LuTrash2 style={{ marginRight: '8px' }} />

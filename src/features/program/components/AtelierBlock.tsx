@@ -1,0 +1,400 @@
+import { Box, HStack, IconButton, Input, Text, VStack } from '@chakra-ui/react';
+import { useState } from 'react';
+import {
+  LuArrowLeftRight,
+  LuGripVertical,
+  LuPlus,
+  LuTrash2,
+  LuX,
+} from 'react-icons/lu';
+import { BlockExercise, Exercise, SessionBlock } from '@/types';
+import {
+  blockDefinesOwnMetrics,
+  blockIndexPrefix,
+  blockSupportsSets,
+  getBlockAccent,
+  getBlockLabel,
+} from '@/features/program/constants';
+import { InlineText, InlineValue } from './InlineValue';
+import { BlockConfigInline } from './BlockConfigInline';
+import { InlineExercisePicker } from './InlineExercisePicker';
+
+const ACCENT_COLOR = {
+  work: 'session.work',
+  rest: 'session.rest',
+  neutral: 'whiteAlpha.300',
+} as const;
+
+type MetricKind = 'reps' | 'duration' | 'custom';
+
+const kindOf = (ex: BlockExercise): MetricKind =>
+  ex.duration !== undefined
+    ? 'duration'
+    : ex.customMetric !== undefined
+      ? 'custom'
+      : 'reps';
+
+const NEXT_KIND: Record<MetricKind, MetricKind> = {
+  reps: 'duration',
+  duration: 'custom',
+  custom: 'reps',
+};
+
+const KIND_LABEL: Record<MetricKind, string> = {
+  reps: 'répétitions',
+  duration: 'durée',
+  custom: 'mesure libre',
+};
+
+type ExerciseUpdate = Partial<Omit<BlockExercise, 'exercise'>>;
+
+interface ExerciseRowProps {
+  exercise: BlockExercise;
+  block: SessionBlock;
+  index: number;
+  onUpdate: (updates: ExerciseUpdate) => void;
+  onRemove: () => void;
+}
+
+const ExerciseRow = ({
+  exercise,
+  block,
+  index,
+  onUpdate,
+  onRemove,
+}: ExerciseRowProps) => {
+  const kind = kindOf(exercise);
+  const supportsSets = blockSupportsSets(block.type);
+  const ownMetrics = blockDefinesOwnMetrics(block.type);
+  const showPrefix = blockIndexPrefix(block.type);
+
+  const switchKind = () => {
+    const next = NEXT_KIND[kind];
+    if (next === 'reps')
+      onUpdate({ reps: 10, duration: undefined, customMetric: undefined });
+    if (next === 'duration')
+      onUpdate({ duration: 30, reps: undefined, customMetric: undefined });
+    if (next === 'custom')
+      onUpdate({
+        customMetric: { value: 100, unit: 'm' },
+        reps: undefined,
+        duration: undefined,
+      });
+  };
+
+  return (
+    <HStack
+      role="group"
+      py={1.5}
+      gap={3}
+      align="center"
+      borderTopWidth="1px"
+      borderColor="whiteAlpha.100"
+    >
+      <HStack gap={1} flex={1} minW={0}>
+        {showPrefix && (
+          <Text fontSize="sm" color="fg.muted" flexShrink={0}>
+            {index + 1} ·
+          </Text>
+        )}
+        <Text fontSize="sm" color="fg.muted" lineClamp={1}>
+          {exercise.exercise.name}
+        </Text>
+      </HStack>
+
+      {/* La prescription, alignée à droite en chiffres tabulaires : c'est ce
+          qu'on parcourt verticalement quand on relit une séance. */}
+      {!ownMetrics && (
+        <HStack gap={1} flexShrink={0}>
+          {supportsSets && (
+            <>
+              <InlineValue
+                value={exercise.sets}
+                onChange={(v) => onUpdate({ sets: v })}
+                ariaLabel={`Séries — ${exercise.exercise.name}`}
+                min={1}
+                width="44px"
+              />
+              <Text as="span" fontSize="sm" color="fg.muted">
+                ×
+              </Text>
+            </>
+          )}
+
+          {kind === 'reps' && (
+            <InlineValue
+              value={exercise.reps}
+              onChange={(v) => onUpdate({ reps: v })}
+              suffix="reps"
+              ariaLabel={`Répétitions — ${exercise.exercise.name}`}
+              width="56px"
+            />
+          )}
+          {kind === 'duration' && (
+            <InlineValue
+              value={exercise.duration}
+              onChange={(v) => onUpdate({ duration: v })}
+              suffix="s"
+              ariaLabel={`Durée — ${exercise.exercise.name}`}
+              width="56px"
+            />
+          )}
+          {kind === 'custom' && (
+            <HStack gap={1}>
+              <InlineValue
+                value={exercise.customMetric?.value}
+                onChange={(v) =>
+                  onUpdate({
+                    customMetric: {
+                      value: v ?? 0,
+                      unit: exercise.customMetric?.unit || 'm',
+                    },
+                  })
+                }
+                ariaLabel={`Mesure — ${exercise.exercise.name}`}
+                width="56px"
+              />
+              <Input
+                size="xs"
+                w="44px"
+                h="22px"
+                px={1}
+                textAlign="center"
+                aria-label={`Unité — ${exercise.exercise.name}`}
+                value={exercise.customMetric?.unit ?? ''}
+                onChange={(e) =>
+                  onUpdate({
+                    customMetric: {
+                      value: exercise.customMetric?.value ?? 0,
+                      unit: e.target.value,
+                    },
+                  })
+                }
+                bg="whiteAlpha.50"
+                borderColor="whiteAlpha.100"
+                borderRadius="sm"
+                fontSize="xs"
+              />
+            </HStack>
+          )}
+
+          {supportsSets && (exercise.sets ?? 1) > 1 && (
+            <HStack gap={1} pl={2}>
+              <Text as="span" fontSize="2xs" color="fg.muted">
+                repos
+              </Text>
+              <InlineValue
+                value={exercise.restBetweenSets}
+                onChange={(v) => onUpdate({ restBetweenSets: v })}
+                suffix="s"
+                emptyLabel="aucun"
+                ariaLabel={`Repos entre séries — ${exercise.exercise.name}`}
+                width="52px"
+                clearable
+              />
+            </HStack>
+          )}
+        </HStack>
+      )}
+
+      {/* Gouttière : révélée au survol ou au focus clavier, toujours visible
+          au tactile où le survol n'existe pas. */}
+      <HStack
+        gap={0}
+        flexShrink={0}
+        opacity={{ base: 1, md: 0 }}
+        _groupHover={{ opacity: 1 }}
+        _groupFocusWithin={{ opacity: 1 }}
+        transition="opacity 0.15s"
+      >
+        {!ownMetrics && (
+          <IconButton
+            aria-label={`Changer l'unité (actuellement : ${KIND_LABEL[kind]}) — ${exercise.exercise.name}`}
+            size="2xs"
+            variant="ghost"
+            color="fg.muted"
+            onClick={switchKind}
+          >
+            <LuArrowLeftRight size={11} />
+          </IconButton>
+        )}
+        <IconButton
+          aria-label={`Retirer ${exercise.exercise.name}`}
+          size="2xs"
+          variant="ghost"
+          color="fg.muted"
+          _hover={{ color: 'app.error' }}
+          onClick={onRemove}
+        >
+          <LuX size={12} />
+        </IconButton>
+      </HStack>
+    </HStack>
+  );
+};
+
+interface AtelierBlockProps {
+  block: SessionBlock;
+  /** Exercices déjà posés ailleurs dans le programme. */
+  inProgram: Exercise[];
+  dragHandleProps?: Record<string, unknown>;
+  onUpdate: (updates: Partial<SessionBlock>) => void;
+  onRemove: () => void;
+  onAddExercise: (exercise: Exercise) => void;
+  onRemoveExercise: (index: number) => void;
+  onUpdateExercise: (index: number, updates: ExerciseUpdate) => void;
+  /** Fourni sous 768 px : le choix d'exercice passe alors par le tiroir plein
+   *  écran plutôt que par la liste déroulante, trop à l'étroit. */
+  onRequestExercisePicker?: () => void;
+}
+
+/**
+ * Un bloc dans l'atelier du coach : le même rendu que celui que voit le
+ * client, mais dont chaque valeur devient un champ au clic.
+ *
+ * Le principe dont tout découle : un programme se lit comme un programme,
+ * pas comme un formulaire. Pas de boîte grise par valeur, pas de carte dans
+ * une carte — de la typographie, un filet par bloc, et des commandes qui ne
+ * se montrent que quand on s'approche.
+ */
+export const AtelierBlock = ({
+  block,
+  inProgram,
+  dragHandleProps,
+  onUpdate,
+  onRemove,
+  onAddExercise,
+  onRemoveExercise,
+  onUpdateExercise,
+  onRequestExercisePicker,
+}: AtelierBlockProps) => {
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const accentColor = ACCENT_COLOR[getBlockAccent(block.type)];
+
+  return (
+    <Box
+      role="group"
+      borderLeftWidth="2px"
+      borderLeftColor={accentColor}
+      pl={3}
+      py={1}
+    >
+      {/* ── En-tête : type · nom libre · réglages ── */}
+      <HStack justify="space-between" align="flex-start" gap={3} pb={1}>
+        <HStack gap={2} align="baseline" minW={0}>
+          <Text
+            fontSize="xs"
+            fontWeight="bold"
+            color="fg"
+            textTransform="uppercase"
+            letterSpacing="wider"
+            flexShrink={0}
+          >
+            {getBlockLabel(block.type)}
+          </Text>
+          {/* Ni description du type — l'étiquette la dit déjà — ni placeholder
+              permanent : un bloc sans nom libre ne laisse aucune trace. */}
+          <InlineText
+            value={block.label}
+            onChange={(label) => onUpdate({ label })}
+            addLabel="+ nom"
+            ariaLabel={`Nom personnalisé du bloc ${getBlockLabel(block.type)}`}
+            width="160px"
+          />
+        </HStack>
+
+        <HStack gap={1} flexShrink={0} align="flex-start">
+          <BlockConfigInline block={block} onUpdate={onUpdate} />
+          <HStack
+            gap={0}
+            opacity={{ base: 1, md: 0 }}
+            _groupHover={{ opacity: 1 }}
+            _groupFocusWithin={{ opacity: 1 }}
+            transition="opacity 0.15s"
+          >
+            <IconButton
+              aria-label={`Réorganiser le bloc ${getBlockLabel(block.type)}`}
+              size="2xs"
+              variant="ghost"
+              color="fg.muted"
+              cursor="grab"
+              touchAction="none"
+              {...dragHandleProps}
+            >
+              <LuGripVertical size={12} />
+            </IconButton>
+            <IconButton
+              aria-label={`Supprimer le bloc ${getBlockLabel(block.type)}`}
+              size="2xs"
+              variant="ghost"
+              color="fg.muted"
+              _hover={{ color: 'app.error' }}
+              onClick={onRemove}
+            >
+              <LuTrash2 size={12} />
+            </IconButton>
+          </HStack>
+        </HStack>
+      </HStack>
+
+      {/* ── Exercices ── */}
+      <VStack align="stretch" gap={0}>
+        {block.exercises.map((exercise, index) => (
+          <ExerciseRow
+            key={index}
+            exercise={exercise}
+            block={block}
+            index={index}
+            onUpdate={(updates) => onUpdateExercise(index, updates)}
+            onRemove={() => onRemoveExercise(index)}
+          />
+        ))}
+      </VStack>
+
+      {/* ── Ajout d'exercice, dans le bloc ── */}
+      <Box pt={1.5}>
+        {isPickerOpen && !onRequestExercisePicker ? (
+          <InlineExercisePicker
+            inProgram={inProgram}
+            onSelect={onAddExercise}
+            onClose={() => setIsPickerOpen(false)}
+          />
+        ) : (
+          <Box
+            as="button"
+            onClick={() =>
+              onRequestExercisePicker
+                ? onRequestExercisePicker()
+                : setIsPickerOpen(true)
+            }
+            fontSize="xs"
+            color="fg.muted"
+            _hover={{ color: 'app.primary' }}
+            _focusVisible={{
+              outline: '2px solid',
+              outlineColor: 'app.primary',
+              outlineOffset: '2px',
+            }}
+            transition="color 0.15s"
+          >
+            <HStack gap={1}>
+              <LuPlus size={12} />
+              <Text as="span">exercice</Text>
+            </HStack>
+          </Box>
+        )}
+      </Box>
+
+      {/* ── Consigne du bloc : absente tant qu'elle n'existe pas ── */}
+      <Box mt={1}>
+        <InlineText
+          value={block.notes}
+          onChange={(notes) => onUpdate({ notes })}
+          addLabel="+ consigne"
+          ariaLabel={`Consigne du bloc ${getBlockLabel(block.type)}`}
+          width="100%"
+        />
+      </Box>
+    </Box>
+  );
+};

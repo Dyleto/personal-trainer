@@ -7,56 +7,193 @@ import {
 } from '@chakra-ui/react';
 import { LuPlus } from 'react-icons/lu';
 import { Session } from '@/types';
+import { getBlockAccent } from '@/features/program/constants';
+import {
+  DndContext,
+  DragEndEvent,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const ACCENT_COLOR = {
+  work: 'session.work',
+  rest: 'session.rest',
+  neutral: 'whiteAlpha.300',
+} as const;
 
 interface SessionRailProps {
   sessions: Session[];
   activeIndex: number;
   onSelect: (index: number) => void;
   onAddSession: () => void;
+  onReorder?: (orderedSessionIds: string[]) => void;
+  /** Identifiants des séances jamais réalisées par le client. */
+  neverDoneIds?: Set<string>;
 }
+
+/**
+ * Une rangée de segments, un par bloc, à l'accent de son type : on lit
+ * l'équilibre effort / repos d'une séance en 150 px, sans l'ouvrir.
+ */
+const Composition = ({ session }: { session: Session }) => {
+  if (session.blocks.length === 0) {
+    return <Box h="3px" borderRadius="full" bg="whiteAlpha.100" mt={1.5} />;
+  }
+  return (
+    <HStack gap="2px" mt={1.5} h="3px">
+      {session.blocks.map((block) => (
+        <Box
+          key={block._id}
+          flex={1}
+          h="full"
+          borderRadius="full"
+          bg={ACCENT_COLOR[getBlockAccent(block.type)]}
+          opacity={0.8}
+        />
+      ))}
+    </HStack>
+  );
+};
+
+interface RowProps {
+  session: Session;
+  index: number;
+  isActive: boolean;
+  isNeverDone: boolean;
+  onSelect: () => void;
+  sortable: boolean;
+}
+
+const RailRow = ({
+  session,
+  isActive,
+  isNeverDone,
+  onSelect,
+  sortable,
+}: RowProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: session._id, disabled: !sortable });
+
+  return (
+    <Box
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+      }}
+      {...attributes}
+      {...listeners}
+      as="button"
+      onClick={onSelect}
+      textAlign="left"
+      w="full"
+      px={3}
+      py={2}
+      borderRadius="md"
+      borderLeftWidth="2px"
+      borderLeftColor={isActive ? 'app.primary' : 'transparent'}
+      bg={isActive ? 'whiteAlpha.100' : 'transparent'}
+      _hover={{ bg: 'whiteAlpha.50' }}
+      transition="background 0.15s"
+      touchAction="none"
+    >
+      <HStack justify="space-between" align="baseline" gap={2}>
+        <Text
+          fontSize="sm"
+          fontWeight="bold"
+          color={isActive ? 'fg' : 'fg.muted'}
+        >
+          Séance {session.order}
+        </Text>
+        {/* Un repère discret, pas une alerte : « jamais faite » est un fait. */}
+        {isNeverDone && (
+          <Text
+            fontSize="2xs"
+            color="fg.muted"
+            flexShrink={0}
+            title="Jamais réalisée par ce client"
+          >
+            jamais faite
+          </Text>
+        )}
+      </HStack>
+      <Text fontSize="xs" color="fg.muted">
+        {session.blocks.length} bloc{session.blocks.length > 1 ? 's' : ''}
+      </Text>
+      <Composition session={session} />
+    </Box>
+  );
+};
 
 export const SessionRail = ({
   sessions,
   activeIndex,
   onSelect,
   onAddSession,
+  onReorder,
+  neverDoneIds,
 }: SessionRailProps) => {
   const isDesktop = useBreakpointValue({ base: false, md: true });
 
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!onReorder || !over || active.id === over.id) return;
+    const from = sessions.findIndex((s) => s._id === active.id);
+    const to = sessions.findIndex((s) => s._id === over.id);
+    if (from < 0 || to < 0) return;
+    onReorder(arrayMove(sessions, from, to).map((s) => s._id));
+  };
+
   if (isDesktop) {
     return (
-      <VStack align="stretch" gap={1} w="200px" flexShrink={0}>
-        {sessions.map((session, index) => {
-          const isActive = index === activeIndex;
-          return (
-            <Box
-              key={session._id}
-              as="button"
-              onClick={() => onSelect(index)}
-              textAlign="left"
-              px={3}
-              py={2}
-              borderRadius="md"
-              borderLeftWidth="2px"
-              borderLeftColor={isActive ? 'app.primary' : 'transparent'}
-              bg={isActive ? 'whiteAlpha.100' : 'transparent'}
-              _hover={{ bg: 'whiteAlpha.50' }}
-              transition="background 0.15s"
-            >
-              <Text
-                fontSize="sm"
-                fontWeight="bold"
-                color={isActive ? 'fg' : 'fg.muted'}
-              >
-                Séance {session.order}
-              </Text>
-              <Text fontSize="xs" color="fg.muted">
-                {session.blocks.length} bloc
-                {session.blocks.length > 1 ? 's' : ''}
-              </Text>
-            </Box>
-          );
-        })}
+      <VStack align="stretch" gap={1} w="220px" flexShrink={0}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={sessions.map((s) => s._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {sessions.map((session, index) => (
+              <RailRow
+                key={session._id}
+                session={session}
+                index={index}
+                isActive={index === activeIndex}
+                isNeverDone={neverDoneIds?.has(session._id) ?? false}
+                onSelect={() => onSelect(index)}
+                sortable={!!onReorder}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+
         <Box
           as="button"
           onClick={onAddSession}
@@ -101,6 +238,7 @@ export const SessionRail = ({
             color={isActive ? 'bg.canvas' : 'fg.muted'}
             fontSize="sm"
             fontWeight="bold"
+            opacity={neverDoneIds?.has(session._id) && !isActive ? 0.6 : 1}
           >
             S{session.order}
           </Box>

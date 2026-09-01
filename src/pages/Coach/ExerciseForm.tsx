@@ -1,4 +1,12 @@
-import { Container, Button, VStack, Box, Spinner } from '@chakra-ui/react';
+import {
+  Container,
+  Button,
+  VStack,
+  Box,
+  Spinner,
+  Dialog,
+  Text,
+} from '@chakra-ui/react';
 import { useToastError } from '@/hooks/useToastError';
 import { LuArrowLeft } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -10,12 +18,14 @@ import {
 } from '@/features/exercise/hooks/useExerciseMutations';
 import { Exercise } from '@/types';
 import { ExerciseEditor } from '@/features/exercise/components/ExerciseEditor';
+import { useState } from 'react';
 
 const ExerciseForm = () => {
   const { exerciseId } = useParams();
   const navigate = useNavigate();
 
   const isEditMode = !!exerciseId;
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const {
     data: exercise,
@@ -41,12 +51,10 @@ const ExerciseForm = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!exercise) return;
-    if (
-      !globalThis.confirm('Êtes-vous sûr de vouloir supprimer cet exercice ?')
-    )
-      return;
+  // Le dernier avertissement natif du produit disparaît ici : tout le reste
+  // passe déjà par le Dialog du design system.
+  const confirmDelete = () => {
+    setIsDeleteConfirmOpen(false);
     deleteMutation.mutate(exerciseId!, {
       onSuccess: () => navigate('/coach/exercises'),
     });
@@ -78,11 +86,53 @@ const ExerciseForm = () => {
             isEditing={isEditMode}
             isLoading={isSavingOrDeleting}
             onSave={handleSave}
-            onDelete={handleDelete}
+            usageCount={exercise?.usageCount}
+            onDelete={() => setIsDeleteConfirmOpen(true)}
             onCancel={() => navigate('/coach/exercises')}
           />
         </VStack>
       )}
+      <Dialog.Root
+        open={isDeleteConfirmOpen}
+        onOpenChange={(e) => !e.open && setIsDeleteConfirmOpen(false)}
+      >
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content
+            bg="bg.canvas"
+            borderColor="whiteAlpha.100"
+            borderWidth="1px"
+            maxW="sm"
+          >
+            <Dialog.Header>
+              <Dialog.Title>Supprimer cet exercice ?</Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body>
+              <Text color="fg.muted" fontSize="sm">
+                « {exercise?.name} » sera retiré de votre bibliothèque. Cette
+                action est définitive.
+              </Text>
+            </Dialog.Body>
+            <Dialog.Footer gap={3}>
+              <Button
+                variant="ghost"
+                color="fg.muted"
+                onClick={() => setIsDeleteConfirmOpen(false)}
+              >
+                Annuler
+              </Button>
+              <Button
+                colorPalette="red"
+                fontWeight="bold"
+                onClick={confirmDelete}
+                loading={deleteMutation.isPending}
+              >
+                Supprimer
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
     </Container>
   );
 };

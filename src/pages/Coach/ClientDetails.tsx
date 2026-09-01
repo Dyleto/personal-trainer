@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Avatar,
@@ -22,6 +22,7 @@ import { ClientProgramTab } from '@/features/coach/components/ClientProgramTab';
 import { SessionRail } from '@/features/coach/components/SessionRail';
 import { SessionFeedbackStrip } from '@/features/coach/components/SessionFeedbackStrip';
 import { COACH_ROUTES } from '@/config/routes';
+import { Exercise } from '@/types';
 
 const ClientDetails = () => {
   const { clientId, sessionIndex } = useParams();
@@ -43,6 +44,29 @@ const ClientDetails = () => {
 
   const currentIndex = Math.max(0, (Number(sessionIndex) || 1) - 1);
   const activeSession = program?.sessions[currentIndex] ?? null;
+
+  // Le programme entier est en mémoire : « déjà dans ce programme » et
+  // « jamais faite » se calculent sans une seule requête de plus.
+  const inProgram = useMemo<Exercise[]>(() => {
+    const byId = new Map<string, Exercise>();
+    program?.sessions.forEach((s) =>
+      s.blocks.forEach((b) =>
+        b.exercises.forEach((ex) => byId.set(ex.exercise._id, ex.exercise))
+      )
+    );
+    return [...byId.values()].sort((a, b) =>
+      a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+    );
+  }, [program]);
+
+  const neverDoneIds = useMemo(() => {
+    const done = new Set(history.map((h) => h.originalSessionId));
+    return new Set(
+      (program?.sessions ?? [])
+        .filter((s) => !done.has(s._id))
+        .map((s) => s._id)
+    );
+  }, [program, history]);
 
   const isDirty =
     !!program &&
@@ -75,6 +99,14 @@ const ClientDetails = () => {
     if (!activeSession) return;
     actions.removeSession(activeSession._id);
     navigate(COACH_ROUTES.clientSession(clientId!, 1));
+  };
+
+  const handleDuplicateActiveSession = () => {
+    if (!activeSession) return;
+    actions.duplicateSession(activeSession._id);
+    // La copie est insérée juste après l'originale : on l'ouvre aussitôt,
+    // c'est elle qu'on vient créer pour l'ajuster.
+    navigate(COACH_ROUTES.clientSession(clientId!, currentIndex + 2));
   };
 
   if (isLoading) {
@@ -150,6 +182,8 @@ const ClientDetails = () => {
           activeIndex={currentIndex}
           onSelect={handleSelectSession}
           onAddSession={handleAddSession}
+          onReorder={actions.reorderSessions}
+          neverDoneIds={neverDoneIds}
         />
 
         <Box
@@ -174,7 +208,9 @@ const ClientDetails = () => {
               <ClientProgramTab
                 key={activeSession._id}
                 session={activeSession}
+                inProgram={inProgram}
                 onRemoveSession={handleRemoveActiveSession}
+                onDuplicateSession={handleDuplicateActiveSession}
                 onUpdateSessionNotes={(notes) =>
                   actions.updateSessionNotes(activeSession._id, notes)
                 }

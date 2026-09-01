@@ -17,6 +17,8 @@ export interface Client {
   picture?: string;
   linkedAt: Date;
   unseenCount: number;
+  /** Absent tant que le client n'a jamais terminé de séance. */
+  lastCompletedAt?: Date;
 }
 
 export interface Coach {
@@ -43,6 +45,8 @@ export interface Exercise {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  /** Nombre de séances du coach où l'exercice apparaît. Servi par l'API. */
+  usageCount?: number;
 }
 
 export interface ExerciseStats {

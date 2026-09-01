@@ -70,6 +70,55 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
     });
   }, []);
 
+  /**
+   * « La séance 4, c'est la 2 en plus lourd » est le geste central de la
+   * construction d'un programme. Coût serveur nul : le programme entier est
+   * déjà en mémoire et l'enregistrement groupé s'en charge, exactement comme
+   * pour une séance vide.
+   */
+  const duplicateSession = useCallback((sessionId: string) => {
+    setProgram((prev) => {
+      if (!prev) return null;
+      const index = prev.sessions.findIndex((s) => s._id === sessionId);
+      if (index === -1) return prev;
+
+      const source = prev.sessions[index];
+      const copy: Session = {
+        ...source,
+        _id: `temp-${uuidv4()}`,
+        // Identifiants neufs jusqu'aux blocs : deux séances ne peuvent pas
+        // partager la clé d'un même bloc, le glisser-déposer s'y perdrait.
+        blocks: source.blocks.map((block) => ({
+          ...block,
+          _id: `temp-${uuidv4()}`,
+          exercises: block.exercises.map((ex) => ({ ...ex })),
+        })),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const sessions = [
+        ...prev.sessions.slice(0, index + 1),
+        copy,
+        ...prev.sessions.slice(index + 1),
+      ].map((s, i) => ({ ...s, order: i + 1 }));
+
+      return { ...prev, sessions };
+    });
+  }, []);
+
+  const reorderSessions = useCallback((orderedSessionIds: string[]) => {
+    setProgram((prev) => {
+      if (!prev) return null;
+      const byId = new Map(prev.sessions.map((s) => [s._id, s]));
+      const reordered = orderedSessionIds
+        .map((id) => byId.get(id))
+        .filter((s): s is Session => s !== undefined)
+        .map((s, index) => ({ ...s, order: index + 1 }));
+      return { ...prev, sessions: reordered };
+    });
+  }, []);
+
   const updateSessionNotes = useCallback((sessionId: string, notes: string) => {
     setProgram((prev) => {
       if (!prev) return null;
@@ -253,6 +302,8 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
     actions: {
       addSession,
       removeSession,
+      duplicateSession,
+      reorderSessions,
       updateSessionNotes,
       addBlock,
       removeBlock,

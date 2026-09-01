@@ -1,6 +1,8 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { CompletedSession } from '@/types';
 import { getRelativeDate } from '@/features/client';
+import { EFFORT_ZONE_COLOR, getEffortLevel } from '@/features/client/constants';
+import { EffortTrend } from './EffortTrend';
 
 interface SessionFeedbackStripProps {
   // Déjà filtré par la page appelante sur originalSessionId === session._id
@@ -10,9 +12,6 @@ interface SessionFeedbackStripProps {
   variant?: 'strip' | 'panel';
 }
 
-// Version provisoire (avant Phase 16) : date + commentaire.
-// La tendance d'effort viendra s'ajouter ici une fois feedback.effort
-// disponible — volontairement pas de note, cf. p16.
 export const SessionFeedbackStrip = ({
   history,
   variant = 'strip',
@@ -40,38 +39,44 @@ export const SessionFeedbackStrip = ({
         >
           Retour du client
         </Text>
+
         {recent.length === 0 ? (
           <Text fontSize="xs" color="fg.muted">
             Cette séance n'a pas encore été faite.
           </Text>
         ) : (
-          <VStack align="stretch" gap={3}>
-            {recent.slice(0, 3).map((completed) => (
-              <Box
-                key={completed._id}
-                borderLeftWidth="2px"
-                borderLeftColor="session.rest"
-                pl={3}
-              >
-                <Text fontSize="2xs" color="fg.muted">
-                  {getRelativeDate(completed.completedAt)}
-                </Text>
-                {completed.clientNotes ? (
-                  <Text fontSize="xs" color="fg" fontStyle="italic" mt={0.5}>
-                    "{completed.clientNotes}"
+          <VStack align="stretch" gap={4}>
+            {/* Ce qui est actionnable en premier : la dérive, pas le détail. */}
+            <EffortTrend history={recent} />
+
+            <VStack align="stretch" gap={3}>
+              {recent.slice(0, 3).map((completed) => (
+                <Box
+                  key={completed._id}
+                  borderLeftWidth="2px"
+                  borderLeftColor="session.rest"
+                  pl={3}
+                >
+                  <Text fontSize="2xs" color="fg.muted">
+                    {getRelativeDate(completed.completedAt)}
                   </Text>
-                ) : (
-                  <Text
-                    fontSize="xs"
-                    color="fg.muted"
-                    fontStyle="italic"
-                    mt={0.5}
-                  >
-                    Aucun commentaire
-                  </Text>
-                )}
-              </Box>
-            ))}
+                  {completed.clientNotes ? (
+                    <Text fontSize="xs" color="fg" fontStyle="italic" mt={0.5}>
+                      "{completed.clientNotes}"
+                    </Text>
+                  ) : (
+                    <Text
+                      fontSize="xs"
+                      color="fg.muted"
+                      fontStyle="italic"
+                      mt={0.5}
+                    >
+                      Aucun commentaire
+                    </Text>
+                  )}
+                </Box>
+              ))}
+            </VStack>
           </VStack>
         )}
       </Box>
@@ -80,6 +85,7 @@ export const SessionFeedbackStrip = ({
 
   if (recent.length === 0) return null;
   const last = recent[0];
+  const level = getEffortLevel(last.feedback?.effort);
 
   return (
     <Box
@@ -95,6 +101,16 @@ export const SessionFeedbackStrip = ({
     >
       <HStack gap={2} flexWrap="wrap">
         <Text flexShrink={0}>{getRelativeDate(last.completedAt)} —</Text>
+        {level && (
+          <Text
+            as="span"
+            fontWeight="bold"
+            color={EFFORT_ZONE_COLOR[level.zone]}
+            flexShrink={0}
+          >
+            {level.label}
+          </Text>
+        )}
         {last.clientNotes ? (
           <Text as="span" fontStyle="italic" color="fg">
             "{last.clientNotes}"
