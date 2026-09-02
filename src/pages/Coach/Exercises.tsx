@@ -1,189 +1,68 @@
 import { ExerciseSectionSkeleton } from '@/components/skeletons';
-import { useExerciseFilter } from '@/features/exercise/hooks/useExerciseFilter';
 import { useExercises } from '@/features/exercise/hooks/useExercises';
+import {
+  useCreateExercise,
+  useDeleteExercise,
+} from '@/features/exercise/hooks/useExerciseMutations';
 import { useToastError } from '@/hooks/useToastError';
 import { Exercise } from '@/types';
 import {
   Box,
   Button,
   Container,
+  Dialog,
+  Drawer,
   Grid,
-  Heading,
   HStack,
   Input,
+  Portal,
   Text,
   useBreakpointValue,
   VStack,
 } from '@chakra-ui/react';
 import { useMemo, useRef, useState } from 'react';
-import {
-  LuExternalLink,
-  LuLibrary,
-  LuPencil,
-  LuPlus,
-  LuSearch,
-  LuVideo,
-  LuX,
-} from 'react-icons/lu';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { LuPlus, LuSearch, LuX } from 'react-icons/lu';
 import { createPortal } from 'react-dom';
-import { ExerciseLibraryCard } from '@/features/exercise';
-import { getVideoEmbedUrl } from '@/utils/videoUtils';
+import { COACH_ROUTES } from '@/config/routes';
+import { ExerciseRow, ExerciseSheet } from '@/features/exercise';
 import { stripAccents } from '@/utils/formatters';
 
-// ─── Panneau détail (desktop) ────────────────────────────────────────────────
-
-interface DetailPanelProps {
-  exercise: Exercise;
-  onClose: () => void;
-  onEdit: () => void;
-}
-
-const DetailPanel = ({ exercise, onClose, onEdit }: DetailPanelProps) => {
-  const embedUrl = exercise.videoUrl
-    ? getVideoEmbedUrl(exercise.videoUrl)
-    : null;
-
-  return (
-    <Box
-      bg="surface.card"
-      borderRadius="xl"
-      borderWidth="1px"
-      borderColor="surface.card"
-      overflow="hidden"
-    >
-      {/* Bande accent */}
-      <Box h="3px" bg="app.primary" />
-
-      <VStack gap={5} align="stretch" p={6}>
-        <HStack justify="space-between" align="start">
-          <Box fontSize="xl" fontWeight="bold" color="white" flex={1} mr={2}>
-            {exercise.name}
-          </Box>
-          <Box
-            cursor="pointer"
-            color="fg.muted"
-            _hover={{ color: 'white' }}
-            onClick={onClose}
-            flexShrink={0}
-          >
-            <LuX size={16} />
-          </Box>
-        </HStack>
-
-        {exercise.description ? (
-          <Box fontSize="sm" color="fg.muted" lineHeight="tall">
-            {exercise.description}
-          </Box>
-        ) : (
-          <Box fontSize="sm" color="fg.muted" fontStyle="italic">
-            Aucune description
-          </Box>
-        )}
-
-        {/* Vidéo intégrée ou lien de fallback */}
-        {exercise.videoUrl ? (
-          embedUrl ? (
-            <VStack gap={2} align="stretch">
-              <Box
-                borderRadius="lg"
-                overflow="hidden"
-                bg="black"
-                style={{ position: 'relative', paddingBottom: '56.25%' }}
-              >
-                <iframe
-                  src={embedUrl}
-                  title={`Vidéo — ${exercise.name}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    border: 'none',
-                  }}
-                />
-              </Box>
-              <HStack
-                gap={1.5}
-                fontSize="xs"
-                color="fg.muted"
-                cursor="pointer"
-                _hover={{ color: 'fg.muted' }}
-                onClick={() =>
-                  window.open(
-                    exercise.videoUrl,
-                    '_blank',
-                    'noopener,noreferrer'
-                  )
-                }
-              >
-                <LuExternalLink size={11} />
-                <Box>Ouvrir dans un nouvel onglet</Box>
-              </HStack>
-            </VStack>
-          ) : (
-            <HStack
-              gap={2}
-              color="app.primary"
-              fontSize="sm"
-              cursor="pointer"
-              _hover={{ color: 'blue.300' }}
-              onClick={() =>
-                window.open(exercise.videoUrl, '_blank', 'noopener,noreferrer')
-              }
-            >
-              <LuVideo size={14} />
-              <Box>Voir la vidéo</Box>
-            </HStack>
-          )
-        ) : (
-          <HStack
-            gap={2}
-            color="fg.muted"
-            fontSize="sm"
-            cursor="pointer"
-            onClick={onEdit}
-            _hover={{ color: 'app.primary' }}
-          >
-            <LuVideo size={14} />
-            <Box>Ajouter une vidéo</Box>
-          </HStack>
-        )}
-
-        <Button
-          size="sm"
-          bg="app.primary"
-          color="black"
-          fontWeight="semibold"
-          _hover={{ bg: 'app.primary.hover' }}
-          onClick={onEdit}
-        >
-          <LuPencil size={13} />
-          Modifier
-        </Button>
-      </VStack>
-    </Box>
-  );
-};
-
-// ─── Page principale ──────────────────────────────────────────────────────────
+const normalize = (s: string) => stripAccents(s).toLowerCase().trim();
 
 const Exercises = () => {
+  // L'exercice ouvert est dans l'URL, pas dans un état : un lien vers une
+  // fiche s'envoie, et le retour du navigateur referme la fiche.
+  const { exerciseId } = useParams();
   const navigate = useNavigate();
 
   const { data: exercises = [], isLoading, error } = useExercises();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
-    null
-  );
+  const createMutation = useCreateExercise();
+  const deleteMutation = useDeleteExercise();
+
+  const [query, setQuery] = useState('');
+  const [pendingDeletion, setPendingDeletion] = useState<Exercise | null>(null);
+
+  const openSheet = (id: string) => navigate(COACH_ROUTES.exerciseDetails(id));
+  const closeSheet = () => navigate(COACH_ROUTES.exercises);
 
   useToastError(error, 'Impossible de charger vos exercices');
 
   const isDesktop = useBreakpointValue({ base: false, lg: true });
-  const filtered = useExerciseFilter(exercises, searchQuery);
+
+  // On relit l'exercice dans la liste plutôt que de garder une copie : après
+  // une modification, la fiche doit montrer la valeur enregistrée.
+  const selected = exercises.find((e) => e._id === exerciseId) ?? null;
+
+  const filtered = useMemo(() => {
+    const q = normalize(query);
+    return exercises.filter((e) => normalize(e.name).includes(q));
+  }, [exercises, query]);
+
+  const trimmed = query.trim();
+  const canCreate =
+    trimmed.length > 0 &&
+    !exercises.some((e) => normalize(e.name) === normalize(trimmed));
 
   // Groupement alphabétique (les accents rejoignent leur lettre de base : É→E)
   const grouped = useMemo(() => {
@@ -194,18 +73,14 @@ const Exercises = () => {
     sorted.forEach((ex) => {
       const letter = stripAccents(ex.name[0] ?? '').toUpperCase() || '#';
       const last = groups[groups.length - 1];
-      if (last?.letter === letter) {
-        last.exercises.push(ex);
-      } else {
-        groups.push({ letter, exercises: [ex] });
-      }
+      if (last?.letter === letter) last.exercises.push(ex);
+      else groups.push({ letter, exercises: [ex] });
     });
     return groups;
   }, [filtered]);
 
   const letters = grouped.map((g) => g.letter);
 
-  // Refs pour le scroll vers une lettre
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollToLetter = (letter: string) => {
     sectionRefs.current[letter]?.scrollIntoView({
@@ -214,138 +89,163 @@ const Exercises = () => {
     });
   };
 
-  const handleExerciseClick = (exercise: Exercise) => {
-    if (isDesktop) {
-      setSelectedExercise(exercise);
-    } else {
-      navigate(`/coach/exercises/${exercise._id}`);
-    }
+  const create = () => {
+    createMutation.mutate(
+      { name: trimmed },
+      {
+        onSuccess: (response) => {
+          setQuery('');
+          openSheet(response.data._id);
+        },
+      }
+    );
   };
 
-  // Liste alphabétique (partagée mobile/desktop)
-  const alphabetList = (
-    <VStack gap={0} align="stretch" pr={{ base: 9, lg: 0 }}>
-      <Box fontSize="sm" color="fg.muted" mb={3} px={1}>
-        {filtered.length} exercice{filtered.length !== 1 ? 's' : ''}
-        {searchQuery && (
-          <Box as="span" color="fg.muted">
-            {' '}
-            · « {searchQuery} »
-          </Box>
-        )}
-      </Box>
+  const confirmDeletion = () => {
+    if (!pendingDeletion) return;
+    deleteMutation.mutate(pendingDeletion._id, {
+      onSuccess: () => {
+        if (exerciseId === pendingDeletion._id) closeSheet();
+        setPendingDeletion(null);
+      },
+    });
+  };
 
-      {grouped.map(({ letter, exercises: groupExercises }) => (
+  const sheet = selected && (
+    <ExerciseSheet
+      exercise={selected}
+      onClose={closeSheet}
+      onDelete={() => setPendingDeletion(selected)}
+    />
+  );
+
+  const list = (
+    <VStack gap={0} align="stretch" pr={{ base: 9, lg: 0 }}>
+      {grouped.map(({ letter, exercises: group }) => (
         <Box
           key={letter}
           ref={(el: HTMLDivElement | null) => {
             sectionRefs.current[letter] = el;
           }}
         >
+          {/* Le repère de lettre est une étiquette, pas une carte : même
+              graphie que l'étiquette de type dans l'atelier. */}
           <Box
             position="sticky"
             top={0}
             zIndex={1}
             bg="bg.canvas"
-            py={2}
-            px={1}
+            pt={4}
+            pb={1}
           >
             <Text
-              fontSize="xs"
+              fontSize="2xs"
               fontWeight="bold"
-              color="app.primary"
+              color="fg.muted"
               letterSpacing="wider"
               textTransform="uppercase"
+              px={2}
             >
               {letter}
             </Text>
           </Box>
-          <VStack gap={1.5} align="stretch" mb={4}>
-            {groupExercises.map((exercise) => (
-              <ExerciseLibraryCard
-                key={exercise._id}
-                exercise={exercise}
-                horizontal
-                selected={selectedExercise?._id === exercise._id}
-                onClick={() => handleExerciseClick(exercise)}
-              />
-            ))}
-          </VStack>
+          {group.map((exercise) => (
+            <ExerciseRow
+              key={exercise._id}
+              exercise={exercise}
+              selected={selected?._id === exercise._id}
+              onClick={() => openSheet(exercise._id)}
+            />
+          ))}
         </Box>
       ))}
+
+      {/* La recherche crée aussi : un exercice absent se tape et existe,
+          exactement comme dans le sélecteur de l'atelier. */}
+      {canCreate && (
+        <Box
+          as="button"
+          w="full"
+          textAlign="left"
+          mt={2}
+          px={2}
+          py={2.5}
+          fontSize="sm"
+          color="app.primary"
+          borderTopWidth="1px"
+          borderColor="whiteAlpha.100"
+          _hover={{ bg: 'app.primary/12' }}
+          _focusVisible={{
+            outline: '2px solid',
+            outlineColor: 'app.primary',
+            outlineOffset: '-2px',
+          }}
+          onClick={create}
+        >
+          <HStack gap={1.5}>
+            <LuPlus size={13} />
+            <Text as="span">Créer «&nbsp;{trimmed}&nbsp;»</Text>
+          </HStack>
+        </Box>
+      )}
     </VStack>
   );
 
   return (
     <Container maxW="container.xl" py={6}>
-      <VStack gap={6} align="stretch">
-        {/* Header */}
-        <HStack justify="space-between" align="center">
-          <HStack gap={2}>
-            <LuLibrary size={20} color="var(--chakra-colors-app-primary)" />
-            <Heading size="lg">Mes exercices</Heading>
-          </HStack>
-          <Button
-            size="sm"
-            bg="app.primary"
-            color="black"
-            fontWeight="semibold"
-            _hover={{ bg: 'app.primary.hover' }}
-            onClick={() => navigate('/coach/exercises/new')}
-          >
-            <LuPlus />
-            Créer
-          </Button>
+      <VStack gap={4} align="stretch">
+        <HStack justify="space-between" align="baseline" gap={3}>
+          <Text fontSize="lg" fontWeight="bold">
+            Mes exercices
+          </Text>
+          <Text fontSize="xs" color="fg.muted" flexShrink={0}>
+            {filtered.length} exercice{filtered.length !== 1 ? 's' : ''}
+            {query && ` · « ${query} »`}
+          </Text>
         </HStack>
 
-        {/* Barre de recherche */}
         <HStack
-          bg="surface.card"
-          borderRadius="xl"
-          borderWidth="1px"
-          borderColor="surface.card"
-          px={4}
+          gap={2}
+          px={2}
+          py={1}
+          borderBottomWidth="1px"
+          borderColor="whiteAlpha.200"
           _focusWithin={{ borderColor: 'app.primary' }}
-          transition="border-color 0.2s ease"
+          transition="border-color 0.2s"
         >
-          <LuSearch size={16} color="var(--chakra-colors-fg-muted)" />
+          <LuSearch size={14} color="var(--chakra-colors-fg-muted)" />
           <Input
-            placeholder="Rechercher un exercice..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Chercher ou créer un exercice…"
+            aria-label="Chercher un exercice"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            variant="subtle"
+            bg="transparent"
             border="none"
-            _focus={{ boxShadow: 'none' }}
+            outline="none"
+            size="sm"
+            _focus={{ boxShadow: 'none', outline: 'none' }}
+            _focusVisible={{ boxShadow: 'none', outline: 'none' }}
           />
-          {searchQuery && (
+          {query && (
             <Box
-              cursor="pointer"
+              as="button"
+              aria-label="Effacer la recherche"
               color="fg.muted"
-              _hover={{ color: 'fg.muted' }}
-              onClick={() => setSearchQuery('')}
+              _hover={{ color: 'fg' }}
               flexShrink={0}
+              onClick={() => setQuery('')}
             >
-              <LuX size={14} />
+              <LuX size={13} />
             </Box>
           )}
         </HStack>
 
-        {/* Contenu */}
         {isLoading ? (
           <ExerciseSectionSkeleton titleWidth="250px" count={8} />
-        ) : filtered.length === 0 ? (
-          <Box
-            py={16}
-            textAlign="center"
-            color="fg.muted"
-            fontSize="sm"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderStyle="dashed"
-            borderColor="surface.card"
-          >
-            {searchQuery
-              ? `Aucun exercice pour « ${searchQuery} »`
-              : 'Aucun exercice — créez votre premier exercice'}
+        ) : filtered.length === 0 && !canCreate ? (
+          <Box py={16} textAlign="center" color="fg.muted" fontSize="sm">
+            Aucun exercice — tapez un nom pour en créer un
           </Box>
         ) : (
           <>
@@ -358,34 +258,25 @@ const Exercises = () => {
               gap={{ base: 0, lg: 8 }}
               alignItems="start"
             >
-              {/* Liste alphabétique */}
-              {alphabetList}
+              <Box minW={0}>{list}</Box>
 
-              {/* Panneau détail (desktop uniquement) */}
               {isDesktop && (
-                <Box position="sticky" top="80px" alignSelf="start">
-                  {selectedExercise ? (
-                    <DetailPanel
-                      exercise={selectedExercise}
-                      onClose={() => setSelectedExercise(null)}
-                      onEdit={() =>
-                        navigate(`/coach/exercises/${selectedExercise._id}`)
-                      }
-                    />
+                <Box
+                  position="sticky"
+                  top="80px"
+                  alignSelf="start"
+                  minW={0}
+                  pt={4}
+                  borderLeftWidth="2px"
+                  borderLeftColor={selected ? 'app.primary' : 'whiteAlpha.200'}
+                  pl={5}
+                >
+                  {selected ? (
+                    sheet
                   ) : (
-                    <Box
-                      bg="surface.card"
-                      borderRadius="xl"
-                      borderWidth="1px"
-                      borderStyle="dashed"
-                      borderColor="surface.card"
-                      p={8}
-                      textAlign="center"
-                      color="fg.muted"
-                      fontSize="sm"
-                    >
-                      Sélectionnez un exercice pour voir ses détails
-                    </Box>
+                    <Text fontSize="sm" color="fg.muted">
+                      Choisissez un exercice pour voir et modifier sa fiche.
+                    </Text>
                   )}
                 </Box>
               )}
@@ -411,11 +302,12 @@ const Exercises = () => {
                     {letters.map((letter) => (
                       <Box
                         key={letter}
+                        as="button"
+                        aria-label={`Aller à la lettre ${letter}`}
                         onClick={() => scrollToLetter(letter)}
                         fontSize="9px"
                         fontWeight="bold"
                         color="whiteAlpha.800"
-                        cursor="pointer"
                         px={1}
                         lineHeight="1.6"
                         _hover={{ color: 'app.primary' }}
@@ -431,6 +323,69 @@ const Exercises = () => {
           </>
         )}
       </VStack>
+
+      {/* Sous 1024 px la fiche s'ouvre en tiroir : la même fiche, pas un
+          second écran avec ses propres règles. */}
+      <Drawer.Root
+        open={!isDesktop && !!selected}
+        onOpenChange={(e) => !e.open && closeSheet()}
+        size="full"
+      >
+        <Portal>
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content bg="bg.canvas">
+              <Drawer.Body p={5}>{sheet}</Drawer.Body>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Portal>
+      </Drawer.Root>
+
+      <Dialog.Root
+        role="alertdialog"
+        open={!!pendingDeletion}
+        onOpenChange={(e) => !e.open && setPendingDeletion(null)}
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content
+              bg="bg.canvas"
+              borderColor="whiteAlpha.100"
+              borderWidth="1px"
+              maxW="sm"
+            >
+              <Dialog.Header>
+                <Dialog.Title>Supprimer cet exercice ?</Dialog.Title>
+              </Dialog.Header>
+              <Dialog.Body>
+                <Text color="fg.muted" fontSize="sm">
+                  «&nbsp;{pendingDeletion?.name}&nbsp;» sera retiré de votre
+                  bibliothèque. Cette action est définitive.
+                </Text>
+              </Dialog.Body>
+              <Dialog.Footer gap={2} flexWrap="wrap">
+                <Button
+                  variant="ghost"
+                  color="fg.muted"
+                  onClick={() => setPendingDeletion(null)}
+                >
+                  Conserver
+                </Button>
+                <Button
+                  bg="app.error"
+                  color="bg.canvas"
+                  fontWeight="bold"
+                  onClick={confirmDeletion}
+                  loading={deleteMutation.isPending}
+                >
+                  Supprimer
+                </Button>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </Container>
   );
 };

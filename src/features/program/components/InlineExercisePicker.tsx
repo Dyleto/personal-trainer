@@ -1,6 +1,6 @@
 import { Box, HStack, Input, Spinner, Text, VStack } from '@chakra-ui/react';
 import { useMemo, useRef, useState } from 'react';
-import { LuPlus, LuSearch } from 'react-icons/lu';
+import { LuArrowUpRight, LuPlus, LuSearch } from 'react-icons/lu';
 import { Exercise } from '@/types';
 import { useExercises } from '@/features/exercise/hooks/useExercises';
 import { useCreateExercise } from '@/features/exercise/hooks/useExerciseMutations';
@@ -20,6 +20,9 @@ interface InlineExercisePickerProps {
   /** Exercices déjà posés ailleurs dans ce programme — gratuit, il est en
    *  mémoire, et c'est de très loin le groupe le plus utile. */
   inProgram: Exercise[];
+  /** Ouvre la fiche de l'exercice par-dessus l'atelier. On ne navigue pas :
+   *  quitter la page perdrait les modifications non enregistrées. */
+  onOpenSheet?: (exercise: Exercise) => void;
 }
 
 const GROUP_IN_PROGRAM = 'Déjà dans ce programme';
@@ -31,6 +34,7 @@ export const InlineExercisePicker = ({
   onSelect,
   onClose,
   inProgram,
+  onOpenSheet,
 }: InlineExercisePickerProps) => {
   const { data: exercises = [], isLoading } = useExercises();
   const createMutation = useCreateExercise();
@@ -138,6 +142,7 @@ export const InlineExercisePicker = ({
 
   return (
     <Box
+      ref={rootRef}
       borderWidth="1px"
       borderColor="app.primary.border"
       borderRadius="md"
@@ -206,20 +211,46 @@ export const InlineExercisePicker = ({
                     {option.group}
                   </Text>
                 )}
-                <Box
-                  as="button"
-                  w="full"
-                  textAlign="left"
-                  px={3}
-                  py={1.5}
-                  fontSize="sm"
-                  color={isActive ? 'fg' : 'fg.muted'}
+                <HStack
+                  gap={0}
                   bg={isActive ? 'app.primary/12' : 'transparent'}
                   onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => pick(index)}
                 >
-                  {option.exercise.name}
-                </Box>
+                  <Box
+                    as="button"
+                    flex={1}
+                    minW={0}
+                    textAlign="left"
+                    px={3}
+                    py={1.5}
+                    fontSize="sm"
+                    color={isActive ? 'fg' : 'fg.muted'}
+                    onClick={() => pick(index)}
+                  >
+                    {option.exercise.name}
+                  </Box>
+                  {/* La fiche s'ouvre par-dessus l'atelier : on peut corriger
+                      une consigne ou coller une vidéo sans perdre le
+                      programme en cours d'édition. */}
+                  {onOpenSheet && (
+                    <Box
+                      as="button"
+                      aria-label={`Ouvrir la fiche de ${option.exercise.name}`}
+                      display="flex"
+                      flexShrink={0}
+                      px={2.5}
+                      py={1.5}
+                      color="fg.muted"
+                      opacity={isActive ? 1 : 0}
+                      _hover={{ color: 'app.primary' }}
+                      _focusVisible={{ opacity: 1 }}
+                      transition="opacity 0.12s"
+                      onClick={() => onOpenSheet(option.exercise)}
+                    >
+                      <LuArrowUpRight size={13} />
+                    </Box>
+                  )}
+                </HStack>
               </Box>
             );
           })}

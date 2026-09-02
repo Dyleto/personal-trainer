@@ -13,7 +13,7 @@ import {
   useBreakpointValue,
   VStack,
 } from '@chakra-ui/react';
-import { LuArrowLeft, LuSave, LuX } from 'react-icons/lu';
+import { LuArrowLeft, LuChevronRight, LuSave, LuX } from 'react-icons/lu';
 import { useClientDetails } from '@/features/coach/hooks/useClientDetails';
 import { useClientHistory } from '@/features/coach/hooks/useClientHistory';
 import { useProgramEditor } from '@/features/program/hooks/useProgramEditor';
@@ -21,6 +21,7 @@ import { useUpdateProgramSessions } from '@/features/program/hooks/useProgramMut
 import { ClientProgramTab } from '@/features/coach/components/ClientProgramTab';
 import { SessionRail } from '@/features/coach/components/SessionRail';
 import { SessionFeedbackStrip } from '@/features/coach/components/SessionFeedbackStrip';
+import { diffProgram, summarizeChanges } from '@/features/program/diffProgram';
 import { COACH_ROUTES } from '@/config/routes';
 import { Exercise } from '@/types';
 
@@ -33,6 +34,7 @@ const ClientDetails = () => {
   const { program, initialize, actions } = useProgramEditor(null);
   const updateProgramMutation = useUpdateProgramSessions(clientId!);
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+  const [isChangeListOpen, setIsChangeListOpen] = useState(false);
 
   useEffect(() => {
     if (client?.program) initialize(client.program);
@@ -73,6 +75,18 @@ const ClientDetails = () => {
     !!client &&
     JSON.stringify(program.sessions) !==
       JSON.stringify(client.program.sessions);
+
+  // Ce qui a changé, en clair. La comparaison JSON reste l'autorité sur
+  // « peut-on enregistrer » ; ceci ne sert qu'à le raconter.
+  const changes = useMemo(
+    () =>
+      isDirty && program && client
+        ? diffProgram(client.program.sessions, program.sessions)
+        : [],
+    [isDirty, program, client]
+  );
+  const changeSummary =
+    summarizeChanges(changes) || 'Modifications non enregistrées';
 
   const handleSave = () => {
     if (!program) return;
@@ -264,36 +278,100 @@ const ClientDetails = () => {
       </Stack>
 
       {isDirty && (
-        <HStack
-          justify="flex-end"
-          gap={3}
+        <Box
           position="sticky"
           bottom={0}
           bg="bg.canvas"
-          py={4}
           mt={6}
           borderTop="1px solid"
           borderColor="whiteAlpha.100"
         >
-          <Text fontSize="sm" color="fg.muted" mr="auto">
-            Modifications non enregistrées
-          </Text>
-          <Button
-            variant="ghost"
-            onClick={() => setIsCancelConfirmOpen(true)}
-            disabled={updateProgramMutation.isPending}
-          >
-            <LuX /> Annuler
-          </Button>
-          <Button
-            bg="app.primary"
-            color="bg.canvas"
-            onClick={handleSave}
-            loading={updateProgramMutation.isPending}
-          >
-            <LuSave /> Enregistrer
-          </Button>
-        </HStack>
+          {/* Le détail est replié par défaut : la barre annonce combien, elle
+              n'impose pas la liste. On l'ouvre quand on ne se rappelle plus. */}
+          {isChangeListOpen && changes.length > 0 && (
+            <VStack
+              align="stretch"
+              gap={0}
+              maxH="180px"
+              overflowY="auto"
+              pt={3}
+            >
+              {changes.map((change, index) => (
+                <HStack
+                  key={`${change.sessionOrder}-${change.label}-${index}`}
+                  gap={2}
+                  py={0.5}
+                  align="baseline"
+                >
+                  <Text
+                    as="span"
+                    fontSize="2xs"
+                    fontFamily="mono"
+                    color="app.primary"
+                    flexShrink={0}
+                    w="24px"
+                  >
+                    {change.sessionOrder > 0 ? `S${change.sessionOrder}` : '—'}
+                  </Text>
+                  <Text as="span" fontSize="xs" color="fg.muted">
+                    {change.label}
+                  </Text>
+                </HStack>
+              ))}
+            </VStack>
+          )}
+
+          <HStack justify="flex-end" gap={3} py={4}>
+            {changes.length > 0 ? (
+              <Box
+                as="button"
+                mr="auto"
+                minW={0}
+                textAlign="left"
+                aria-expanded={isChangeListOpen}
+                aria-label={`${changeSummary} — voir le détail`}
+                onClick={() => setIsChangeListOpen((open) => !open)}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'app.primary',
+                  outlineOffset: '2px',
+                }}
+              >
+                <HStack gap={1.5} color="fg.muted" _hover={{ color: 'fg' }}>
+                  <Box
+                    display="flex"
+                    transform={isChangeListOpen ? 'rotate(90deg)' : 'none'}
+                    transition="transform 0.15s"
+                  >
+                    <LuChevronRight size={13} />
+                  </Box>
+                  <Text as="span" fontSize="sm">
+                    {changeSummary}
+                  </Text>
+                </HStack>
+              </Box>
+            ) : (
+              <Text fontSize="sm" color="fg.muted" mr="auto">
+                {changeSummary}
+              </Text>
+            )}
+            <Button
+              variant="ghost"
+              onClick={() => setIsCancelConfirmOpen(true)}
+              disabled={updateProgramMutation.isPending}
+            >
+              <LuX /> Annuler
+            </Button>
+            <Button
+              bg="app.primary"
+              color="bg.canvas"
+              onClick={handleSave}
+              loading={updateProgramMutation.isPending}
+            >
+              <LuSave /> Enregistrer
+            </Button>
+          </HStack>
+        </Box>
       )}
 
       <Dialog.Root

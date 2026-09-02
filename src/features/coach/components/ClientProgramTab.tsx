@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Dialog,
+  Drawer,
   HStack,
   Portal,
   Text,
@@ -39,6 +40,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { ExerciseSheet } from '@/features/exercise';
 import { useOutsideDismiss } from '@/hooks/useOutsideDismiss';
 import { getBlockLabel } from '@/features/program/constants';
 
@@ -112,6 +114,7 @@ export const ClientProgramTab = ({
   const [pendingRemoval, setPendingRemoval] = useState<SessionBlock | null>(
     null
   );
+  const [sheetExercise, setSheetExercise] = useState<Exercise | null>(null);
 
   const blockSelectorRef = useRef<HTMLDivElement>(null);
   const closeBlockSelector = useCallback(() => setShowBlockSelector(false), []);
@@ -179,6 +182,7 @@ export const ClientProgramTab = ({
                           ? () => setSelectorBlockId(block._id)
                           : undefined
                       }
+                      onOpenExerciseSheet={setSheetExercise}
                     />
                   )}
                 </SortableBlock>
@@ -271,6 +275,8 @@ export const ClientProgramTab = ({
       {selectorBlockId && (
         <ExerciseSelectorPanel
           isOpen={!!selectorBlockId}
+          inProgram={inProgram}
+          onOpenSheet={setSheetExercise}
           onClose={() => setSelectorBlockId(null)}
           onSelect={(exercise) => {
             onAddExercise(selectorBlockId, exercise);
@@ -278,6 +284,30 @@ export const ClientProgramTab = ({
           }}
         />
       )}
+
+      {/* La fiche par-dessus l'atelier : on corrige une consigne ou on colle
+          une vidéo sans naviguer, donc sans perdre le programme en cours. */}
+      <Drawer.Root
+        open={!!sheetExercise}
+        onOpenChange={(e) => !e.open && setSheetExercise(null)}
+        size={{ base: 'full', md: 'md' }}
+      >
+        <Portal>
+          <Drawer.Backdrop />
+          <Drawer.Positioner>
+            <Drawer.Content bg="bg.canvas">
+              <Drawer.Body p={5}>
+                {sheetExercise && (
+                  <ExerciseSheet
+                    exercise={sheetExercise}
+                    onClose={() => setSheetExercise(null)}
+                  />
+                )}
+              </Drawer.Body>
+            </Drawer.Content>
+          </Drawer.Positioner>
+        </Portal>
+      </Drawer.Root>
 
       <Dialog.Root
         role="alertdialog"

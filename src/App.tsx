@@ -22,7 +22,6 @@ const Clients = React.lazy(() => import('./pages/Coach/Clients'));
 const ClientDetails = React.lazy(() => import('./pages/Coach/ClientDetails'));
 const ClientJournal = React.lazy(() => import('./pages/Coach/ClientJournal'));
 const Exercises = React.lazy(() => import('./pages/Coach/Exercises'));
-const ExerciseForm = React.lazy(() => import('./pages/Coach/ExerciseForm'));
 
 const ClientLayout = React.lazy(() => import('./pages/Client/ClientLayout'));
 const Today = React.lazy(() => import('./pages/Client/Today'));
@@ -62,9 +61,15 @@ const router = createBrowserRouter(
           element={<ClientDetails />}
         />
         <Route path="clients/:clientId/journal" element={<ClientJournal />} />
+        {/* La fiche d'un exercice s'ouvre dans la bibliothèque, pas sur un
+            écran de saisie séparé : même route, panneau ou tiroir selon la
+            largeur. « new » n'existe plus — on crée en tapant un nom. */}
         <Route path="exercises" element={<Exercises />} />
-        <Route path="exercises/new" element={<ExerciseForm />} />
-        <Route path="exercises/:exerciseId" element={<ExerciseForm />} />
+        <Route
+          path="exercises/new"
+          element={<Navigate to="/coach/exercises" replace />}
+        />
+        <Route path="exercises/:exerciseId" element={<Exercises />} />
         <Route
           path="exercises/:exerciseId/edit"
           element={<ExerciseEditRedirect />}

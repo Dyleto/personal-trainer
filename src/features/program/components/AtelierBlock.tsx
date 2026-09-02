@@ -257,6 +257,8 @@ interface AtelierBlockProps {
   /** Fourni sous 768 px : le choix d'exercice passe alors par le tiroir plein
    *  écran plutôt que par la liste déroulante, trop à l'étroit. */
   onRequestExercisePicker?: () => void;
+  /** Ouvre la fiche d'un exercice par-dessus l'atelier. */
+  onOpenExerciseSheet?: (exercise: Exercise) => void;
 }
 
 /**
@@ -278,6 +280,7 @@ export const AtelierBlock = ({
   onRemoveExercise,
   onUpdateExercise,
   onRequestExercisePicker,
+  onOpenExerciseSheet,
 }: AtelierBlockProps) => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const accentColor = ACCENT_COLOR[getBlockAccent(block.type)];
@@ -377,6 +380,7 @@ export const AtelierBlock = ({
             inProgram={inProgram}
             onSelect={onAddExercise}
             onClose={() => setIsPickerOpen(false)}
+            onOpenSheet={onOpenExerciseSheet}
           />
         ) : (
           <Box

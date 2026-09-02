@@ -1,266 +1,236 @@
 import {
   Box,
-  Button,
   Drawer,
   HStack,
   Input,
+  Portal,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useCreateExercise } from '@/features/exercise/hooks/useExerciseMutations';
-import { useExerciseFilter } from '@/features/exercise/hooks/useExerciseFilter';
-import { useExercises } from '@/features/exercise/hooks/useExercises';
-import { Exercise } from '@/types';
 import { useMemo, useState } from 'react';
-import { LuDumbbell, LuLibrary, LuPlus, LuSearch, LuX } from 'react-icons/lu';
-import { Heading } from '@chakra-ui/react';
-import { ExerciseEditor, ExerciseLibraryCard } from '@/features/exercise';
+import { LuArrowUpRight, LuPlus, LuSearch, LuX } from 'react-icons/lu';
+import { useCreateExercise } from '@/features/exercise/hooks/useExerciseMutations';
+import { useExercises } from '@/features/exercise/hooks/useExercises';
+import { ExerciseRow } from '@/features/exercise';
+import { Exercise } from '@/types';
+import { stripAccents } from '@/utils/formatters';
+
+const normalize = (s: string) => stripAccents(s).toLowerCase().trim();
+
+const GROUP_IN_PROGRAM = 'Déjà dans ce programme';
+const GROUP_MOST_USED = 'Vos plus utilisés';
+const GROUP_ALL = 'Toute la bibliothèque';
+const GROUP_RESULTS = 'Résultats';
 
 interface ExerciseSelectorPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (exercise: Exercise) => void;
+  /** Exercices déjà posés ailleurs dans ce programme. */
+  inProgram?: Exercise[];
+  /** Ouvre la fiche de l'exercice sans quitter l'atelier. */
+  onOpenSheet?: (exercise: Exercise) => void;
 }
 
+/**
+ * Le choix d'exercice sous 768 px.
+ *
+ * C'est le même sélecteur que sur desktop, dans un tiroir : mêmes groupes,
+ * même création par la recherche, mêmes lignes. Il proposait auparavant
+ * « Récemment ajoutés » puis « Tous les exercices », si bien que les mêmes
+ * exercices apparaissaient deux fois dans une liste de cartes.
+ */
 export const ExerciseSelectorPanel = ({
   isOpen,
   onClose,
   onSelect,
+  inProgram = [],
+  onOpenSheet,
 }: ExerciseSelectorPanelProps) => {
   const { data: exercises = [], isLoading } = useExercises();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [onCreateMode, setOnCreateMode] = useState(false);
-
   const createMutation = useCreateExercise();
-  const filteredExercises = useExerciseFilter(exercises, searchQuery);
+  const [query, setQuery] = useState('');
 
-  // 5 exercices les plus récents (pour accès rapide)
-  const recentExercises = useMemo(
-    () =>
-      [...exercises]
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 5),
-    [exercises]
-  );
+  const groups = useMemo<{ label: string; exercises: Exercise[] }[]>(() => {
+    const q = normalize(query);
 
-  const handleSave = (exercise: Partial<Exercise>) => {
-    createMutation.mutate(exercise, {
-      onSuccess: (response) => {
-        onSelect(response.data);
-        setOnCreateMode(false);
-      },
-    });
+    if (q.length > 0) {
+      const matches = exercises.filter((e) => normalize(e.name).includes(q));
+      matches.sort((a, b) => {
+        const aStarts = normalize(a.name).startsWith(q);
+        const bStarts = normalize(b.name).startsWith(q);
+        if (aStarts !== bStarts) return aStarts ? -1 : 1;
+        const byUsage = (b.usageCount ?? 0) - (a.usageCount ?? 0);
+        if (byUsage !== 0) return byUsage;
+        return a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' });
+      });
+      return [{ label: GROUP_RESULTS, exercises: matches }];
+    }
+
+    const inProgramIds = new Set(inProgram.map((e) => e._id));
+    const mostUsed = exercises
+      .filter((e) => !inProgramIds.has(e._id) && (e.usageCount ?? 0) > 0)
+      .sort((a, b) => (b.usageCount ?? 0) - (a.usageCount ?? 0))
+      .slice(0, 5);
+    const mostUsedIds = new Set(mostUsed.map((e) => e._id));
+    const rest = exercises
+      .filter((e) => !inProgramIds.has(e._id) && !mostUsedIds.has(e._id))
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' })
+      );
+
+    return [
+      { label: GROUP_IN_PROGRAM, exercises: inProgram },
+      { label: GROUP_MOST_USED, exercises: mostUsed },
+      { label: GROUP_ALL, exercises: rest },
+    ].filter((g) => g.exercises.length > 0);
+  }, [exercises, inProgram, query]);
+
+  const trimmed = query.trim();
+  const canCreate =
+    trimmed.length > 0 &&
+    !exercises.some((e) => normalize(e.name) === normalize(trimmed));
+
+  const create = () => {
+    createMutation.mutate(
+      { name: trimmed },
+      {
+        onSuccess: (response) => {
+          setQuery('');
+          onSelect(response.data);
+        },
+      }
+    );
   };
-
-  const isSearching = searchQuery.trim().length > 0;
 
   return (
     <Drawer.Root
       open={isOpen}
       onOpenChange={(e) => !e.open && onClose()}
-      size={{ base: 'full', md: 'md', lg: 'lg', xl: 'xl' }}
-      modal={false}
-      preventScroll={false}
+      size="full"
     >
-      <Drawer.Positioner pointerEvents="none">
-        <Drawer.Content bg="bg.canvas">
-          {/* Header */}
-          <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
-            <HStack justify="space-between" align="center">
-              <HStack gap={2}>
-                {onCreateMode ? (
-                  <LuDumbbell
-                    size={20}
-                    color="var(--chakra-colors-app-primary)"
-                  />
-                ) : (
-                  <LuLibrary
-                    size={20}
-                    color="var(--chakra-colors-app-primary)"
-                  />
-                )}
-                <Heading size="lg">
-                  {onCreateMode ? 'Créer un exercice' : 'Mes exercices'}
-                </Heading>
-              </HStack>
-              <HStack gap={2}>
-                {onCreateMode ? (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setOnCreateMode(false)}
-                  >
-                    Annuler
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    bg="app.primary"
-                    color="black"
-                    fontWeight="semibold"
-                    _hover={{ bg: 'app.primary.hover' }}
-                    onClick={() => setOnCreateMode(true)}
-                  >
-                    <LuPlus />
-                    Créer
-                  </Button>
-                )}
-                <Drawer.CloseTrigger asChild>
-                  <Button size="sm" variant="ghost" onClick={onClose}>
-                    <LuX />
-                  </Button>
-                </Drawer.CloseTrigger>
-              </HStack>
-            </HStack>
-          </Drawer.Header>
-
-          <Drawer.Body p={4}>
-            {onCreateMode ? (
-              <ExerciseEditor
-                onSave={handleSave}
-                onCancel={() => setOnCreateMode(false)}
-              />
-            ) : (
-              <VStack gap={4} align="stretch" h="full">
-                {/* Recherche */}
+      <Portal>
+        <Drawer.Backdrop />
+        <Drawer.Positioner>
+          <Drawer.Content bg="bg.canvas">
+            <Drawer.Body p={4}>
+              <VStack align="stretch" gap={0}>
                 <HStack
-                  bg="surface.card"
-                  borderRadius="xl"
-                  borderWidth="1px"
-                  borderColor="surface.card"
-                  px={3}
+                  gap={2}
+                  px={2}
+                  py={1}
+                  borderBottomWidth="1px"
+                  borderColor="whiteAlpha.200"
                   _focusWithin={{ borderColor: 'app.primary' }}
-                  transition="border-color 0.2s ease"
+                  transition="border-color 0.2s"
                 >
                   <LuSearch size={14} color="var(--chakra-colors-fg-muted)" />
                   <Input
-                    placeholder="Rechercher un exercice..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                    placeholder="Chercher ou créer un exercice…"
+                    aria-label="Chercher un exercice"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    variant="subtle"
+                    bg="transparent"
                     border="none"
-                    _focus={{ boxShadow: 'none' }}
+                    outline="none"
                     size="sm"
+                    _focus={{ boxShadow: 'none', outline: 'none' }}
+                    _focusVisible={{ boxShadow: 'none', outline: 'none' }}
                   />
-                  {searchQuery && (
-                    <Box
-                      cursor="pointer"
-                      color="fg.muted"
-                      _hover={{ color: 'fg.muted' }}
-                      onClick={() => setSearchQuery('')}
-                      flexShrink={0}
-                    >
-                      <LuX size={12} />
-                    </Box>
-                  )}
+                  <Box
+                    as="button"
+                    aria-label="Fermer le sélecteur"
+                    color="fg.muted"
+                    _hover={{ color: 'fg' }}
+                    flexShrink={0}
+                    onClick={onClose}
+                  >
+                    <LuX size={14} />
+                  </Box>
                 </HStack>
 
-                {isLoading ? (
-                  <Box textAlign="center" py={10}>
-                    <Spinner />
+                {isLoading && (
+                  <Box py={8} textAlign="center">
+                    <Spinner size="sm" />
                   </Box>
-                ) : isSearching ? (
-                  /* Résultats de recherche */
-                  <VStack gap={1.5} align="stretch">
-                    <Text fontSize="xs" color="fg.muted" px={1}>
-                      {filteredExercises.length} résultat
-                      {filteredExercises.length !== 1 ? 's' : ''}
-                    </Text>
-                    {filteredExercises.length === 0 ? (
-                      <Box
-                        py={8}
-                        textAlign="center"
-                        color="fg.muted"
-                        fontSize="sm"
-                      >
-                        Aucun exercice pour « {searchQuery} »
-                      </Box>
-                    ) : (
-                      filteredExercises.map((exercise) => (
-                        <ExerciseLibraryCard
-                          key={exercise._id}
-                          exercise={exercise}
-                          horizontal
-                          onClick={() => onSelect(exercise)}
-                        />
-                      ))
-                    )}
-                  </VStack>
-                ) : (
-                  /* Vue par défaut : récents + tous */
-                  <VStack gap={5} align="stretch">
-                    {/* Récemment ajoutés */}
-                    {recentExercises.length > 0 && (
-                      <VStack gap={2} align="stretch">
-                        <Text
-                          fontSize="xs"
-                          fontWeight="bold"
-                          color="fg.muted"
-                          letterSpacing="wider"
-                          textTransform="uppercase"
-                          px={1}
-                        >
-                          Récemment ajoutés
-                        </Text>
-                        {recentExercises.map((exercise) => (
-                          <ExerciseLibraryCard
-                            key={exercise._id}
-                            exercise={exercise}
-                            horizontal
-                            onClick={() => onSelect(exercise)}
-                          />
-                        ))}
-                      </VStack>
-                    )}
+                )}
 
-                    {/* Tous les exercices */}
-                    <VStack gap={2} align="stretch">
+                {!isLoading &&
+                  groups.map((group) => (
+                    <Box key={group.label}>
                       <Text
-                        fontSize="xs"
+                        fontSize="2xs"
                         fontWeight="bold"
                         color="fg.muted"
-                        letterSpacing="wider"
                         textTransform="uppercase"
-                        px={1}
+                        letterSpacing="wider"
+                        px={2}
+                        pt={4}
+                        pb={1}
                       >
-                        Tous les exercices ({exercises.length})
+                        {group.label}
                       </Text>
-                      {exercises.length === 0 ? (
-                        <Box
-                          py={8}
-                          textAlign="center"
-                          color="fg.muted"
-                          fontSize="sm"
-                        >
-                          Aucun exercice — créez votre premier exercice
-                        </Box>
-                      ) : (
-                        [...exercises]
-                          .sort((a, b) =>
-                            a.name.localeCompare(b.name, 'fr', {
-                              sensitivity: 'base',
-                            })
-                          )
-                          .map((exercise) => (
-                            <ExerciseLibraryCard
-                              key={exercise._id}
-                              exercise={exercise}
-                              horizontal
-                              onClick={() => onSelect(exercise)}
-                            />
-                          ))
-                      )}
-                    </VStack>
-                  </VStack>
+                      {group.exercises.map((exercise) => (
+                        <ExerciseRow
+                          key={`${group.label}-${exercise._id}`}
+                          exercise={exercise}
+                          onClick={() => onSelect(exercise)}
+                          extra={
+                            onOpenSheet && (
+                              <Box
+                                as="button"
+                                aria-label={`Ouvrir la fiche de ${exercise.name}`}
+                                display="flex"
+                                color="fg.muted"
+                                _hover={{ color: 'app.primary' }}
+                                px={2}
+                                py={1}
+                                onClick={() => onOpenSheet(exercise)}
+                              >
+                                <LuArrowUpRight size={13} />
+                              </Box>
+                            )
+                          }
+                        />
+                      ))}
+                    </Box>
+                  ))}
+
+                {!isLoading && groups.length === 0 && !canCreate && (
+                  <Box py={8} textAlign="center" fontSize="sm" color="fg.muted">
+                    Aucun exercice
+                  </Box>
+                )}
+
+                {canCreate && (
+                  <Box
+                    as="button"
+                    w="full"
+                    textAlign="left"
+                    mt={2}
+                    px={2}
+                    py={2.5}
+                    fontSize="sm"
+                    color="app.primary"
+                    borderTopWidth="1px"
+                    borderColor="whiteAlpha.100"
+                    _hover={{ bg: 'app.primary/12' }}
+                    onClick={create}
+                  >
+                    <HStack gap={1.5}>
+                      <LuPlus size={13} />
+                      <Text as="span">Créer «&nbsp;{trimmed}&nbsp;»</Text>
+                    </HStack>
+                  </Box>
                 )}
               </VStack>
-            )}
-          </Drawer.Body>
-        </Drawer.Content>
-      </Drawer.Positioner>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer.Positioner>
+      </Portal>
     </Drawer.Root>
   );
 };
