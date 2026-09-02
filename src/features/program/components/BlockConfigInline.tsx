@@ -1,4 +1,4 @@
-import { HStack, Text } from '@chakra-ui/react';
+import { Box, Flex, HStack, Text } from '@chakra-ui/react';
 import { SessionBlock } from '@/types';
 import { InlineSequence, InlineValue } from './InlineValue';
 
@@ -131,12 +131,16 @@ export const BlockConfigInline = ({
     case 'pyramid':
     case 'ladder':
       return (
-        <HStack gap={2} align="flex-start">
-          <InlineSequence
-            value={block.repsScheme}
-            onChange={(v) => onUpdate({ repsScheme: v })}
-            ariaLabel="Paliers de répétitions"
-          />
+        // Une pyramide peut faire treize paliers : la séquence doit pouvoir
+        // se replier et passer à la ligne au lieu d'élargir l'en-tête.
+        <Flex gap={2} align="baseline" wrap="wrap" rowGap={1} minW={0}>
+          <Box minW={0}>
+            <InlineSequence
+              value={block.repsScheme}
+              onChange={(v) => onUpdate({ repsScheme: v })}
+              ariaLabel="Paliers de répétitions"
+            />
+          </Box>
           <HStack gap={1} flexShrink={0}>
             {/* « repos aucun » ne se dit pas : quand le réglage est vide, la
                 valeur porte la phrase entière. */}
@@ -151,7 +155,7 @@ export const BlockConfigInline = ({
               clearable
             />
           </HStack>
-        </HStack>
+        </Flex>
       );
   }
 };

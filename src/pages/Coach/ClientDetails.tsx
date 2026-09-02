@@ -317,21 +317,21 @@ const ClientDetails = () => {
                 enregistrés.
               </Text>
             </Dialog.Body>
-            <Dialog.Footer gap={3}>
-              <Button
-                bg="app.primary"
-                color="bg.canvas"
-                fontWeight="bold"
-                onClick={confirmDiscard}
-              >
-                Annuler les modifications
-              </Button>
+            <Dialog.Footer gap={2} flexWrap="wrap">
               <Button
                 variant="ghost"
                 color="fg.muted"
                 onClick={() => setIsCancelConfirmOpen(false)}
               >
-                Continuer l'édition
+                Continuer
+              </Button>
+              <Button
+                bg="app.error"
+                color="bg.canvas"
+                fontWeight="bold"
+                onClick={confirmDiscard}
+              >
+                Abandonner
               </Button>
             </Dialog.Footer>
           </Dialog.Content>

@@ -206,6 +206,8 @@ export const InlineSequence = ({
       }}
       px={1}
       borderRadius="sm"
+      textAlign="left"
+      whiteSpace="normal"
       textDecoration="underline"
       textDecorationColor="transparent"
       textUnderlineOffset="3px"

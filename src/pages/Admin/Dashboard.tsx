@@ -436,7 +436,7 @@ const AdminDashboard = () => {
               <Box py={12} textAlign="center">
                 <LuTrendingUp
                   size={28}
-                  color="gray"
+                  color="var(--chakra-colors-fg-muted)"
                   style={{ margin: '0 auto 8px' }}
                 />
                 <Text color="fg.muted" fontSize="sm">

@@ -1,4 +1,12 @@
-import { Box, HStack, IconButton, Input, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  HStack,
+  IconButton,
+  Input,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { useState } from 'react';
 import {
   LuArrowLeftRight,
@@ -84,12 +92,16 @@ const ExerciseRow = ({
 
   return (
     <HStack
-      role="group"
       py={1.5}
       gap={3}
       align="center"
       borderTopWidth="1px"
       borderColor="whiteAlpha.100"
+      css={{
+        '&:hover [data-row-gutter], &:focus-within [data-row-gutter]': {
+          opacity: 1,
+        },
+      }}
     >
       <HStack gap={1} flex={1} minW={0}>
         {showPrefix && (
@@ -200,11 +212,10 @@ const ExerciseRow = ({
       {/* Gouttière : révélée au survol ou au focus clavier, toujours visible
           au tactile où le survol n'existe pas. */}
       <HStack
+        data-row-gutter
         gap={0}
         flexShrink={0}
         opacity={{ base: 1, md: 0 }}
-        _groupHover={{ opacity: 1 }}
-        _groupFocusWithin={{ opacity: 1 }}
         transition="opacity 0.15s"
       >
         {!ownMetrics && (
@@ -272,8 +283,11 @@ export const AtelierBlock = ({
   const accentColor = ACCENT_COLOR[getBlockAccent(block.type)];
 
   return (
+    // « group » et non role="group" : en Chakra v3, _groupHover compile vers
+    // « .group:hover & ». Avec role="group" la règle ne s'applique jamais et
+    // la gouttière reste invisible sur desktop.
     <Box
-      role="group"
+      className="group"
       borderLeftWidth="2px"
       borderLeftColor={accentColor}
       pl={3}
@@ -281,7 +295,10 @@ export const AtelierBlock = ({
     >
       {/* ── En-tête : type · nom libre · réglages ── */}
       <HStack justify="space-between" align="flex-start" gap={3} pb={1}>
-        <HStack gap={2} align="baseline" minW={0}>
+        {/* Titre et réglages partagent une seule colonne souple. Les réglages
+            passent à la ligne quand ils ne tiennent plus — une pyramide de
+            treize paliers poussait sinon la gouttière hors de l'écran. */}
+        <Flex flex={1} minW={0} wrap="wrap" align="baseline" gap={2} rowGap={1}>
           <Text
             fontSize="xs"
             fontWeight="bold"
@@ -301,10 +318,12 @@ export const AtelierBlock = ({
             ariaLabel={`Nom personnalisé du bloc ${getBlockLabel(block.type)}`}
             width="160px"
           />
-        </HStack>
+          <Box minW={0}>
+            <BlockConfigInline block={block} onUpdate={onUpdate} />
+          </Box>
+        </Flex>
 
         <HStack gap={1} flexShrink={0} align="flex-start">
-          <BlockConfigInline block={block} onUpdate={onUpdate} />
           <HStack
             gap={0}
             opacity={{ base: 1, md: 0 }}

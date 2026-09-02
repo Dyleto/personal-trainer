@@ -2,6 +2,7 @@ import { BlockType } from '@/types';
 import {
   BLOCK_FAMILIES,
   BLOCK_TYPE_CONFIG,
+  getBlockAccent,
   getBlockDescription,
 } from '@/features/program/constants';
 import { Box, Grid, HStack, Text, VStack } from '@chakra-ui/react';
@@ -9,6 +10,12 @@ import { Box, Grid, HStack, Text, VStack } from '@chakra-ui/react';
 interface BlockTypeSelectorProps {
   onSelect: (type: BlockType) => void;
 }
+
+const ACCENT_DOT = {
+  work: 'session.work',
+  rest: 'session.rest',
+  neutral: 'fg.muted',
+} as const;
 
 export const BlockTypeSelector = ({ onSelect }: BlockTypeSelectorProps) => (
   <VStack align="stretch" gap={4}>
@@ -36,14 +43,19 @@ export const BlockTypeSelector = ({ onSelect }: BlockTypeSelectorProps) => (
                 as="button"
                 p={3}
                 borderRadius="lg"
-                bg="app.primary/12"
-                borderWidth="1px"
-                borderColor="app.primary/30"
-                onClick={() => onSelect(type)}
-                _hover={{ bg: 'app.primary/25', borderColor: 'app.primary/60' }}
                 transition="all 0.15s"
                 textAlign="left"
                 minH="72px"
+                bg="whiteAlpha.50"
+                borderWidth="1px"
+                borderColor="whiteAlpha.100"
+                onClick={() => onSelect(type)}
+                _hover={{ bg: 'app.primary/12', borderColor: 'app.primary/50' }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'app.primary',
+                  outlineOffset: '2px',
+                }}
               >
                 <VStack align="start" gap={1}>
                   <HStack gap={2}>
@@ -51,13 +63,13 @@ export const BlockTypeSelector = ({ onSelect }: BlockTypeSelectorProps) => (
                       w="8px"
                       h="8px"
                       borderRadius="full"
-                      bg="app.primary"
+                      bg={ACCENT_DOT[getBlockAccent(type)]}
                       flexShrink={0}
                     />
                     <Text
                       fontSize="sm"
                       fontWeight="bold"
-                      color="app.primary"
+                      color="fg"
                       lineHeight="shorter"
                     >
                       {label}

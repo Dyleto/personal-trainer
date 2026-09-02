@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   Box,
   Button,
+  Dialog,
   HStack,
+  Portal,
   Text,
   VStack,
   useBreakpointValue,
@@ -37,6 +39,8 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { useOutsideDismiss } from '@/hooks/useOutsideDismiss';
+import { getBlockLabel } from '@/features/program/constants';
 
 interface Props {
   session: Session;
@@ -105,12 +109,20 @@ export const ClientProgramTab = ({
   const [showBlockSelector, setShowBlockSelector] = useState(false);
   const [selectorBlockId, setSelectorBlockId] = useState<string | null>(null);
 
+  const [pendingRemoval, setPendingRemoval] = useState<SessionBlock | null>(
+    null
+  );
+
+  const blockSelectorRef = useRef<HTMLDivElement>(null);
+  const closeBlockSelector = useCallback(() => setShowBlockSelector(false), []);
+  useOutsideDismiss(blockSelectorRef, showBlockSelector, closeBlockSelector);
+
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 150, tolerance: 5 },
+      activationConstraint: { delay: 200, tolerance: 8 },
     })
   );
 
@@ -125,14 +137,16 @@ export const ClientProgramTab = ({
 
   return (
     <>
-      <VStack align="stretch" gap={4} role="group">
-        <InlineText
-          value={session.notes}
-          onChange={(notes) => onUpdateSessionNotes(notes ?? '')}
-          addLabel="+ note de séance"
-          ariaLabel="Note de la séance"
-          fontSize="sm"
-        />
+      <VStack align="stretch" gap={4}>
+        <Box className="group" w="fit-content" maxW="full">
+          <InlineText
+            value={session.notes}
+            onChange={(notes) => onUpdateSessionNotes(notes ?? '')}
+            addLabel="+ note de séance"
+            ariaLabel="Note de la séance"
+            fontSize="sm"
+          />
+        </Box>
 
         <DndContext
           sensors={sensors}
@@ -152,7 +166,7 @@ export const ClientProgramTab = ({
                       inProgram={inProgram}
                       dragHandleProps={dragHandleProps}
                       onUpdate={(updates) => onUpdateBlock(block._id, updates)}
-                      onRemove={() => onRemoveBlock(block._id)}
+                      onRemove={() => setPendingRemoval(block)}
                       onAddExercise={(exercise) =>
                         onAddExercise(block._id, exercise)
                       }
@@ -175,6 +189,7 @@ export const ClientProgramTab = ({
 
         {showBlockSelector ? (
           <Box
+            ref={blockSelectorRef}
             p={3}
             borderRadius="lg"
             borderWidth="1px"
@@ -189,7 +204,7 @@ export const ClientProgramTab = ({
                 size="xs"
                 variant="ghost"
                 color="fg.muted"
-                onClick={() => setShowBlockSelector(false)}
+                onClick={closeBlockSelector}
               >
                 Annuler
               </Button>
@@ -263,6 +278,58 @@ export const ClientProgramTab = ({
           }}
         />
       )}
+
+      <Dialog.Root
+        role="alertdialog"
+        open={!!pendingRemoval}
+        onOpenChange={(e) => !e.open && setPendingRemoval(null)}
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content
+              bg="bg.canvas"
+              borderColor="whiteAlpha.100"
+              borderWidth="1px"
+              maxW="sm"
+            >
+              <Dialog.Header>
+                <Dialog.Title>
+                  Supprimer le bloc{' '}
+                  {pendingRemoval ? getBlockLabel(pendingRemoval.type) : ''} ?
+                </Dialog.Title>
+              </Dialog.Header>
+              <Dialog.Body>
+                <Text color="fg.muted" fontSize="sm">
+                  {pendingRemoval?.exercises.length
+                    ? `Ses ${pendingRemoval.exercises.length} exercice${pendingRemoval.exercises.length > 1 ? 's' : ''} seront retirés de la séance.`
+                    : 'Ce bloc ne contient aucun exercice.'}
+                </Text>
+              </Dialog.Body>
+              <Dialog.Footer gap={2} flexWrap="wrap">
+                <Button
+                  variant="ghost"
+                  color="fg.muted"
+                  onClick={() => setPendingRemoval(null)}
+                >
+                  Conserver
+                </Button>
+                <Button
+                  bg="app.error"
+                  color="bg.canvas"
+                  fontWeight="bold"
+                  onClick={() => {
+                    if (pendingRemoval) onRemoveBlock(pendingRemoval._id);
+                    setPendingRemoval(null);
+                  }}
+                >
+                  Supprimer
+                </Button>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
     </>
   );
 };

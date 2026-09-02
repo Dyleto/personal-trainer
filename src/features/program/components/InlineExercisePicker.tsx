@@ -1,10 +1,11 @@
 import { Box, HStack, Input, Spinner, Text, VStack } from '@chakra-ui/react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { LuPlus, LuSearch } from 'react-icons/lu';
 import { Exercise } from '@/types';
 import { useExercises } from '@/features/exercise/hooks/useExercises';
 import { useCreateExercise } from '@/features/exercise/hooks/useExerciseMutations';
 import { stripAccents } from '@/utils/formatters';
+import { useOutsideDismiss } from '@/hooks/useOutsideDismiss';
 
 const normalize = (s: string) => stripAccents(s).toLowerCase().trim();
 
@@ -35,6 +36,9 @@ export const InlineExercisePicker = ({
   const createMutation = useCreateExercise();
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const rootRef = useRef<HTMLDivElement>(null);
+  useOutsideDismiss(rootRef, true, onClose);
 
   const options = useMemo<Option[]>(() => {
     const q = normalize(query);
@@ -99,6 +103,7 @@ export const InlineExercisePicker = ({
           onSuccess: (response) => {
             onSelect(response.data);
             setQuery('');
+            onClose();
           },
         }
       );
@@ -107,9 +112,8 @@ export const InlineExercisePicker = ({
     const option = options[index];
     if (!option) return;
     onSelect(option.exercise);
-    // Le champ se vide et le sélecteur reste ouvert : on enchaîne les quatre
-    // mouvements d'un chipper sans aller-retour.
     setQuery('');
+    onClose();
   };
 
   const total = options.length + (canCreate ? 1 : 0);
@@ -153,7 +157,9 @@ export const InlineExercisePicker = ({
           variant="subtle"
           bg="transparent"
           border="none"
-          _focus={{ boxShadow: 'none' }}
+          outline="none"
+          _focus={{ boxShadow: 'none', outline: 'none' }}
+          _focusVisible={{ boxShadow: 'none', outline: 'none' }}
           placeholder="Chercher ou créer un exercice…"
           aria-label="Chercher un exercice"
           value={query}
