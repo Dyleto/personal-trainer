@@ -14,6 +14,7 @@ import {
   CLIENT_CONTENT_MAX_W,
   CompleteSessionModal,
   GuidedSession,
+  RecordPerformed,
   SessionDetail,
   getSessionSummary,
   useClientSessions,
@@ -48,7 +49,11 @@ const SessionScreen = () => {
     lastPerformance,
   } = useOutletContext<ClientSessionsData>();
   const [isGuidedOpen, setIsGuidedOpen] = useState(false);
-  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+
+  // Terminer une séance se déroule en deux temps : « tu veux noter tes
+  // charges ? », puis le bilan. `idle` couvre la lecture, où l'écran ne
+  // demande rien.
+  const [flow, setFlow] = useState<'idle' | 'record' | 'review'>('idle');
 
   const [performed, setPerformed] = useState<Record<string, PerformedValues>>(
     {}
@@ -60,6 +65,7 @@ const SessionScreen = () => {
   if (activeSession?._id !== performedFor) {
     setPerformedFor(activeSession?._id);
     setPerformed({});
+    setFlow('idle');
   }
 
   const handlePerformedChange = useCallback(
@@ -148,20 +154,30 @@ const SessionScreen = () => {
       pb={{ base: '220px', md: 8 }}
     >
       <VStack align="stretch" gap={1} mb={4}>
-        <HStack
-          gap={1.5}
-          color="fg.muted"
-          cursor="pointer"
-          onClick={() => navigate(CLIENT_ROUTES.program)}
-          _hover={{ color: 'app.primary' }}
-          transition="color 0.15s"
+        {/* On revient d'où l'on vient neuf fois sur dix : l'accueil. Le
+            programme reste à un onglet de distance. Un vrai bouton, pas un
+            HStack cliquable : il faut pouvoir l'atteindre au clavier. */}
+        <Box
+          as="button"
+          aria-label="Revenir à Aujourd'hui"
           w="fit-content"
+          onClick={() => navigate(CLIENT_ROUTES.today)}
+          color="fg.muted"
+          _hover={{ color: 'app.primary' }}
+          _focusVisible={{
+            outline: '2px solid',
+            outlineColor: 'app.primary',
+            outlineOffset: '2px',
+          }}
+          transition="color 0.15s"
         >
-          <LuArrowLeft size={13} />
-          <Text fontSize="xs" fontWeight="medium">
-            Programme
-          </Text>
-        </HStack>
+          <HStack gap={1.5}>
+            <LuArrowLeft size={13} />
+            <Text fontSize="xs" fontWeight="medium">
+              Aujourd'hui
+            </Text>
+          </HStack>
+        </Box>
         <HStack justify="space-between" align="center">
           <Text fontSize="xl" fontWeight="bold">
             Séance {activeSession.order}
@@ -185,12 +201,10 @@ const SessionScreen = () => {
         </Text>
       </VStack>
 
-      <SessionDetail
-        session={activeSession}
-        performed={performed}
-        onPerformedChange={handlePerformedChange}
-        lastPerformance={lastPerformance}
-      />
+      {/* En lecture, une séance se lit : pas de champ vide sous chaque
+          exercice avant même de l'avoir commencée. La saisie arrive à la
+          fin, dans RecordPerformed. */}
+      <SessionDetail session={activeSession} />
 
       <VStack
         align="stretch"
@@ -225,7 +239,7 @@ const SessionScreen = () => {
           borderColor="whiteAlpha.200"
           color="fg"
           size="lg"
-          onClick={() => setIsCompleteModalOpen(true)}
+          onClick={() => setFlow('record')}
           _hover={{ bg: 'whiteAlpha.50' }}
         >
           J'ai terminé cette séance
@@ -238,15 +252,28 @@ const SessionScreen = () => {
           onExit={() => setIsGuidedOpen(false)}
           onFinish={() => {
             setIsGuidedOpen(false);
-            setIsCompleteModalOpen(true);
+            setFlow('record');
           }}
           lastPerformance={lastPerformance}
         />
       )}
 
+      {/* Remonté à chaque ouverture : la question repart de zéro plutôt que
+          de rouvrir sur la saisie déjà dépliée. */}
+      <RecordPerformed
+        key={flow === 'record' ? 'record-open' : 'record-closed'}
+        session={activeSession}
+        isOpen={flow === 'record'}
+        performed={performed}
+        onPerformedChange={handlePerformedChange}
+        lastPerformance={lastPerformance}
+        onCancel={() => setFlow('idle')}
+        onContinue={() => setFlow('review')}
+      />
+
       <CompleteSessionModal
-        isOpen={isCompleteModalOpen}
-        onClose={() => setIsCompleteModalOpen(false)}
+        isOpen={flow === 'review'}
+        onClose={() => setFlow('idle')}
         onSubmit={(feedback, notes, completedAt) => {
           handleSubmitLog(
             feedback,
@@ -254,7 +281,7 @@ const SessionScreen = () => {
             completedAt,
             toPerformedEntries(performed)
           );
-          setIsCompleteModalOpen(false);
+          setFlow('idle');
         }}
         isLoading={isSubmitting}
       />

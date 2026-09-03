@@ -14,7 +14,6 @@ import {
 } from '@/features/client';
 import {
   Box,
-  Button,
   Container,
   HStack,
   Skeleton,
@@ -91,12 +90,29 @@ const Today = () => {
               >
                 À faire maintenant
               </Text>
+              {/* La carte est le bouton. On clique instinctivement sur la
+                  séance elle-même ; garder à côté un bouton qui mène au même
+                  endroit ajoutait une cible sans ajouter un choix. */}
               <Box
+                as="button"
+                w="full"
+                textAlign="left"
                 p={4}
                 borderRadius="xl"
                 borderWidth="1px"
                 borderColor="app.primary"
                 bg="whiteAlpha.50"
+                aria-label={`Voir la séance ${nextSession.order}`}
+                onClick={() =>
+                  navigate(CLIENT_ROUTES.sessionById(nextSession._id))
+                }
+                _hover={{ bg: 'app.primary/12' }}
+                _focusVisible={{
+                  outline: '2px solid',
+                  outlineColor: 'app.primary',
+                  outlineOffset: '2px',
+                }}
+                transition="background-color 0.15s"
               >
                 <VStack align="stretch" gap={1.5}>
                   <HStack justify="space-between" align="center">
@@ -123,24 +139,14 @@ const Today = () => {
                   <Text fontSize="xs" color="fg.muted">
                     {getSessionBlockTypes(nextSession)}
                   </Text>
+                  <HStack gap={1.5} color="app.primary" pt={1}>
+                    <Text fontSize="xs" fontWeight="bold">
+                      Voir la séance
+                    </Text>
+                    <LuArrowRight size={13} />
+                  </HStack>
                 </VStack>
               </Box>
-              <Button
-                w="full"
-                bg="app.primary"
-                color="bg.canvas"
-                fontWeight="bold"
-                onClick={() =>
-                  navigate(
-                    nextSession
-                      ? CLIENT_ROUTES.sessionById(nextSession._id)
-                      : CLIENT_ROUTES.session
-                  )
-                }
-                _hover={{ bg: 'app.primary.hover' }}
-              >
-                Voir la séance <LuArrowRight />
-              </Button>
             </VStack>
           )
         )}
