@@ -10,7 +10,14 @@ import {
   getEffortSummary,
   getRelativeDate,
 } from '@/features/client';
-import { Box, Grid, HStack, Text, VStack } from '@chakra-ui/react';
+import {
+  Box,
+  Grid,
+  HStack,
+  Text,
+  useBreakpointValue,
+  VStack,
+} from '@chakra-ui/react';
 import { LuChevronRight } from 'react-icons/lu';
 
 interface Props {
@@ -96,6 +103,10 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
   );
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
+  // À partir de 2xl (1536 px), la colonne de gauche a la place de deux mois.
+  // Une régularité se lit sur huit semaines, pas sur quatre.
+  const months = useBreakpointValue<1 | 2>({ base: 1, '2xl': 2 }) ?? 1;
+
   const [initialUnseenIds] = useState<Set<string>>(
     () =>
       new Set(history.filter((c) => c.viewedByCoach !== true).map((c) => c._id))
@@ -122,7 +133,7 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
   return (
     <>
       <Grid
-        templateColumns={{ base: '1fr', lg: '300px 1fr' }}
+        templateColumns={{ base: '1fr', lg: '300px 1fr', '2xl': '620px 1fr' }}
         gap={{ base: 5, lg: 8 }}
         alignItems="start"
       >
@@ -135,6 +146,7 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
             history={history}
             selectedDay={selectedDay}
             onSelectDay={setSelectedDay}
+            months={months}
           />
         </Box>
 

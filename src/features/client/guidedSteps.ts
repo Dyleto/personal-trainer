@@ -1,10 +1,11 @@
 import { Session, SessionBlock, BlockExercise, BlockType } from '@/types';
 import {
   getBlockLabel,
+  blockSupportsSets,
   blockDefinesOwnMetrics,
   blockSupportsRepsOnly,
 } from '@/features/program/constants';
-import { formatExerciseMetric, formatDuration } from '@/utils/formatters';
+import { formatDuration } from '@/utils/formatters';
 
 export type GuidedStep =
   | {
@@ -13,6 +14,15 @@ export type GuidedStep =
       exerciseName: string;
       exerciseId: string;
       metric: string;
+      /**
+       * Durée de l'effort en secondes quand il est chronométré. Le mode guidé
+       * décompte alors à l'écran, puis s'arrête et attend : c'est le client qui
+       * décide de passer à la suite, jamais l'horloge.
+       */
+      workSeconds?: number;
+      /** Rang de la série (1-indexé) quand l'exercice en compte plusieurs. */
+      setIndex?: number;
+      setCount?: number;
     }
   | {
       type: 'rest';
@@ -27,12 +37,24 @@ const ROUND_BASED_TYPES: BlockType[] = ['emom', 'every', 'tabata', 'onoff'];
 const sortByOrder = <T extends { order: number }>(items: T[]): T[] =>
   [...items].sort((a, b) => a.order - b.order);
 
+type Effort = { metric: string; workSeconds?: number };
+
+// L'effort d'*une* série, sans le « n × » : le mode guidé déroule les séries
+// une par une, le total est porté par « Série 2 / 4 » et non par la métrique.
+const singleEffort = (ex: BlockExercise): Effort => {
+  if (ex.reps) return { metric: `${ex.reps} reps` };
+  if (ex.duration)
+    return { metric: formatDuration(ex.duration), workSeconds: ex.duration };
+  if (ex.customMetric)
+    return { metric: `${ex.customMetric.value} ${ex.customMetric.unit}` };
+  return { metric: '' };
+};
+
 const pushExerciseSteps = (
   steps: GuidedStep[],
-  block: SessionBlock,
   exercises: BlockExercise[],
   blockLabel: string,
-  metricOverride?: (ex: BlockExercise) => string
+  effortOf: (ex: BlockExercise) => Effort
 ) => {
   exercises.forEach((ex) => {
     steps.push({
@@ -40,11 +62,48 @@ const pushExerciseSteps = (
       blockLabel,
       exerciseName: ex.exercise.name,
       exerciseId: ex.exercise._id,
-      metric: metricOverride
-        ? metricOverride(ex)
-        : formatExerciseMetric(ex, block.type),
+      ...effortOf(ex),
     });
   });
+};
+
+// Séries : « 4 × 12 reps » sur le programme est un raccourci d'écriture, pas
+// une page. Pendant l'effort on veut savoir où on en est — série 2 sur 4 — et
+// souffler entre les deux, donc chaque série a sa page et son repos.
+const buildSetBasedSteps = (
+  block: SessionBlock,
+  exercises: BlockExercise[],
+  blockLabel: string
+): GuidedStep[] => {
+  const steps: GuidedStep[] = [];
+
+  exercises.forEach((ex) => {
+    const effort = singleEffort(ex);
+    const setCount =
+      blockSupportsSets(block.type) && ex.sets && ex.sets > 1 ? ex.sets : 1;
+
+    for (let set = 1; set <= setCount; set++) {
+      steps.push({
+        type: 'exercise',
+        blockLabel,
+        exerciseName: ex.exercise.name,
+        exerciseId: ex.exercise._id,
+        ...effort,
+        ...(setCount > 1 ? { setIndex: set, setCount } : {}),
+      });
+
+      // Jamais de repos inventé : seulement celui que le coach a écrit.
+      if (set < setCount && ex.restBetweenSets) {
+        steps.push({
+          type: 'rest',
+          duration: ex.restBetweenSets,
+          nextExerciseName: ex.exercise.name,
+        });
+      }
+    }
+  });
+
+  return steps;
 };
 
 // EMOM/Every (chronométré par intervalle) et Tabata/On-Off (travail/repos) :
@@ -61,17 +120,20 @@ const buildRoundBasedSteps = (
   const isWorkRest = blockSupportsRepsOnly(block.type);
   const intervalSeconds = (block.intervalMinutes ?? 1) * 60;
 
-  const metricOverride = isWorkRest
-    ? (ex: BlockExercise) =>
+  const effortOf = isWorkRest
+    ? (ex: BlockExercise): Effort =>
         ex.reps
-          ? `${ex.reps} reps`
+          ? { metric: `${ex.reps} reps` }
           : block.workDuration !== undefined
-            ? formatDuration(block.workDuration)
-            : ''
-    : undefined;
+            ? {
+                metric: formatDuration(block.workDuration),
+                workSeconds: block.workDuration,
+              }
+            : { metric: '' }
+    : singleEffort;
 
   for (let round = 1; round <= rounds; round++) {
-    pushExerciseSteps(steps, block, exercises, blockLabel, metricOverride);
+    pushExerciseSteps(steps, exercises, blockLabel, effortOf);
 
     const isLastRound = round === rounds;
     const restDuration = isWorkRest ? block.restDuration : intervalSeconds;
@@ -104,9 +166,9 @@ const buildSchemeBasedSteps = (
       : [undefined];
 
   scheme.forEach((reps, i) => {
-    pushExerciseSteps(steps, block, exercises, blockLabel, () =>
-      reps !== undefined ? `${reps} reps` : ''
-    );
+    pushExerciseSteps(steps, exercises, blockLabel, () => ({
+      metric: reps !== undefined ? `${reps} reps` : '',
+    }));
 
     const isLastStep = i === scheme.length - 1;
     if (block.restBetweenRounds) {
@@ -152,8 +214,7 @@ export function buildGuidedSteps(session: Session): GuidedStep[] {
         nextBlockFirstExerciseName
       );
     } else {
-      blockSteps = [];
-      pushExerciseSteps(blockSteps, block, exercises, blockLabel);
+      blockSteps = buildSetBasedSteps(block, exercises, blockLabel);
     }
 
     steps.push(...blockSteps);
@@ -173,6 +234,12 @@ export function buildGuidedSteps(session: Session): GuidedStep[] {
       });
     }
   });
+
+  // La séance ne se termine pas sur un repos : le dernier tour du dernier bloc
+  // est fini, il n'y a plus rien après quoi souffler.
+  while (steps[steps.length - 1]?.type === 'rest') {
+    steps.pop();
+  }
 
   return steps;
 }

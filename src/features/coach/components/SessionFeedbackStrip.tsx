@@ -2,6 +2,7 @@ import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { CompletedSession } from '@/types';
 import { getRelativeDate } from '@/features/client';
 import { EFFORT_ZONE_COLOR, getEffortLevel } from '@/features/client/constants';
+import { formatLastPerformance } from '@/features/client/lastPerformance';
 import { EffortTrend } from './EffortTrend';
 
 interface SessionFeedbackStripProps {
@@ -11,6 +12,83 @@ interface SessionFeedbackStripProps {
   // 'panel' : colonne de contexte à droite (à partir de 2xl)
   variant?: 'strip' | 'panel';
 }
+
+interface PerformedLine {
+  name: string;
+  value: string;
+}
+
+// Au-delà, ce n'est plus un retour qu'on lit : c'est un tableau qu'on ouvre
+// dans le journal complet.
+const MAX_LINES = 4;
+
+/**
+ * Ce que le client a réellement noté ce jour-là, exercice par exercice.
+ *
+ * Le coach écrivait « 4 × 10 » et n'apprenait jamais ce qui avait été fait :
+ * seul le client, dans son propre historique, voyait ses 26 kg. La donnée
+ * existait déjà dans l'instantané de la séance, elle n'était affichée nulle
+ * part de ce côté-ci.
+ */
+const performedLines = (completed: CompletedSession): PerformedLine[] => {
+  const lines: PerformedLine[] = [];
+
+  [...completed.blocks]
+    .sort((a, b) => a.order - b.order)
+    .forEach((block) => {
+      [...block.exercises]
+        .sort((a, b) => a.order - b.order)
+        .forEach((ex) => {
+          if (!ex.performed) return;
+          const value = formatLastPerformance({
+            ...ex.performed,
+            completedAt: new Date(completed.completedAt),
+          });
+          if (!value) return;
+          const name = ex.exercise?.name;
+          lines.push({
+            name: typeof name === 'string' ? name : 'Exercice',
+            value,
+          });
+        });
+    });
+
+  return lines;
+};
+
+const PerformedList = ({ completed }: { completed: CompletedSession }) => {
+  const lines = performedLines(completed);
+  if (lines.length === 0) return null;
+
+  const shown = lines.slice(0, MAX_LINES);
+  const rest = lines.length - shown.length;
+
+  return (
+    <VStack align="stretch" gap={0.5} mt={1.5}>
+      {shown.map((line, i) => (
+        <HStack key={`${line.name}-${i}`} gap={2} align="baseline">
+          <Text fontSize="xs" color="fg.muted" flex={1} minW={0} lineClamp={1}>
+            {line.name}
+          </Text>
+          <Text
+            fontSize="xs"
+            fontFamily="mono"
+            color="fg"
+            flexShrink={0}
+            whiteSpace="nowrap"
+          >
+            {line.value}
+          </Text>
+        </HStack>
+      ))}
+      {rest > 0 && (
+        <Text fontSize="xs" color="fg.muted">
+          + {rest} autre{rest > 1 ? 's' : ''}
+        </Text>
+      )}
+    </VStack>
+  );
+};
 
 export const SessionFeedbackStrip = ({
   history,
@@ -74,6 +152,7 @@ export const SessionFeedbackStrip = ({
                       Aucun commentaire
                     </Text>
                   )}
+                  <PerformedList completed={completed} />
                 </Box>
               ))}
             </VStack>
@@ -121,6 +200,7 @@ export const SessionFeedbackStrip = ({
           </Text>
         )}
       </HStack>
+      <PerformedList completed={last} />
     </Box>
   );
 };

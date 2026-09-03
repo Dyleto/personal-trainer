@@ -12,9 +12,16 @@ interface GuidedSessionProps {
   lastPerformance?: Map<string, LastPerformance>;
 }
 
-interface RestCountdownProps {
+interface CountdownProps {
   duration: number;
-  onComplete: () => void;
+  /**
+   * Fourni pour le repos, absent pour l'effort : un repos qui s'achève enchaîne
+   * tout seul, un effort qui s'achève s'arrête et attend. Personne n'a envie de
+   * voir la page changer sous ses yeux alors qu'il finit sa dernière rep.
+   */
+  onComplete?: () => void;
+  color: string;
+  holdLabel?: string;
 }
 
 // C'est le seul écran utilisé pendant l'effort, celui où l'on peut le moins se
@@ -50,10 +57,16 @@ const clearSavedIndex = (sessionId: string) => {
   }
 };
 
-const RestCountdown = ({ duration, onComplete }: RestCountdownProps) => {
+const Countdown = ({
+  duration,
+  onComplete,
+  color,
+  holdLabel,
+}: CountdownProps) => {
   const { remaining, isRunning, pause, resume } = useCountdown(duration, {
     onComplete,
   });
+  const isDone = remaining === 0;
 
   useEffect(() => {
     if (remaining > 0 && remaining <= 3) {
@@ -61,11 +74,19 @@ const RestCountdown = ({ duration, onComplete }: RestCountdownProps) => {
     }
   }, [remaining]);
 
+  // Le décompte d'effort ne rend pas la main tout seul : on le signale une
+  // fois, franchement, parce que personne ne regarde l'écran à ce moment-là.
+  useEffect(() => {
+    if (isDone && !onComplete) {
+      navigator.vibrate?.([120, 80, 120]);
+    }
+  }, [isDone, onComplete]);
+
   return (
     <Box
       as="button"
-      onClick={() => (isRunning ? pause() : resume())}
-      cursor="pointer"
+      onClick={isDone ? undefined : () => (isRunning ? pause() : resume())}
+      cursor={isDone ? 'default' : 'pointer'}
       aria-label={isRunning ? 'Mettre en pause' : 'Reprendre le décompte'}
     >
       <Text
@@ -73,15 +94,21 @@ const RestCountdown = ({ duration, onComplete }: RestCountdownProps) => {
         fontWeight="800"
         fontFamily="mono"
         lineHeight="1"
-        color="bg.canvas"
-        opacity={isRunning ? 1 : 0.5}
+        color={color}
+        opacity={isRunning || isDone ? 1 : 0.5}
       >
         {remaining}s
       </Text>
-      {!isRunning && (
-        <Text fontSize="xs" color="bg.canvas" opacity={0.75} mt={1}>
-          En pause — toucher pour reprendre
+      {isDone && holdLabel ? (
+        <Text fontSize="sm" color={color} opacity={0.75} mt={2}>
+          {holdLabel}
         </Text>
+      ) : (
+        !isRunning && (
+          <Text fontSize="xs" color={color} opacity={0.75} mt={1}>
+            En pause — toucher pour reprendre
+          </Text>
+        )
       )}
     </Box>
   );
@@ -349,7 +376,7 @@ export const GuidedSession = ({
           </Button>
         </HStack>
 
-        <HStack gap="4px" px={5} pt={2}>
+        <HStack gap={steps.length > 24 ? '2px' : '4px'} px={5} pt={2}>
           {steps.map((_, i) => (
             <Box
               key={i}
@@ -383,14 +410,28 @@ export const GuidedSession = ({
               <Text fontSize="28px" fontWeight="800" maxW="22ch">
                 {step.exerciseName}
               </Text>
-              <Text
-                fontSize="72px"
-                fontWeight="800"
-                fontFamily="mono"
-                lineHeight="1"
-              >
-                {step.metric || '—'}
-              </Text>
+              {step.setCount && (
+                <Text fontSize="sm" fontFamily="mono" color="fg.muted" mt={-4}>
+                  Série {step.setIndex} / {step.setCount}
+                </Text>
+              )}
+              {step.workSeconds ? (
+                <Countdown
+                  key={index}
+                  duration={step.workSeconds}
+                  color="fg"
+                  holdLabel="Temps écoulé"
+                />
+              ) : (
+                <Text
+                  fontSize="72px"
+                  fontWeight="800"
+                  fontFamily="mono"
+                  lineHeight="1"
+                >
+                  {step.metric || '—'}
+                </Text>
+              )}
               {lastLabel && (
                 <Text fontSize="sm" color="fg.muted">
                   la dernière fois&nbsp;: {lastLabel}
@@ -408,9 +449,10 @@ export const GuidedSession = ({
               >
                 Repos
               </Text>
-              <RestCountdown
+              <Countdown
                 key={index}
                 duration={step.duration}
+                color="bg.canvas"
                 onComplete={goNext}
               />
               {step.nextExerciseName && (

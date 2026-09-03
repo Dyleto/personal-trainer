@@ -11,6 +11,7 @@ import {
   getSessionBlockTypes,
   getSessionSummary,
   useClientSessions,
+  WeekStrip,
 } from '@/features/client';
 import {
   Box,
@@ -61,6 +62,10 @@ const Today = () => {
         <Text as="h1" fontSize="xl" fontWeight="bold">
           Bonjour {user?.firstName},
         </Text>
+
+        {/* Où en est la semaine, avant ce qu'il reste à faire : c'est le
+            contexte dans lequel se lit la séance du jour. */}
+        {history.length > 0 && <WeekStrip history={history} />}
 
         {totalCount === 0 ? (
           <Box

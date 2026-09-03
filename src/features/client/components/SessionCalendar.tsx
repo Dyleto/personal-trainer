@@ -8,6 +8,11 @@ import { dayKey } from '../sessionDates';
 
 const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
+// Une colonne étroite à gauche de chaque semaine : combien de séances cette
+// semaine-là. C'est la seule façon de voir un trou dans une grille où toutes
+// les cases vides se ressemblent déjà.
+const GRID_COLUMNS = '20px repeat(7, 1fr)';
+
 const monthLabel = (d: Date) =>
   new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(
     d
@@ -16,12 +21,230 @@ const monthLabel = (d: Date) =>
 /** Lundi = 0 : la semaine française ne commence pas le dimanche. */
 const mondayIndex = (date: Date) => (date.getDay() + 6) % 7;
 
+/** Les semaines du mois, chacune de sept cases, complétées de `null`. */
+const buildWeeks = (cursor: Date): (Date | null)[][] => {
+  const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+  const daysInMonth = new Date(
+    cursor.getFullYear(),
+    cursor.getMonth() + 1,
+    0
+  ).getDate();
+
+  const cells: (Date | null)[] = Array(mondayIndex(first)).fill(null);
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push(new Date(cursor.getFullYear(), cursor.getMonth(), d));
+  }
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const weeks: (Date | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  return weeks;
+};
+
 interface SessionCalendarProps {
   history: CompletedSession[];
   /** Jour affiché en détail, ou `null` pour « tout le mois ». */
   selectedDay: string | null;
   onSelectDay: (day: string | null) => void;
+  /**
+   * Nombre de mois affichés côte à côte. Deux mois donnent la profondeur qu'il
+   * faut pour lire une régularité — un mois seul coupe l'élan en deux.
+   */
+  months?: 1 | 2;
 }
+
+interface MonthGridProps {
+  cursor: Date;
+  byDay: Map<string, CompletedSession[]>;
+  selectedDay: string | null;
+  onSelectDay: (day: string | null) => void;
+  todayKey: string;
+  showLabel: boolean;
+}
+
+const MonthGrid = ({
+  cursor,
+  byDay,
+  selectedDay,
+  onSelectDay,
+  todayKey,
+  showLabel,
+}: MonthGridProps) => {
+  const weeks = useMemo(() => buildWeeks(cursor), [cursor]);
+
+  return (
+    <VStack align="stretch" gap={1} minW={0} flex={1}>
+      {showLabel && (
+        <Text
+          fontSize="xs"
+          fontWeight="bold"
+          color="fg.muted"
+          textTransform="capitalize"
+          textAlign="center"
+        >
+          {monthLabel(cursor)}
+        </Text>
+      )}
+
+      <Box
+        display="grid"
+        gridTemplateColumns={GRID_COLUMNS}
+        gap={1}
+        role="grid"
+        aria-label={`Séances de ${monthLabel(cursor)}`}
+      >
+        <Box aria-hidden />
+        {WEEKDAYS.map((letter, i) => (
+          <Text
+            key={`${letter}-${i}`}
+            fontSize="xs"
+            color="fg.muted"
+            textAlign="center"
+            pb={1}
+            aria-hidden
+          >
+            {letter}
+          </Text>
+        ))}
+      </Box>
+
+      {weeks.map((week, weekIndex) => {
+        const weekCount = week.reduce(
+          (sum, date) =>
+            date ? sum + (byDay.get(dayKey(date))?.length ?? 0) : sum,
+          0
+        );
+        // Une semaine entièrement à venir n'est pas un trou : elle n'a pas
+        // encore eu lieu. On ne la marque pas.
+        const isPast = week.some((date) => date && dayKey(date) <= todayKey);
+        const isMarked = isPast && week.some(Boolean);
+
+        return (
+          <Box
+            key={weekIndex}
+            display="grid"
+            gridTemplateColumns={GRID_COLUMNS}
+            gap={1}
+            role="row"
+          >
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              aria-label={
+                !isMarked
+                  ? undefined
+                  : weekCount === 0
+                    ? 'semaine sans séance'
+                    : `${weekCount} séance${weekCount > 1 ? 's' : ''} cette semaine`
+              }
+            >
+              {/* Un trait tracé plutôt qu'un tiret typographique : en mono et
+                  en 12 px, un « — » retombe sur la ligne de base et se lit
+                  comme un souligné. */}
+              {isMarked &&
+                (weekCount === 0 ? (
+                  <Box w="8px" h="1px" bg="whiteAlpha.400" />
+                ) : (
+                  <Text fontSize="xs" fontFamily="mono" color="fg.muted">
+                    {weekCount}
+                  </Text>
+                ))}
+            </Box>
+
+            {week.map((date, index) => {
+              if (!date) return <Box key={`empty-${weekIndex}-${index}`} />;
+
+              const key = dayKey(date);
+              const sessions = byDay.get(key) ?? [];
+              const isSelected = selectedDay === key;
+              const isToday = key === todayKey;
+
+              // La pastille prend la couleur du ressenti. Plusieurs séances le
+              // même jour : celle du dernier bilan enregistré.
+              const effort =
+                sessions.length > 0 ? getEffortSummary(sessions[0]) : null;
+              const dotColor = effort
+                ? EFFORT_ZONE_COLOR[effort.zone]
+                : 'app.primary';
+
+              // Un jour sans séance n'est pas une commande désactivée : ce
+              // n'est pas une commande du tout. Il ne va donc pas dans l'ordre
+              // de tabulation, et un lecteur d'écran ne l'annonce pas.
+              const isActionable = sessions.length > 0;
+
+              return (
+                <Box
+                  key={key}
+                  as={isActionable ? 'button' : undefined}
+                  aria-label={
+                    isActionable
+                      ? `${date.getDate()} — ${sessions.length} séance${sessions.length > 1 ? 's' : ''}`
+                      : undefined
+                  }
+                  aria-pressed={isActionable ? isSelected : undefined}
+                  onClick={
+                    isActionable
+                      ? () => onSelectDay(isSelected ? null : key)
+                      : undefined
+                  }
+                  minH="44px"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  py={1.5}
+                  borderRadius="md"
+                  borderWidth="1px"
+                  borderColor={isSelected ? 'app.primary' : 'transparent'}
+                  bg={isSelected ? 'app.primary/12' : 'transparent'}
+                  cursor={isActionable ? 'pointer' : 'default'}
+                  _hover={isActionable ? { bg: 'whiteAlpha.50' } : undefined}
+                  _focusVisible={{
+                    outline: '2px solid',
+                    outlineColor: 'app.primary',
+                    outlineOffset: '1px',
+                  }}
+                  transition="background-color 0.12s"
+                >
+                  <VStack gap={0.5}>
+                    <Text
+                      fontSize="xs"
+                      fontFamily="mono"
+                      color={
+                        isActionable
+                          ? 'fg'
+                          : isToday
+                            ? 'fg.muted'
+                            : 'whiteAlpha.600'
+                      }
+                      fontWeight={isToday ? 'bold' : 'normal'}
+                      textDecoration={isToday ? 'underline' : 'none'}
+                      textUnderlineOffset="2px"
+                    >
+                      {date.getDate()}
+                    </Text>
+                    {/* Une pastille par séance : deux le même jour se voient. */}
+                    <HStack gap="2px" h="5px" justify="center">
+                      {sessions.map((s) => (
+                        <Box
+                          key={s._id}
+                          w="5px"
+                          h="5px"
+                          borderRadius="full"
+                          bg={dotColor}
+                        />
+                      ))}
+                    </HStack>
+                  </VStack>
+                </Box>
+              );
+            })}
+          </Box>
+        );
+      })}
+    </VStack>
+  );
+};
 
 /**
  * Le mois, avec une pastille les jours où le client s'est entraîné.
@@ -30,11 +253,16 @@ interface SessionCalendarProps {
  * séances collées puis dix jours de rien, ça se voit sur un calendrier et
  * ça se compte péniblement sur une liste. La couleur de la pastille reprend
  * le ressenti déclaré : on lit une charge de travail d'un coup d'œil.
+ *
+ * Chaque semaine porte son compte à gauche, et un tiret quand elle est vide :
+ * une semaine sautée est ce qu'on cherche, et rien ne la distinguait des
+ * cases vides de début et de fin de mois.
  */
 export const SessionCalendar = ({
   history,
   selectedDay,
   onSelectDay,
+  months = 1,
 }: SessionCalendarProps) => {
   // On ouvre sur le mois de la séance la plus récente, pas sur le mois
   // courant : un client à l'arrêt depuis six semaines afficherait une grille
@@ -56,20 +284,21 @@ export const SessionCalendar = ({
     return map;
   }, [history]);
 
-  const cells = useMemo(() => {
-    const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
-    const daysInMonth = new Date(
-      cursor.getFullYear(),
-      cursor.getMonth() + 1,
-      0
-    ).getDate();
-
-    const list: (Date | null)[] = Array(mondayIndex(first)).fill(null);
-    for (let d = 1; d <= daysInMonth; d++) {
-      list.push(new Date(cursor.getFullYear(), cursor.getMonth(), d));
-    }
-    return list;
-  }, [cursor]);
+  // Le curseur est le mois le plus récent ; les précédents s'affichent à sa
+  // gauche, pour qu'on lise de gauche à droite dans le sens du temps.
+  const shownMonths = useMemo(
+    () =>
+      Array.from(
+        { length: months },
+        (_, i) =>
+          new Date(
+            cursor.getFullYear(),
+            cursor.getMonth() - (months - 1 - i),
+            1
+          )
+      ),
+    [cursor, months]
+  );
 
   const shiftMonth = (delta: number) => {
     setCursor(
@@ -79,10 +308,27 @@ export const SessionCalendar = ({
   };
 
   const todayKey = dayKey(new Date());
-  const monthCount = cells.reduce(
-    (sum, date) => (date ? sum + (byDay.get(dayKey(date))?.length ?? 0) : sum),
-    0
+  const rangeCount = useMemo(
+    () =>
+      shownMonths.reduce(
+        (total, month) =>
+          total +
+          buildWeeks(month)
+            .flat()
+            .reduce(
+              (sum, date) =>
+                date ? sum + (byDay.get(dayKey(date))?.length ?? 0) : sum,
+              0
+            ),
+        0
+      ),
+    [shownMonths, byDay]
   );
+
+  const rangeLabel =
+    months === 1
+      ? monthLabel(cursor)
+      : `${monthLabel(shownMonths[0])} — ${monthLabel(cursor)}`;
 
   return (
     <VStack align="stretch" gap={3}>
@@ -106,14 +352,15 @@ export const SessionCalendar = ({
             fontSize="sm"
             fontWeight="bold"
             textTransform="capitalize"
+            textAlign="center"
             aria-live="polite"
           >
-            {monthLabel(cursor)}
+            {rangeLabel}
           </Text>
           <Text fontSize="xs" color="fg.muted">
-            {monthCount === 0
+            {rangeCount === 0
               ? 'aucune séance'
-              : `${monthCount} séance${monthCount > 1 ? 's' : ''}`}
+              : `${rangeCount} séance${rangeCount > 1 ? 's' : ''}`}
           </Text>
         </VStack>
         <Box
@@ -132,114 +379,19 @@ export const SessionCalendar = ({
         </Box>
       </HStack>
 
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(7, 1fr)"
-        gap={1}
-        role="grid"
-        aria-label={`Séances de ${monthLabel(cursor)}`}
-      >
-        {WEEKDAYS.map((letter, i) => (
-          <Text
-            key={`${letter}-${i}`}
-            fontSize="xs"
-            color="fg.muted"
-            textAlign="center"
-            pb={1}
-            aria-hidden
-          >
-            {letter}
-          </Text>
+      <HStack align="start" gap={6}>
+        {shownMonths.map((month) => (
+          <MonthGrid
+            key={`${month.getFullYear()}-${month.getMonth()}`}
+            cursor={month}
+            byDay={byDay}
+            selectedDay={selectedDay}
+            onSelectDay={onSelectDay}
+            todayKey={todayKey}
+            showLabel={months > 1}
+          />
         ))}
-
-        {cells.map((date, index) => {
-          if (!date) return <Box key={`empty-${index}`} />;
-
-          const key = dayKey(date);
-          const sessions = byDay.get(key) ?? [];
-          const isSelected = selectedDay === key;
-          const isToday = key === todayKey;
-
-          // La pastille prend la couleur du ressenti. Plusieurs séances le
-          // même jour : celle du dernier bilan enregistré.
-          const effort =
-            sessions.length > 0 ? getEffortSummary(sessions[0]) : null;
-          const dotColor = effort
-            ? EFFORT_ZONE_COLOR[effort.zone]
-            : 'app.primary';
-
-          // Un jour sans séance n'est pas une commande désactivée : ce n'est
-          // pas une commande du tout. Il ne va donc pas dans l'ordre de
-          // tabulation, et un lecteur d'écran ne l'annonce pas.
-          const isActionable = sessions.length > 0;
-
-          return (
-            <Box
-              key={key}
-              as={isActionable ? 'button' : undefined}
-              aria-label={
-                isActionable
-                  ? `${date.getDate()} — ${sessions.length} séance${sessions.length > 1 ? 's' : ''}`
-                  : undefined
-              }
-              aria-pressed={isActionable ? isSelected : undefined}
-              onClick={
-                isActionable
-                  ? () => onSelectDay(isSelected ? null : key)
-                  : undefined
-              }
-              minH="44px"
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              py={1.5}
-              borderRadius="md"
-              borderWidth="1px"
-              borderColor={isSelected ? 'app.primary' : 'transparent'}
-              bg={isSelected ? 'app.primary/12' : 'transparent'}
-              cursor={isActionable ? 'pointer' : 'default'}
-              _hover={isActionable ? { bg: 'whiteAlpha.50' } : undefined}
-              _focusVisible={{
-                outline: '2px solid',
-                outlineColor: 'app.primary',
-                outlineOffset: '1px',
-              }}
-              transition="background-color 0.12s"
-            >
-              <VStack gap={0.5}>
-                <Text
-                  fontSize="xs"
-                  fontFamily="mono"
-                  color={
-                    isActionable
-                      ? 'fg'
-                      : isToday
-                        ? 'fg.muted'
-                        : 'whiteAlpha.600'
-                  }
-                  fontWeight={isToday ? 'bold' : 'normal'}
-                  textDecoration={isToday ? 'underline' : 'none'}
-                  textUnderlineOffset="2px"
-                >
-                  {date.getDate()}
-                </Text>
-                {/* Une pastille par séance : deux le même jour se voient. */}
-                <HStack gap="2px" h="5px" justify="center">
-                  {sessions.map((s) => (
-                    <Box
-                      key={s._id}
-                      w="5px"
-                      h="5px"
-                      borderRadius="full"
-                      bg={dotColor}
-                    />
-                  ))}
-                </HStack>
-              </VStack>
-            </Box>
-          );
-        })}
-      </Box>
+      </HStack>
     </VStack>
   );
 };

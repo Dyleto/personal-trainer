@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Box, Container, Grid, HStack, Text, VStack } from '@chakra-ui/react';
 import {
   CLIENT_GRID_MAX_W,
+  ExerciseProgressions,
   SessionCalendar,
   SessionHistoryCard,
   dayKey,
@@ -43,11 +44,17 @@ const History = () => {
               position={{ base: 'static', lg: 'sticky' }}
               top={{ lg: '80px' }}
             >
-              <SessionCalendar
-                history={history}
-                selectedDay={selectedDay}
-                onSelectDay={setSelectedDay}
-              />
+              <VStack align="stretch" gap={6}>
+                <SessionCalendar
+                  history={history}
+                  selectedDay={selectedDay}
+                  onSelectDay={setSelectedDay}
+                />
+                {/* Le calendrier dit à quel rythme, ceci dit dans quel sens.
+                    Les deux portent sur tout l'historique, pas sur le jour
+                    sélectionné : c'est la colonne de contexte. */}
+                <ExerciseProgressions history={history} />
+              </VStack>
             </Box>
 
             <VStack align="stretch" gap={3} minW={0}>

@@ -56,9 +56,12 @@ const router = createBrowserRouter(
       <Route path="coach" element={<CoachLayout />}>
         <Route index element={<Clients />} />
         <Route path="clients/:clientId" element={<ClientDetailsRedirect />} />
+        {/* L'atelier écrit sa propre barre du haut sur mobile — nom du client
+            à gauche, journal à droite — au lieu d'empiler deux bandeaux. */}
         <Route
           path="clients/:clientId/s/:sessionIndex"
           element={<ClientDetails />}
+          handle={{ ownsMobileTopBar: true }}
         />
         <Route path="clients/:clientId/journal" element={<ClientJournal />} />
         {/* La fiche d'un exercice s'ouvre dans la bibliothèque, pas sur un

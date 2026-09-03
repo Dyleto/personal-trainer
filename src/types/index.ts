@@ -19,6 +19,11 @@ export interface Client {
   unseenCount: number;
   /** Absent tant que le client n'a jamais terminé de séance. */
   lastCompletedAt?: Date;
+  /**
+   * Le ressenti déclaré sur cette dernière séance. Absent si elle n'en portait
+   * pas — bilan d'avant la refonte, ou terminée sans se prononcer.
+   */
+  lastEffort?: number;
 }
 
 export interface Coach {

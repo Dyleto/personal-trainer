@@ -32,7 +32,15 @@ const ClientJournal = () => {
   if (!client) return null;
 
   return (
-    <Box maxW={COACH_CONTENT_MAX_W} mx="auto" px={4} py={8}>
+    // Le journal est un écran de lecture à deux colonnes, pas un formulaire :
+    // à partir de 2xl il prend la largeur que demandent deux mois de
+    // calendrier côte à côte, sinon la liste se réduit à un filet de texte.
+    <Box
+      maxW={{ base: COACH_CONTENT_MAX_W, '2xl': '1400px' }}
+      mx="auto"
+      px={4}
+      py={8}
+    >
       <VStack align="stretch" gap={1} mb={6}>
         <HStack
           gap={1.5}

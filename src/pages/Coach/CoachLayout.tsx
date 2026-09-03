@@ -1,14 +1,25 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useMatches } from 'react-router-dom';
 import { CoachNavRail, CoachTabBar } from '@/features/coach';
 import { MobileTopBar } from '@/components/MobileTopBar';
 import { Box, Flex } from '@chakra-ui/react';
 
+// Une page peut porter elle-même la barre du haut mobile (`handle`) : elle
+// connaît son sujet, la barre générique ne connaît que le nom du produit.
+// Deux bandeaux empilés sur un écran de 844 px, c'est un cinquième de la
+// hauteur perdu avant le premier exercice.
+const ownsMobileTopBar = (handle: unknown): boolean =>
+  typeof handle === 'object' &&
+  handle !== null &&
+  (handle as { ownsMobileTopBar?: boolean }).ownsMobileTopBar === true;
+
 const CoachLayout = () => {
+  const pageOwnsTopBar = useMatches().some((m) => ownsMobileTopBar(m.handle));
+
   return (
     <Flex minH="100vh">
       <CoachNavRail />
       <Box flex={1} minW={0} pb={{ base: '70px', md: 0 }}>
-        <MobileTopBar />
+        {!pageOwnsTopBar && <MobileTopBar />}
         <Box as="main" id="contenu" minW={0}>
           <Outlet />
         </Box>
