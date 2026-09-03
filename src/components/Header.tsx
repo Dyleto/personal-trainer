@@ -38,7 +38,7 @@ export const Header = ({ variant = 'compact' }: HeaderProps) => {
   };
 
   const avatar = (
-    <Avatar.Root size={variant === 'rail' ? 'sm' : 'md'} cursor="pointer">
+    <Avatar.Root size="sm" cursor="pointer">
       <Avatar.Fallback name={fullName} />
       <Avatar.Image src={user?.picture} />
     </Avatar.Root>

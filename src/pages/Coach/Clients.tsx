@@ -1,30 +1,60 @@
 import { useState } from 'react';
-import {
-  Button,
-  Container,
-  Drawer,
-  HStack,
-  IconButton,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { LuUserPlus, LuX } from 'react-icons/lu';
-import {
-  ClientsList,
-  InvitationBlock,
-  COACH_CONTENT_MAX_W,
-} from '@/features/coach';
+import { Button, Container, HStack, Text, VStack } from '@chakra-ui/react';
+import { LuCheck, LuUserPlus } from 'react-icons/lu';
+import { ClientsList, COACH_CONTENT_MAX_W } from '@/features/coach';
 import { useClients } from '@/features/coach/hooks/useClients';
+import { useGenerateInvitation } from '@/features/coach/hooks/useGenerateInvitation';
+import { toaster } from '@/components/ui/toasterInstance';
 
 const Clients = () => {
   const { data: clients = [] } = useClients();
-  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const { mutate: generateInvitation, isPending } = useGenerateInvitation();
+  const [isCopied, setIsCopied] = useState(false);
+
+  /**
+   * Inviter, c'est une seule action : fabriquer un lien et le copier.
+   *
+   * Elle passait par un tiroir latéral dont le corps entier était un bouton
+   * — deux clics et un panneau pour une opération qui n'a aucun réglage. Le
+   * bouton fait maintenant ce qu'il annonce.
+   *
+   * La copie est explicite plutôt que confiée à `useClipboard` : celui-ci
+   * passe par une machine à états, et rien ne garantit que le `copy()` voie
+   * la valeur posée juste avant. Un lien d'invitation copié vide ne se
+   * remarque qu'au moment où le client dit qu'il n'a rien reçu.
+   */
+  const invite = () => {
+    generateInvitation(undefined, {
+      onSuccess: async ({ link }) => {
+        try {
+          await navigator.clipboard.writeText(link);
+          setIsCopied(true);
+          setTimeout(() => setIsCopied(false), 2500);
+          toaster.create({
+            title: "Lien d'invitation copié",
+            description:
+              'Envoyez-le à votre client : il rejoindra votre suivi.',
+            type: 'success',
+          });
+        } catch {
+          // Presse-papier refusé (contexte non sécurisé, permission) : on
+          // montre le lien plutôt que de laisser croire qu'il est copié.
+          toaster.create({
+            title: "Lien d'invitation",
+            description: link,
+            type: 'info',
+            duration: 20000,
+          });
+        }
+      },
+    });
+  };
 
   return (
     <Container maxW={COACH_CONTENT_MAX_W} py={8} px={4}>
       <VStack align="stretch" gap={6}>
-        <HStack justify="space-between" align="center">
-          <VStack align="start" gap={0}>
+        <HStack justify="space-between" align="center" gap={3}>
+          <VStack align="start" gap={0} minW={0}>
             <Text fontWeight="bold" fontSize="lg">
               Mes clients
             </Text>
@@ -36,50 +66,30 @@ const Clients = () => {
           </VStack>
           <Button
             size="sm"
-            bg="app.primary"
+            flexShrink={0}
+            bg={isCopied ? 'app.success' : 'app.primary'}
             color="bg.canvas"
             fontWeight="bold"
-            _hover={{ bg: 'app.primary.hover' }}
-            onClick={() => setIsInviteOpen(true)}
+            _hover={{
+              bg: isCopied ? 'app.success.hover' : 'app.primary.hover',
+            }}
+            onClick={invite}
+            loading={isPending}
           >
-            <LuUserPlus /> Inviter
+            {isCopied ? (
+              <>
+                <LuCheck /> Lien copié
+              </>
+            ) : (
+              <>
+                <LuUserPlus /> Inviter
+              </>
+            )}
           </Button>
         </HStack>
 
         <ClientsList />
       </VStack>
-
-      <Drawer.Root
-        open={isInviteOpen}
-        onOpenChange={(e) => !e.open && setIsInviteOpen(false)}
-        size="sm"
-      >
-        <Drawer.Positioner>
-          <Drawer.Content bg="bg.canvas">
-            <Drawer.Header borderBottomWidth="1px" borderColor="whiteAlpha.100">
-              <HStack justify="space-between" flex={1}>
-                <Text fontWeight="bold">Inviter un client</Text>
-                <IconButton
-                  aria-label="Fermer"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setIsInviteOpen(false)}
-                >
-                  <LuX />
-                </IconButton>
-              </HStack>
-            </Drawer.Header>
-            <Drawer.Body p={6}>
-              <VStack gap={4} align="center">
-                <InvitationBlock />
-                <Text textAlign="center" color="fg.muted" fontSize="sm">
-                  Partagez le lien d'invitation pour ajouter un nouveau client.
-                </Text>
-              </VStack>
-            </Drawer.Body>
-          </Drawer.Content>
-        </Drawer.Positioner>
-      </Drawer.Root>
     </Container>
   );
 };

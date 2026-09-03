@@ -4,8 +4,8 @@ import {
   ClientTabBar,
   ClientNavRail,
 } from '@/features/client';
-import { Header } from '@/components/Header';
-import { Box, Flex, HStack } from '@chakra-ui/react';
+import { MobileTopBar } from '@/components/MobileTopBar';
+import { Box, Flex } from '@chakra-ui/react';
 
 const ClientLayout = () => {
   const clientSessions = useClientSessions();
@@ -14,9 +14,7 @@ const ClientLayout = () => {
     <Flex minH="100vh">
       <ClientNavRail />
       <Box flex={1} minW={0} pb={{ base: '70px', md: 0 }}>
-        <HStack justify="flex-end" p={4} display={{ base: 'flex', md: 'none' }}>
-          <Header />
-        </HStack>
+        <MobileTopBar />
         <Outlet context={clientSessions} />
         <ClientTabBar />
       </Box>
