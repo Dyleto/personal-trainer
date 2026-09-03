@@ -51,9 +51,12 @@ export const RecordPerformed = ({
 
   return (
     <>
+      {/* Centrée : sur mobile la boîte se collait en haut de l'écran, loin du
+          pouce et loin du geste qu'on vient de finir. */}
       <Dialog.Root
         open={isOpen && !isRecording}
         onOpenChange={(e) => !e.open && onCancel()}
+        placement="center"
       >
         <Portal>
           <Dialog.Backdrop />

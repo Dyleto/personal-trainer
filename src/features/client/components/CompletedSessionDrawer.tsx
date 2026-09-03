@@ -403,6 +403,9 @@ export const CompletedSessionDrawer = ({
                                 exerciseOrder
                               );
                               if (isEditing) {
+                                const prescribed = block.exercises.find(
+                                  (e) => e.order === exerciseOrder
+                                );
                                 return (
                                   <PerformedFields
                                     value={performed[key] ?? {}}
@@ -412,16 +415,18 @@ export const CompletedSessionDrawer = ({
                                         [key]: next,
                                       }))
                                     }
+                                    isTimed={prescribed?.duration !== undefined}
                                   />
                                 );
                               }
                               const done = formatPerformed(original[key]);
+                              // Rien de noté : on n'écrit rien. Une colonne de
+                              // « Fait : — » sur dix exercices ne dit pas que
+                              // c'est vide, elle encombre pour le dire.
+                              if (!done) return null;
                               return (
                                 <Text fontSize="2xs" color="fg.muted" pl={4}>
-                                  {/* Un tiret, jamais un zéro : « pas
-                                      renseigné » et « zéro » ne veulent pas
-                                      dire la même chose. */}
-                                  Fait&nbsp;: {done ?? '—'}
+                                  Fait&nbsp;: {done}
                                 </Text>
                               );
                             }}

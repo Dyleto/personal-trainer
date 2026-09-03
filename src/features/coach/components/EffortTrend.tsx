@@ -61,6 +61,8 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
   const rated = chronological.filter((c) => c.feedback?.effort !== undefined);
   const efforts = rated.map((c) => c.feedback!.effort);
   const drift = detectDrift(efforts);
+  const lastLabel =
+    getEffortLevel(rated[rated.length - 1]?.feedback?.effort)?.label ?? '—';
   const tags = countTags(rated);
 
   // Aucun passage noté : les bilans d'avant la refonte n'ont jamais porté la
@@ -110,8 +112,12 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
       </HStack>
 
       <HStack gap={2} justify="space-between" align="baseline">
-        <Text fontSize="xs" color="fg" fontFamily="mono">
-          {efforts.join(' → ')}
+        {/* Le mot, pas le chiffre. La suite « 3 → 4 » se lisait comme un code :
+            rien à l'écran ne disait sur quelle échelle, ni dans quel sens. */}
+        <Text fontSize="2xs" color="fg.muted">
+          {rated.length === 1
+            ? `Dernier ressenti : ${lastLabel}`
+            : `${rated.length} derniers ressentis, du plus ancien au plus récent — ${lastLabel} en dernier`}
         </Text>
         {drift && (
           <Text

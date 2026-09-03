@@ -2,9 +2,9 @@ import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
 import { LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import { CompletedSession } from '@/types';
-import { EFFORT_ZONE_COLOR } from '@/features/client/constants';
-import { getEffortSummary } from '@/features/client';
-import { dayKey } from '../journalDates';
+import { EFFORT_ZONE_COLOR } from '../constants';
+import { getEffortSummary } from '../format';
+import { dayKey } from '../sessionDates';
 
 const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
@@ -16,7 +16,7 @@ const monthLabel = (d: Date) =>
 /** Lundi = 0 : la semaine française ne commence pas le dimanche. */
 const mondayIndex = (date: Date) => (date.getDay() + 6) % 7;
 
-interface JournalCalendarProps {
+interface SessionCalendarProps {
   history: CompletedSession[];
   /** Jour affiché en détail, ou `null` pour « tout le mois ». */
   selectedDay: string | null;
@@ -31,11 +31,11 @@ interface JournalCalendarProps {
  * ça se compte péniblement sur une liste. La couleur de la pastille reprend
  * le ressenti déclaré : on lit une charge de travail d'un coup d'œil.
  */
-export const JournalCalendar = ({
+export const SessionCalendar = ({
   history,
   selectedDay,
   onSelectDay,
-}: JournalCalendarProps) => {
+}: SessionCalendarProps) => {
   // On ouvre sur le mois de la séance la plus récente, pas sur le mois
   // courant : un client à l'arrêt depuis six semaines afficherait une grille
   // vide, et on croirait le journal cassé.

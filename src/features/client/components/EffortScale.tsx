@@ -1,6 +1,6 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { useRef } from 'react';
-import { EFFORT_LEVELS, EFFORT_ZONE_COLOR, getEffortLevel } from '../constants';
+import { EFFORT_SCALE, EFFORT_ZONE_COLOR, getEffortLevel } from '../constants';
 
 interface EffortScaleProps {
   /** `undefined` = rien de choisi. Jamais de présélection : une valeur non
@@ -14,8 +14,8 @@ export const EffortScale = ({ value, onChange }: EffortScaleProps) => {
   const selected = getEffortLevel(value);
 
   const move = (from: number, delta: number) => {
-    const next = Math.min(EFFORT_LEVELS.length - 1, Math.max(0, from + delta));
-    onChange(EFFORT_LEVELS[next].value);
+    const next = Math.min(EFFORT_SCALE.length - 1, Math.max(0, from + delta));
+    onChange(EFFORT_SCALE[next].value);
     refs.current[next]?.focus();
   };
 
@@ -27,7 +27,7 @@ export const EffortScale = ({ value, onChange }: EffortScaleProps) => {
         aria-label="Difficulté de la séance"
         align="stretch"
       >
-        {EFFORT_LEVELS.map((level, i) => {
+        {EFFORT_SCALE.map((level, i) => {
           const isSelected = level.value === value;
           const color = EFFORT_ZONE_COLOR[level.zone];
           return (
@@ -74,7 +74,7 @@ export const EffortScale = ({ value, onChange }: EffortScaleProps) => {
               transition="background-color 0.15s, border-color 0.15s"
             >
               <Text fontSize="lg" fontWeight="800" fontFamily="mono">
-                {level.value}
+                {level.rank}
               </Text>
             </Box>
           );
@@ -83,10 +83,10 @@ export const EffortScale = ({ value, onChange }: EffortScaleProps) => {
 
       <HStack justify="space-between">
         <Text fontSize="2xs" color="fg.muted">
-          {EFFORT_LEVELS[0].label}
+          {EFFORT_SCALE[0].label}
         </Text>
         <Text fontSize="2xs" color="fg.muted">
-          {EFFORT_LEVELS[EFFORT_LEVELS.length - 1].label}
+          {EFFORT_SCALE[EFFORT_SCALE.length - 1].label}
         </Text>
       </HStack>
 

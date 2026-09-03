@@ -122,13 +122,10 @@ export const GuidedSession = ({
 
   const goPrev = () => goTo(Math.max(0, index - 1));
 
-  const handleExitClick = () => {
-    if (index > 0) {
-      setShowExitConfirm(true);
-    } else {
-      onExit();
-    }
-  };
+  // On demande toujours. À la première étape il n'y a rien à perdre, mais on
+  // vient d'entrer dans un plein écran : en sortir sans un mot sur un doigt
+  // qui glisse, c'est la séance qu'on croit avoir lancée et qui n'est plus là.
+  const handleExitClick = () => setShowExitConfirm(true);
 
   const confirmExit = () => {
     clearSavedIndex(session._id);
@@ -275,7 +272,9 @@ export const GuidedSession = ({
           Quitter le mode guidé ?
         </Text>
         <Text fontSize="sm" color="fg.muted">
-          Ta progression sur cette séance ne sera pas enregistrée.
+          {index > 0
+            ? 'Ta progression sur cette séance ne sera pas enregistrée.'
+            : "Tu n'as pas encore commencé — tu retrouveras la séance telle quelle."}
         </Text>
         <VStack gap={2} w="full" maxW="280px">
           <Button

@@ -1,8 +1,12 @@
 import { useOutletContext } from 'react-router-dom';
-import { Box, Container, Grid, Text, VStack } from '@chakra-ui/react';
+import { useState } from 'react';
+import { Box, Container, Grid, HStack, Text, VStack } from '@chakra-ui/react';
 import {
   CLIENT_GRID_MAX_W,
+  SessionCalendar,
   SessionHistoryCard,
+  dayKey,
+  formatDayLabel,
   useClientSessions,
 } from '@/features/client';
 
@@ -10,6 +14,12 @@ type ClientSessionsData = ReturnType<typeof useClientSessions>;
 
 const History = () => {
   const { history } = useOutletContext<ClientSessionsData>();
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  // Le calendrier filtre, il ne remplace pas : sans jour choisi, on lit tout.
+  const visible = selectedDay
+    ? history.filter((c) => dayKey(new Date(c.completedAt)) === selectedDay)
+    : history;
 
   return (
     <Container maxW={CLIENT_GRID_MAX_W} py={8} px={4}>
@@ -23,25 +33,58 @@ const History = () => {
             Aucune séance complétée pour l'instant.
           </Box>
         ) : (
-          <>
-            <Text fontSize="xs" color="fg.muted">
-              {history.length} séance{history.length > 1 ? 's' : ''} complétée
-              {history.length > 1 ? 's' : ''}
-            </Text>
-            <Grid
-              templateColumns={{
-                base: '1fr',
-                md: 'repeat(2, 1fr)',
-                xl: 'repeat(3, 1fr)',
-              }}
-              gap={4}
-              alignItems="start"
+          <Grid
+            templateColumns={{ base: '1fr', lg: '300px 1fr' }}
+            gap={{ base: 5, lg: 8 }}
+            alignItems="start"
+          >
+            <Box
+              minW={0}
+              position={{ base: 'static', lg: 'sticky' }}
+              top={{ lg: '80px' }}
             >
-              {history.map((c) => (
-                <SessionHistoryCard key={c._id} completed={c} />
-              ))}
-            </Grid>
-          </>
+              <SessionCalendar
+                history={history}
+                selectedDay={selectedDay}
+                onSelectDay={setSelectedDay}
+              />
+            </Box>
+
+            <VStack align="stretch" gap={3} minW={0}>
+              <HStack justify="space-between" align="baseline">
+                <Text fontSize="xs" color="fg.muted">
+                  {selectedDay
+                    ? formatDayLabel(selectedDay)
+                    : `${history.length} séance${history.length > 1 ? 's' : ''} complétée${history.length > 1 ? 's' : ''}`}
+                </Text>
+                {selectedDay && (
+                  <Box
+                    as="button"
+                    fontSize="xs"
+                    color="app.primary"
+                    onClick={() => setSelectedDay(null)}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'app.primary',
+                      outlineOffset: '2px',
+                    }}
+                  >
+                    tout l'historique
+                  </Box>
+                )}
+              </HStack>
+
+              <Grid
+                templateColumns={{ base: '1fr', xl: 'repeat(2, 1fr)' }}
+                gap={4}
+                alignItems="start"
+              >
+                {visible.map((c) => (
+                  <SessionHistoryCard key={c._id} completed={c} />
+                ))}
+              </Grid>
+            </VStack>
+          </Grid>
         )}
       </VStack>
     </Container>

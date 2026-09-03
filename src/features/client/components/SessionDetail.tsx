@@ -8,6 +8,17 @@ import {
   performedKey,
 } from '../lastPerformance';
 
+/** Un exercice mesuré en temps : on ne lui demande pas de répétitions. */
+const isTimedExercise = (
+  session: Session,
+  blockOrder: number,
+  exerciseOrder: number
+) => {
+  const block = session.blocks.find((b) => b.order === blockOrder);
+  const exercise = block?.exercises.find((e) => e.order === exerciseOrder);
+  return exercise?.duration !== undefined;
+};
+
 interface SessionDetailProps {
   session: Session;
   isLoading?: boolean;
@@ -58,24 +69,34 @@ export const SessionDetail = ({
         <BlockCard
           key={block._id}
           block={block}
-          renderExerciseExtra={
-            isRecording
-              ? ({ blockOrder, exerciseOrder, exerciseId }) => {
-                  const key = performedKey(blockOrder, exerciseOrder);
-                  return (
-                    <PerformedFields
-                      value={performed[key] ?? {}}
-                      onChange={(next) => onPerformedChange(key, next)}
-                      lastLabel={formatLastPerformance(
-                        exerciseId
-                          ? lastPerformance?.get(exerciseId)
-                          : undefined
-                      )}
-                    />
-                  );
-                }
-              : undefined
-          }
+          renderExerciseExtra={({ blockOrder, exerciseOrder, exerciseId }) => {
+            const last = formatLastPerformance(
+              exerciseId ? lastPerformance?.get(exerciseId) : undefined
+            );
+
+            if (isRecording) {
+              const key = performedKey(blockOrder, exerciseOrder);
+              return (
+                <PerformedFields
+                  value={performed[key] ?? {}}
+                  onChange={(next) => onPerformedChange(key, next)}
+                  lastLabel={last}
+                  isTimed={isTimedExercise(session, blockOrder, exerciseOrder)}
+                />
+              );
+            }
+
+            // En lecture : pas de champ, mais ce qu'on avait mis la dernière
+            // fois. Le mode guidé le rappelait déjà — tout le monde ne
+            // l'utilise pas, et c'est justement au moment de charger la barre
+            // qu'on cherche l'information.
+            if (!last) return null;
+            return (
+              <Text fontSize="2xs" color="fg.muted" pl={4} opacity={0.8}>
+                la dernière fois&nbsp;: {last}
+              </Text>
+            );
+          }}
         />
       ))}
       {session.blocks.length === 0 && (

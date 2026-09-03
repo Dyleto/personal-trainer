@@ -5,6 +5,8 @@ export { EffortScale } from './components/EffortScale';
 export { FeedbackTags } from './components/FeedbackTags';
 export { PerformedFields } from './components/PerformedFields';
 export { RecordPerformed } from './components/RecordPerformed';
+export { SessionCalendar } from './components/SessionCalendar';
+export { dayKey, formatDayLabel } from './sessionDates';
 export {
   useCompleteSession,
   useUpdateCompletedSession,

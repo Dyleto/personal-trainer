@@ -6,6 +6,9 @@ interface PerformedFieldsProps {
   onChange: (next: PerformedValues) => void;
   /** « la dernière fois : 24 kg · 4 × 10 », ou `null` s'il n'y a rien à dire. */
   lastLabel?: string | null;
+  /** L'exercice se mesure en temps : demander des répétitions n'a pas de
+   *  sens, on ne montre alors que la charge. */
+  isTimed?: boolean;
 }
 
 type NumericField = 'weight' | 'reps';
@@ -57,6 +60,7 @@ export const PerformedFields = ({
   value,
   onChange,
   lastLabel,
+  isTimed = false,
 }: PerformedFieldsProps) => {
   const set = (field: NumericField, v?: number) =>
     onChange({ ...value, [field]: v });
@@ -73,12 +77,14 @@ export const PerformedFields = ({
           value={value.weight}
           onChange={(v) => set('weight', v)}
         />
-        <Field
-          label="Répétitions réellement faites"
-          suffix="reps"
-          value={value.reps}
-          onChange={(v) => set('reps', v)}
-        />
+        {!isTimed && (
+          <Field
+            label="Répétitions réellement faites"
+            suffix="reps"
+            value={value.reps}
+            onChange={(v) => set('reps', v)}
+          />
+        )}
       </HStack>
 
       {lastLabel && (

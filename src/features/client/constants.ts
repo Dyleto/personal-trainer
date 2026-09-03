@@ -47,6 +47,23 @@ export const EFFORT_LEVELS: EffortLevel[] = [
   },
 ];
 
+/**
+ * L'échelle telle qu'on la lit : le plus dur à gauche.
+ *
+ * `value` reste la valeur stockée en base — 1 y signifie toujours « Trop
+ * facile », et aucun bilan déjà enregistré n'est réinterprété. `rank` est le
+ * chiffre affiché, et lui compte à l'envers : 1 = Trop dure. Séparer les deux
+ * évite la seule chose qu'on ne pourrait pas rattraper — une migration qui
+ * inverse silencieusement le sens de tout l'historique.
+ */
+export interface EffortScaleStep extends EffortLevel {
+  rank: number;
+}
+
+export const EFFORT_SCALE: EffortScaleStep[] = [...EFFORT_LEVELS]
+  .reverse()
+  .map((level, index) => ({ ...level, rank: index + 1 }));
+
 export const EFFORT_ZONE_COLOR: Record<EffortZone, string> = {
   easy: 'session.rest',
   target: 'app.primary',

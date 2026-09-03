@@ -27,6 +27,8 @@ interface SheetFieldProps {
   fontSize?: string;
   fontWeight?: string;
   color?: string;
+  /** Renvoie le motif du refus, ou `null` si la valeur passe. */
+  validate?: (value: string) => string | null;
 }
 
 /**
@@ -42,12 +44,19 @@ const SheetField = ({
   fontSize = 'sm',
   fontWeight = 'normal',
   color = 'fg',
+  validate,
 }: SheetFieldProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const commit = () => {
     const next = draft.trim();
+    // Un refus garde le champ ouvert : sortir en effaçant la saisie ferait
+    // disparaître à la fois la valeur et la raison du refus.
+    const refusal = validate?.(next) ?? null;
+    setError(refusal);
+    if (refusal) return;
     if (next !== (value ?? '').trim()) onCommit(next);
     setIsEditing(false);
   };
@@ -71,6 +80,7 @@ const SheetField = ({
           onKeyDown={(e: React.KeyboardEvent) => {
             if (e.key === 'Escape') {
               e.preventDefault();
+              setError(null);
               setIsEditing(false);
             }
           }}
@@ -78,19 +88,29 @@ const SheetField = ({
       );
     }
     return (
-      <Input
-        {...shared}
-        size="sm"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            commit();
-          } else if (e.key === 'Escape') {
-            e.preventDefault();
-            setIsEditing(false);
-          }
-        }}
-      />
+      <Box>
+        <Input
+          {...shared}
+          size="sm"
+          aria-invalid={!!error}
+          borderColor={error ? 'app.error' : 'app.primary.border'}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              commit();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              setError(null);
+              setIsEditing(false);
+            }
+          }}
+        />
+        {error && (
+          <Text fontSize="2xs" color="app.error" mt={1} role="alert">
+            {error}
+          </Text>
+        )}
+      </Box>
     );
   }
 
@@ -139,6 +159,17 @@ interface ExerciseSheetProps {
    *  n'a pas de sens — l'atelier, par exemple. */
   onDelete?: () => void;
 }
+
+/**
+ * Un lien qu'on ne sait pas lire n'affichait rien : ni lecteur, ni erreur.
+ * On le refuse en disant ce qui est accepté, plutôt que de l'enregistrer et
+ * de laisser le coach découvrir plus tard que sa vidéo ne s'ouvre pas.
+ */
+const validateVideoUrl = (value: string): string | null => {
+  if (value === '') return null;
+  if (getVideoEmbedUrl(value)) return null;
+  return 'Lien non reconnu — seuls YouTube (watch, youtu.be, Shorts) et Vimeo sont lus.';
+};
 
 /** `blocksDeletion` : une corbeille est offerte, et cet usage l'empêche. */
 const usageSentence = (usage: number, blocksDeletion: boolean): string => {
@@ -263,6 +294,7 @@ export const ExerciseSheet = ({
                 emptyLabel="+ vidéo"
                 fontSize="2xs"
                 color="fg.muted"
+                validate={validateVideoUrl}
               />
             </Box>
             <Link
@@ -289,6 +321,7 @@ export const ExerciseSheet = ({
               emptyLabel="+ vidéo"
               fontSize="xs"
               color="fg.muted"
+              validate={validateVideoUrl}
             />
           </Box>
         </HStack>

@@ -216,38 +216,46 @@ export const SessionRail = ({
   }
 
   return (
-    <HStack
-      gap={2}
-      overflowX="auto"
-      pb={2}
-      w="100%"
-      css={{ scrollbarWidth: 'none' }}
-    >
-      {sessions.map((session, index) => {
-        const isActive = index === activeIndex;
-        return (
-          <Box
-            key={session._id}
-            as="button"
-            onClick={() => onSelect(index)}
-            flexShrink={0}
-            px={3}
-            py={1.5}
-            borderRadius="full"
-            bg={isActive ? 'app.primary' : 'whiteAlpha.100'}
-            color={isActive ? 'bg.canvas' : 'fg.muted'}
-            fontSize="sm"
-            fontWeight="bold"
-            opacity={neverDoneIds?.has(session._id) && !isActive ? 0.6 : 1}
-          >
-            S{session.order}
-          </Box>
-        );
-      })}
+    // Le « + » était le dernier élément du défilement : passé huit séances,
+    // il sortait de l'écran et devenait introuvable. Il reste maintenant
+    // hors du conteneur défilant, épinglé à droite — visible en permanence,
+    // et sans coûter une seconde ligne.
+    <HStack gap={2} w="100%" align="center">
+      <HStack
+        gap={2}
+        overflowX="auto"
+        pb={2}
+        flex={1}
+        minW={0}
+        css={{ scrollbarWidth: 'none' }}
+      >
+        {sessions.map((session, index) => {
+          const isActive = index === activeIndex;
+          return (
+            <Box
+              key={session._id}
+              as="button"
+              onClick={() => onSelect(index)}
+              flexShrink={0}
+              px={3}
+              py={1.5}
+              borderRadius="full"
+              bg={isActive ? 'app.primary' : 'whiteAlpha.100'}
+              color={isActive ? 'bg.canvas' : 'fg.muted'}
+              fontSize="sm"
+              fontWeight="bold"
+              opacity={neverDoneIds?.has(session._id) && !isActive ? 0.6 : 1}
+            >
+              S{session.order}
+            </Box>
+          );
+        })}
+      </HStack>
       <Box
         as="button"
         onClick={onAddSession}
         flexShrink={0}
+        mb={2}
         px={3}
         py={1.5}
         borderRadius="full"

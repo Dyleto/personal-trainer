@@ -203,19 +203,31 @@ const SessionScreen = () => {
 
       {/* En lecture, une séance se lit : pas de champ vide sous chaque
           exercice avant même de l'avoir commencée. La saisie arrive à la
-          fin, dans RecordPerformed. */}
-      <SessionDetail session={activeSession} />
+          fin, dans RecordPerformed — mais ce qu'on avait mis la dernière
+          fois s'affiche dès maintenant, c'est là qu'on en a besoin. */}
+      <SessionDetail
+        session={activeSession}
+        lastPerformance={lastPerformance}
+      />
 
       <VStack
         align="stretch"
         gap={2}
         mt={5}
         position={{ base: 'fixed', md: 'static' }}
-        bottom={{ base: '70px', md: 'auto' }}
+        // Ancré au bas de l'écran plutôt qu'à 70 px : la barre d'onglets ne
+        // fait pas exactement 70 px — elle dépend de la zone sûre du
+        // téléphone — et l'écart laissait passer un filet de page entre les
+        // deux. Le fond descend maintenant derrière la barre.
+        bottom={{ base: 0, md: 'auto' }}
         left={{ base: 0, md: 'auto' }}
         right={{ base: 0, md: 'auto' }}
         bg={{ base: 'bg.canvas', md: 'transparent' }}
         p={{ base: 4, md: 0 }}
+        pb={{
+          base: 'calc(env(safe-area-inset-bottom, 0px) + 78px)',
+          md: 0,
+        }}
         borderTop={{ base: '1px solid', md: 'none' }}
         borderColor="whiteAlpha.100"
         zIndex={20}

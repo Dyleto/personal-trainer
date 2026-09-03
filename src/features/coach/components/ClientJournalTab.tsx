@@ -4,13 +4,14 @@ import { EFFORT_ZONE_COLOR } from '@/features/client/constants';
 import { useMarkHistoryAsViewed } from '@/features/coach/hooks/useMarkHistoryAsViewed';
 import {
   CompletedSessionDrawer,
+  SessionCalendar,
+  dayKey,
+  formatDayLabel,
   getEffortSummary,
   getRelativeDate,
 } from '@/features/client';
 import { Box, Grid, HStack, Text, VStack } from '@chakra-ui/react';
 import { LuChevronRight } from 'react-icons/lu';
-import { JournalCalendar } from './JournalCalendar';
-import { dayKey, formatDayLabel } from '../journalDates';
 
 interface Props {
   history: CompletedSession[];
@@ -130,7 +131,7 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
           position={{ base: 'static', lg: 'sticky' }}
           top={{ lg: '80px' }}
         >
-          <JournalCalendar
+          <SessionCalendar
             history={history}
             selectedDay={selectedDay}
             onSelectDay={setSelectedDay}

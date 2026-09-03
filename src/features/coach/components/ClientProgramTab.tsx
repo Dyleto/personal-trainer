@@ -115,6 +115,7 @@ export const ClientProgramTab = ({
     null
   );
   const [sheetExercise, setSheetExercise] = useState<Exercise | null>(null);
+  const [isSessionRemovalOpen, setIsSessionRemovalOpen] = useState(false);
 
   const blockSelectorRef = useRef<HTMLDivElement>(null);
   const closeBlockSelector = useCallback(() => setShowBlockSelector(false), []);
@@ -264,7 +265,7 @@ export const ClientProgramTab = ({
             variant="ghost"
             color="fg.muted"
             _hover={{ color: 'app.error', bg: 'app.error/8' }}
-            onClick={onRemoveSession}
+            onClick={() => setIsSessionRemovalOpen(true)}
           >
             <LuTrash2 size={13} />
             Supprimer la séance
@@ -308,6 +309,59 @@ export const ClientProgramTab = ({
           </Drawer.Positioner>
         </Portal>
       </Drawer.Root>
+
+      {/* Supprimer une séance emporte tous ses blocs d'un coup — la même
+          question que pour un bloc, à plus forte raison. */}
+      <Dialog.Root
+        role="alertdialog"
+        open={isSessionRemovalOpen}
+        onOpenChange={(e) => !e.open && setIsSessionRemovalOpen(false)}
+      >
+        <Portal>
+          <Dialog.Backdrop />
+          <Dialog.Positioner>
+            <Dialog.Content
+              bg="bg.canvas"
+              borderColor="whiteAlpha.100"
+              borderWidth="1px"
+              maxW="sm"
+            >
+              <Dialog.Header>
+                <Dialog.Title>
+                  Supprimer la séance {session.order} ?
+                </Dialog.Title>
+              </Dialog.Header>
+              <Dialog.Body>
+                <Text color="fg.muted" fontSize="sm">
+                  {session.blocks.length
+                    ? `Ses ${session.blocks.length} bloc${session.blocks.length > 1 ? 's' : ''} seront retirés du programme.`
+                    : 'Cette séance ne contient aucun bloc.'}
+                </Text>
+              </Dialog.Body>
+              <Dialog.Footer gap={2} flexWrap="wrap">
+                <Button
+                  variant="ghost"
+                  color="fg.muted"
+                  onClick={() => setIsSessionRemovalOpen(false)}
+                >
+                  Conserver
+                </Button>
+                <Button
+                  bg="app.error"
+                  color="bg.canvas"
+                  fontWeight="bold"
+                  onClick={() => {
+                    setIsSessionRemovalOpen(false);
+                    onRemoveSession();
+                  }}
+                >
+                  Supprimer
+                </Button>
+              </Dialog.Footer>
+            </Dialog.Content>
+          </Dialog.Positioner>
+        </Portal>
+      </Dialog.Root>
 
       <Dialog.Root
         role="alertdialog"

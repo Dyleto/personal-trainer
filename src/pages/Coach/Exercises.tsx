@@ -128,26 +128,31 @@ const Exercises = () => {
             sectionRefs.current[letter] = el;
           }}
         >
-          {/* Le repère de lettre est une étiquette, pas une carte : même
-              graphie que l'étiquette de type dans l'atelier. */}
+          {/* Le repère de lettre se lisait comme un exercice d'une lettre :
+              même graphie, même colonne, même couleur. Il passe donc dans la
+              marge, avec un filet qui court jusqu'au bord — c'est un
+              séparateur, pas une entrée de la liste. */}
           <Box
             position="sticky"
             top={0}
             zIndex={1}
             bg="bg.canvas"
-            pt={4}
+            pt={5}
             pb={1}
           >
-            <Text
-              fontSize="2xs"
-              fontWeight="bold"
-              color="fg.muted"
-              letterSpacing="wider"
-              textTransform="uppercase"
-              px={2}
-            >
-              {letter}
-            </Text>
+            <HStack gap={2} align="center">
+              <Text
+                fontSize="2xs"
+                fontWeight="bold"
+                color="app.primary"
+                letterSpacing="widest"
+                fontFamily="mono"
+                flexShrink={0}
+              >
+                {letter}
+              </Text>
+              <Box flex={1} h="1px" bg="whiteAlpha.100" />
+            </HStack>
           </Box>
           {group.map((exercise) => (
             <ExerciseRow
