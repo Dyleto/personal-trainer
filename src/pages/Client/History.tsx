@@ -24,7 +24,7 @@ const History = () => {
   return (
     <Container maxW={CLIENT_GRID_MAX_W} py={8} px={4}>
       <VStack align="stretch" gap={4}>
-        <Text fontWeight="bold" fontSize="lg">
+        <Text as="h1" fontWeight="bold" fontSize="lg">
           Historique
         </Text>
 

@@ -43,6 +43,10 @@ export const EffortScale = ({ value, onChange }: EffortScaleProps) => {
               // l'échelle, puis on la parcourt aux flèches.
               tabIndex={isSelected || (!value && i === 0) ? 0 : -1}
               flex={1}
+              minH="56px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
               py={2.5}
               px={1}
               borderRadius="md"
@@ -82,10 +86,10 @@ export const EffortScale = ({ value, onChange }: EffortScaleProps) => {
       </HStack>
 
       <HStack justify="space-between">
-        <Text fontSize="2xs" color="fg.muted">
+        <Text fontSize="xs" color="fg.muted">
           {EFFORT_SCALE[0].label}
         </Text>
-        <Text fontSize="2xs" color="fg.muted">
+        <Text fontSize="xs" color="fg.muted">
           {EFFORT_SCALE[EFFORT_SCALE.length - 1].label}
         </Text>
       </HStack>

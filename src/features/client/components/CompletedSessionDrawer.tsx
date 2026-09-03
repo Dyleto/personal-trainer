@@ -289,7 +289,7 @@ export const CompletedSessionDrawer = ({
                                   borderRadius="full"
                                   borderWidth="1px"
                                   borderColor="whiteAlpha.200"
-                                  fontSize="2xs"
+                                  fontSize="xs"
                                   color="fg.muted"
                                 >
                                   {FEEDBACK_TAG_LABELS[tag]}
@@ -425,7 +425,7 @@ export const CompletedSessionDrawer = ({
                               // c'est vide, elle encombre pour le dire.
                               if (!done) return null;
                               return (
-                                <Text fontSize="2xs" color="fg.muted" pl={4}>
+                                <Text fontSize="xs" color="fg.muted" pl={4}>
                                   Fait&nbsp;: {done}
                                 </Text>
                               );
@@ -437,7 +437,7 @@ export const CompletedSessionDrawer = ({
                   )}
 
                   {completed.editedAt && !isEditing && (
-                    <Text fontSize="2xs" color="fg.muted" textAlign="right">
+                    <Text fontSize="xs" color="fg.muted" textAlign="right">
                       Corrigé le{' '}
                       {new Intl.DateTimeFormat('fr-FR', {
                         day: 'numeric',

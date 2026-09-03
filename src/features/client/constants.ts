@@ -64,10 +64,13 @@ export const EFFORT_SCALE: EffortScaleStep[] = [...EFFORT_LEVELS]
   .reverse()
   .map((level, index) => ({ ...level, rank: index + 1 }));
 
+// Ces couleurs habillent surtout du texte de 12 px. Les valeurs DEFAULT
+// tombaient à 4,43:1 sur les surfaces claires de l'app — sous le seuil de
+// 4,5. Les variantes `.fg`, prévues pour ça, passent largement.
 export const EFFORT_ZONE_COLOR: Record<EffortZone, string> = {
-  easy: 'session.rest',
+  easy: 'session.rest.fg',
   target: 'app.primary',
-  hard: 'session.work',
+  hard: 'session.work.fg',
 };
 
 export const getEffortLevel = (effort?: number): EffortLevel | undefined =>

@@ -166,7 +166,7 @@ const ClientDetails = () => {
             <Avatar.Image src={client.picture} />
           </Avatar.Root>
           <VStack align="start" gap={0} flex={1} minW={0}>
-            <Heading size="lg">
+            <Heading as="h1" size="lg">
               {client.firstName} {client.lastName}
             </Heading>
             <Text fontSize="sm" color="fg.muted">
@@ -209,7 +209,9 @@ const ClientDetails = () => {
           {activeSession ? (
             <>
               <HStack justify="space-between" align="baseline" mb={3}>
-                <Heading size="md">Séance {activeSession.order}</Heading>
+                <Heading as="h2" size="md">
+                  Séance {activeSession.order}
+                </Heading>
                 {sessionHistory.length > 0 && (
                   <Text fontSize="xs" color="fg.muted" flexShrink={0}>
                     faite {sessionHistory.length} fois
@@ -305,7 +307,7 @@ const ClientDetails = () => {
                 >
                   <Text
                     as="span"
-                    fontSize="2xs"
+                    fontSize="xs"
                     fontFamily="mono"
                     color="app.primary"
                     flexShrink={0}

@@ -9,7 +9,9 @@ const CoachLayout = () => {
       <CoachNavRail />
       <Box flex={1} minW={0} pb={{ base: '70px', md: 0 }}>
         <MobileTopBar />
-        <Outlet />
+        <Box as="main" id="contenu" minW={0}>
+          <Outlet />
+        </Box>
         <CoachTabBar />
       </Box>
     </Flex>

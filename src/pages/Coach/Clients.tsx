@@ -55,7 +55,7 @@ const Clients = () => {
       <VStack align="stretch" gap={6}>
         <HStack justify="space-between" align="center" gap={3}>
           <VStack align="start" gap={0} minW={0}>
-            <Text fontWeight="bold" fontSize="lg">
+            <Text as="h1" fontWeight="bold" fontSize="lg">
               Mes clients
             </Text>
             {clients.length > 0 && (

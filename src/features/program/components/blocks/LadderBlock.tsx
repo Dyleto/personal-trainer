@@ -22,7 +22,7 @@ export const LadderBlock = (props: BlockProps) => {
           <VStack align="stretch" gap={2}>
             <VStack align="start" gap={1}>
               <Text
-                fontSize="2xs"
+                fontSize="xs"
                 color="fg.muted"
                 textTransform="uppercase"
                 letterSpacing="wider"

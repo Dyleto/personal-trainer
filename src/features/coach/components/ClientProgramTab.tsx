@@ -226,6 +226,9 @@ export const ClientProgramTab = ({
             as="button"
             onClick={() => setShowBlockSelector(true)}
             alignSelf="flex-start"
+            minH="44px"
+            display="flex"
+            alignItems="center"
             fontSize="sm"
             color="fg.muted"
             _hover={{ color: 'app.primary' }}

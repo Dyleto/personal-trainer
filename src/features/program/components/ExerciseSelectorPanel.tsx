@@ -162,7 +162,7 @@ export const ExerciseSelectorPanel = ({
                   groups.map((group) => (
                     <Box key={group.label}>
                       <Text
-                        fontSize="2xs"
+                        fontSize="xs"
                         fontWeight="bold"
                         color="fg.muted"
                         textTransform="uppercase"

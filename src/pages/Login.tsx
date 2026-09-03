@@ -44,6 +44,8 @@ const Login: React.FC = () => {
 
   return (
     <Box
+      as="main"
+      id="contenu"
       display="flex"
       alignItems="center"
       justifyContent="center"

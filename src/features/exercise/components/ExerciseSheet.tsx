@@ -106,7 +106,7 @@ const SheetField = ({
           }}
         />
         {error && (
-          <Text fontSize="2xs" color="app.error" mt={1} role="alert">
+          <Text fontSize="xs" color="app.error" mt={1} role="alert">
             {error}
           </Text>
         )}
@@ -248,7 +248,7 @@ export const ExerciseSheet = ({
       </HStack>
 
       {usage > 0 && (
-        <Text fontSize="2xs" color="fg.muted" px={1}>
+        <Text fontSize="xs" color="fg.muted" px={1}>
           {usageSentence(usage, !!onDelete)}
         </Text>
       )}
@@ -292,7 +292,7 @@ export const ExerciseSheet = ({
                 onCommit={patch('videoUrl')}
                 ariaLabel={`Lien vidéo — ${exercise.name}`}
                 emptyLabel="+ vidéo"
-                fontSize="2xs"
+                fontSize="xs"
                 color="fg.muted"
                 validate={validateVideoUrl}
               />

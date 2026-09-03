@@ -313,7 +313,7 @@ const AdminDashboard = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
-    <Container maxW="container.xl" py={8} px={4}>
+    <Container as="main" id="contenu" maxW="container.xl" py={8} px={4}>
       <VStack gap={8} align="stretch">
         {/* Header */}
         <HStack justify="space-between" align="start">
@@ -330,7 +330,9 @@ const AdminDashboard = () => {
                 Administration
               </Text>
             </HStack>
-            <Heading size="xl">Bonjour, {user?.firstName}</Heading>
+            <Heading as="h1" size="xl">
+              Bonjour, {user?.firstName}
+            </Heading>
           </VStack>
           <Header />
         </HStack>

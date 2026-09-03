@@ -217,7 +217,7 @@ const NumInput = ({
         </NumberInput.Control>
       </NumberInput.Root>
       {label && (
-        <Text fontSize="2xs" color="fg.muted" mt={0.5}>
+        <Text fontSize="xs" color="fg.muted" mt={0.5}>
           {label}
         </Text>
       )}

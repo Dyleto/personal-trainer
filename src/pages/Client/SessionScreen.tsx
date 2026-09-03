@@ -21,6 +21,7 @@ import {
 } from '@/features/client';
 import { PerformedEntry, PerformedValues } from '@/types';
 import { CLIENT_ROUTES } from '@/config/routes';
+import { hitArea } from '@/components/hitArea';
 
 // Le réalisé se saisit exercice par exercice pendant la séance, puis part en
 // une fois avec le bilan. La clé est « ordre du bloc : ordre de l'exercice »,
@@ -138,8 +139,10 @@ const SessionScreen = () => {
   }
 
   const pillLabel = isManualSelection ? 'Séance choisie' : 'À faire';
-  const pillColor = isManualSelection ? 'app.primary' : 'session.work';
-  const pillTextColor = isManualSelection ? 'app.primary' : 'session.work.fg';
+  // « À faire » est un état, pas une alerte. Le rouge dit « problème »
+  // partout ailleurs dans l'application — il reste à l'effort et à l'erreur.
+  const pillColor = 'app.primary';
+  const pillTextColor = 'app.primary';
   const hasExercises = activeSession.blocks.some((b) => b.exercises.length > 0);
   const summary =
     activeSession.blocks.length === 0
@@ -161,6 +164,7 @@ const SessionScreen = () => {
           as="button"
           aria-label="Revenir à Aujourd'hui"
           w="fit-content"
+          css={hitArea()}
           onClick={() => navigate(CLIENT_ROUTES.today)}
           color="fg.muted"
           _hover={{ color: 'app.primary' }}
@@ -179,7 +183,7 @@ const SessionScreen = () => {
           </HStack>
         </Box>
         <HStack justify="space-between" align="center">
-          <Text fontSize="xl" fontWeight="bold">
+          <Text as="h1" fontSize="xl" fontWeight="bold">
             Séance {activeSession.order}
           </Text>
           <Box
@@ -187,7 +191,7 @@ const SessionScreen = () => {
             py={0.5}
             borderRadius="full"
             bg={`${pillColor}/16`}
-            fontSize="2xs"
+            fontSize="xs"
             fontWeight="bold"
             color={pillTextColor}
             textTransform="uppercase"

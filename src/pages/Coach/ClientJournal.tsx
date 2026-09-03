@@ -48,7 +48,9 @@ const ClientJournal = () => {
             {client.firstName} {client.lastName}
           </Text>
         </HStack>
-        <Heading size="lg">Journal complet</Heading>
+        <Heading as="h1" size="lg">
+          Journal complet
+        </Heading>
       </VStack>
 
       {isHistoryLoading ? (

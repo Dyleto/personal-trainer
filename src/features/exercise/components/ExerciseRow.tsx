@@ -49,6 +49,7 @@ export const ExerciseRow = ({
       as={onClick ? 'button' : undefined}
       aria-label={onClick ? label : undefined}
       w="full"
+      minH="44px"
       textAlign="left"
       gap={3}
       px={2}
@@ -80,7 +81,7 @@ export const ExerciseRow = ({
           {exercise.name}
         </Text>
         {secondary && (
-          <Text fontSize="2xs" color="fg.muted" lineClamp={1}>
+          <Text fontSize="xs" color="fg.muted" lineClamp={1}>
             {secondary}
           </Text>
         )}
@@ -90,7 +91,7 @@ export const ExerciseRow = ({
       <HStack gap={2.5} flexShrink={0} color="fg.muted" aria-hidden>
         {exercise.videoUrl && <LuVideo size={12} />}
         {usage > 0 && (
-          <Text as="span" fontSize="2xs" fontFamily="mono">
+          <Text as="span" fontSize="xs" fontFamily="mono">
             {usage}
           </Text>
         )}

@@ -30,7 +30,7 @@ export const SessionFeedbackStrip = ({
         p={4}
       >
         <Text
-          fontSize="2xs"
+          fontSize="xs"
           fontWeight="bold"
           color="fg.muted"
           textTransform="uppercase"
@@ -57,7 +57,7 @@ export const SessionFeedbackStrip = ({
                   borderLeftColor="session.rest"
                   pl={3}
                 >
-                  <Text fontSize="2xs" color="fg.muted">
+                  <Text fontSize="xs" color="fg.muted">
                     {getRelativeDate(completed.completedAt)}
                   </Text>
                   {completed.clientNotes ? (

@@ -125,7 +125,7 @@ const RailRow = ({
         {/* Un repère discret, pas une alerte : « jamais faite » est un fait. */}
         {isNeverDone && (
           <Text
-            fontSize="2xs"
+            fontSize="xs"
             color="fg.muted"
             flexShrink={0}
             title="Jamais réalisée par ce client"
@@ -237,6 +237,7 @@ export const SessionRail = ({
               as="button"
               onClick={() => onSelect(index)}
               flexShrink={0}
+              minH="44px"
               px={3}
               py={1.5}
               borderRadius="full"
@@ -256,6 +257,9 @@ export const SessionRail = ({
         onClick={onAddSession}
         flexShrink={0}
         mb={2}
+        minW="44px"
+        minH="44px"
+        justifyContent="center"
         px={3}
         py={1.5}
         borderRadius="full"

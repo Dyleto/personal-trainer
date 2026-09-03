@@ -36,9 +36,9 @@ const STATUS_CONFIG: Record<
   },
   next: {
     label: 'À faire',
-    color: 'session.work',
-    textColor: 'session.work.fg',
-    bg: 'session.work/16',
+    color: 'app.primary',
+    textColor: 'app.primary',
+    bg: 'app.primary/16',
   },
   upcoming: {
     label: 'À venir',
@@ -75,7 +75,7 @@ const SessionRow = ({ session, status, onSelect }: SessionRowProps) => {
             py={0.5}
             borderRadius="full"
             bg={config.bg}
-            fontSize="2xs"
+            fontSize="xs"
             fontWeight="bold"
             color={config.textColor}
             textTransform="uppercase"
@@ -120,7 +120,7 @@ const Program = () => {
   return (
     <Container maxW={CLIENT_GRID_MAX_W} py={6} px={4}>
       <VStack align="stretch" gap={4}>
-        <Text fontWeight="bold" fontSize="lg">
+        <Text as="h1" fontWeight="bold" fontSize="lg">
           Mon programme
         </Text>
 

@@ -22,7 +22,7 @@ export const BlockTypeSelector = ({ onSelect }: BlockTypeSelectorProps) => (
     {BLOCK_FAMILIES.map((family) => (
       <Box key={family.key}>
         <Text
-          fontSize="2xs"
+          fontSize="xs"
           fontWeight="bold"
           color="fg.muted"
           textTransform="uppercase"
@@ -75,7 +75,7 @@ export const BlockTypeSelector = ({ onSelect }: BlockTypeSelectorProps) => (
                       {label}
                     </Text>
                   </HStack>
-                  <Text fontSize="2xs" color="fg.muted" lineHeight="shorter">
+                  <Text fontSize="xs" color="fg.muted" lineHeight="shorter">
                     {getBlockDescription(type)}
                   </Text>
                 </VStack>

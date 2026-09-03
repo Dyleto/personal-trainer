@@ -50,7 +50,7 @@ const Field = ({
       borderRadius="md"
       fontFamily="mono"
     />
-    <Text fontSize="2xs" color="fg.muted">
+    <Text fontSize="xs" color="fg.muted">
       {suffix}
     </Text>
   </HStack>
@@ -68,7 +68,7 @@ export const PerformedFields = ({
   return (
     <Box pl={4}>
       <HStack gap={3} align="center" flexWrap="wrap">
-        <Text fontSize="2xs" color="fg.muted" flexShrink={0}>
+        <Text fontSize="xs" color="fg.muted" flexShrink={0}>
           Fait&nbsp;:
         </Text>
         <Field
@@ -88,7 +88,7 @@ export const PerformedFields = ({
       </HStack>
 
       {lastLabel && (
-        <Text fontSize="2xs" color="fg.muted" mt={1} opacity={0.8}>
+        <Text fontSize="xs" color="fg.muted" mt={1} opacity={0.8}>
           la dernière fois&nbsp;: {lastLabel}
         </Text>
       )}

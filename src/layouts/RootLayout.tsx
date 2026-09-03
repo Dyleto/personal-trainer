@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Box, Grid, Spinner, VStack } from '@chakra-ui/react';
+import { Box, Grid, Link, Spinner, VStack } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/useAuth';
 import { getDefaultRoleRoute, isPublicRoute } from '@/config/routes';
 import { Suspense } from 'react';
@@ -30,6 +30,30 @@ const RootLayout: React.FC = () => {
 
   return (
     <>
+      {/* Premier élément focalisable de la page : au clavier, une tabulation
+          suffit pour sauter la navigation. Invisible tant qu'il n'a pas le
+          focus, mais jamais retiré du flux — un display:none le rendrait
+          inatteignable. */}
+      <Link
+        href="#contenu"
+        position="absolute"
+        left={3}
+        top={3}
+        zIndex={100}
+        px={4}
+        py={2}
+        borderRadius="md"
+        bg="app.primary"
+        color="bg.canvas"
+        fontWeight="bold"
+        fontSize="sm"
+        transform="translateY(-150%)"
+        _focusVisible={{ transform: 'translateY(0)' }}
+        transition="transform 0.15s"
+      >
+        Aller au contenu
+      </Link>
+
       {/* 
         Mur de fond fixe "Anti-Rebond Safari" 
         Garantit que même si la page rebondit, on voit ce fond et pas le GPU layer vert.

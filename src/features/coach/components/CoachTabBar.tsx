@@ -28,7 +28,7 @@ export const CoachTabBar = () => {
               py={1}
             >
               <Icon size={20} />
-              <Text fontSize="2xs" fontWeight={isActive ? '700' : '500'}>
+              <Text fontSize="xs" fontWeight={isActive ? '700' : '500'}>
                 {label}
               </Text>
             </VStack>

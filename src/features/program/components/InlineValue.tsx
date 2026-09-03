@@ -1,4 +1,5 @@
 import { Box, Input, Text } from '@chakra-ui/react';
+import { hitArea } from '@/components/hitArea';
 import { useState } from 'react';
 
 interface InlineValueProps {
@@ -109,6 +110,7 @@ export const InlineValue = ({
         outlineColor: 'app.primary',
         outlineOffset: '1px',
       }}
+      css={hitArea(32)}
       transition="text-decoration-color 0.15s"
     >
       <Text
@@ -185,7 +187,7 @@ export const InlineSequence = ({
           fontFamily="mono"
           fontSize="sm"
         />
-        <Text fontSize="2xs" color="fg.muted" mt={1} textAlign="right">
+        <Text fontSize="xs" color="fg.muted" mt={1} textAlign="right">
           {parsed.length > 0
             ? `${parsed.join(' · ')} — ${parsed.length} palier${parsed.length > 1 ? 's' : ''}`
             : 'aucun palier'}
@@ -217,6 +219,7 @@ export const InlineSequence = ({
         outlineColor: 'app.primary',
         outlineOffset: '1px',
       }}
+      css={hitArea(32)}
       transition="text-decoration-color 0.15s"
     >
       <Text
@@ -262,13 +265,20 @@ export const InlineText = ({
 
   if (!hasValue && !isEditing) {
     return (
+      // Au doigt, le survol n'existe pas : l'invitation restait invisible ET
+      // hors d'atteinte sur mobile. Elle s'y montre en permanence, et ne
+      // s'efface qu'au-delà de 768 px, où le survol la ramène.
       <Box
         as="button"
         aria-label={ariaLabel}
         onClick={() => setIsEditing(true)}
-        fontSize="2xs"
+        fontSize="xs"
         color="fg.muted"
-        opacity={0}
+        minH="32px"
+        display="flex"
+        alignItems="center"
+        opacity={{ base: 0.7, md: 0 }}
+        css={hitArea(32)}
         _groupHover={{ opacity: 0.7 }}
         _focusVisible={{
           opacity: 1,
@@ -324,6 +334,7 @@ export const InlineText = ({
         outlineColor: 'app.primary',
         outlineOffset: '1px',
       }}
+      css={hitArea(32)}
       transition="text-decoration-color 0.15s"
     >
       <Text as="span" fontSize={fontSize} color="fg.muted">

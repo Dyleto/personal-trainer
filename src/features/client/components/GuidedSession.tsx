@@ -341,6 +341,7 @@ export const GuidedSession = ({
           <Button
             variant="ghost"
             size="sm"
+            minH="44px"
             onClick={handleExitClick}
             color={isRest ? 'bg.canvas' : 'fg.muted'}
           >
@@ -427,12 +428,14 @@ export const GuidedSession = ({
             onClick={goPrev}
             disabled={index === 0}
             flexShrink={0}
+            minH="52px"
             color={isRest ? 'bg.canvas' : 'fg.muted'}
           >
             Précédent
           </Button>
           <Button
             flex={1}
+            minH="52px"
             bg={isRest ? 'bg.canvas' : 'app.primary'}
             color={isRest ? 'fg' : 'bg.canvas'}
             _hover={{ bg: isRest ? 'bg.canvas' : 'app.primary.hover' }}

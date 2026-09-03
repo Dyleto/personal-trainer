@@ -105,7 +105,7 @@ export const Card = ({
                 borderRadius="0 0 11px 11px"
               >
                 <Text
-                  fontSize="2xs"
+                  fontSize="xs"
                   fontWeight="bold"
                   color="white"
                   textTransform="uppercase"

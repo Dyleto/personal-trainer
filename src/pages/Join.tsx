@@ -147,6 +147,8 @@ const Join = () => {
 
   return (
     <Box
+      as="main"
+      id="contenu"
       display="flex"
       alignItems="center"
       justifyContent="center"

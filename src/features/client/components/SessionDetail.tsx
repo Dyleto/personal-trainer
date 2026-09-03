@@ -92,7 +92,7 @@ export const SessionDetail = ({
             // qu'on cherche l'information.
             if (!last) return null;
             return (
-              <Text fontSize="2xs" color="fg.muted" pl={4} opacity={0.8}>
+              <Text fontSize="xs" color="fg.muted" pl={4} opacity={0.8}>
                 la dernière fois&nbsp;: {last}
               </Text>
             );

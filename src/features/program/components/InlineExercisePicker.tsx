@@ -174,7 +174,7 @@ export const InlineExercisePicker = ({
         <Box
           as="button"
           aria-label="Fermer le sélecteur"
-          fontSize="2xs"
+          fontSize="xs"
           color="fg.muted"
           px={1}
           onClick={onClose}
@@ -199,7 +199,7 @@ export const InlineExercisePicker = ({
               <Box key={`${option.group}-${option.exercise._id}`}>
                 {showGroup && (
                   <Text
-                    fontSize="2xs"
+                    fontSize="xs"
                     fontWeight="bold"
                     color="fg.muted"
                     textTransform="uppercase"

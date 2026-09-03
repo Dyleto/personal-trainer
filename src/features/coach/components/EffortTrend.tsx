@@ -114,14 +114,14 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
       <HStack gap={2} justify="space-between" align="baseline">
         {/* Le mot, pas le chiffre. La suite « 3 → 4 » se lisait comme un code :
             rien à l'écran ne disait sur quelle échelle, ni dans quel sens. */}
-        <Text fontSize="2xs" color="fg.muted">
+        <Text fontSize="xs" color="fg.muted">
           {rated.length === 1
             ? `Dernier ressenti : ${lastLabel}`
             : `${rated.length} derniers ressentis, du plus ancien au plus récent — ${lastLabel} en dernier`}
         </Text>
         {drift && (
           <Text
-            fontSize="2xs"
+            fontSize="xs"
             fontWeight="bold"
             color={
               drift === 'harder'
@@ -147,7 +147,7 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
               borderRadius="full"
               borderWidth="1px"
               borderColor="whiteAlpha.200"
-              fontSize="2xs"
+              fontSize="xs"
               color="fg.muted"
             >
               {FEEDBACK_TAG_LABELS[tag]}

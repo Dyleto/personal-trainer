@@ -93,7 +93,11 @@ export const SessionCalendar = ({
           onClick={() => shiftMonth(-1)}
           color="fg.muted"
           _hover={{ color: 'app.primary' }}
-          px={1}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          minW="44px"
+          minH="44px"
         >
           <LuChevronLeft size={16} />
         </Box>
@@ -106,7 +110,7 @@ export const SessionCalendar = ({
           >
             {monthLabel(cursor)}
           </Text>
-          <Text fontSize="2xs" color="fg.muted">
+          <Text fontSize="xs" color="fg.muted">
             {monthCount === 0
               ? 'aucune séance'
               : `${monthCount} séance${monthCount > 1 ? 's' : ''}`}
@@ -118,7 +122,11 @@ export const SessionCalendar = ({
           onClick={() => shiftMonth(1)}
           color="fg.muted"
           _hover={{ color: 'app.primary' }}
-          px={1}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          minW="44px"
+          minH="44px"
         >
           <LuChevronRight size={16} />
         </Box>
@@ -134,7 +142,7 @@ export const SessionCalendar = ({
         {WEEKDAYS.map((letter, i) => (
           <Text
             key={`${letter}-${i}`}
-            fontSize="2xs"
+            fontSize="xs"
             color="fg.muted"
             textAlign="center"
             pb={1}
@@ -180,6 +188,10 @@ export const SessionCalendar = ({
                   ? () => onSelectDay(isSelected ? null : key)
                   : undefined
               }
+              minH="44px"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
               py={1.5}
               borderRadius="md"
               borderWidth="1px"
@@ -203,7 +215,7 @@ export const SessionCalendar = ({
                       ? 'fg'
                       : isToday
                         ? 'fg.muted'
-                        : 'whiteAlpha.400'
+                        : 'whiteAlpha.600'
                   }
                   fontWeight={isToday ? 'bold' : 'normal'}
                   textDecoration={isToday ? 'underline' : 'none'}

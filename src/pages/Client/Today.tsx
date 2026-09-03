@@ -58,7 +58,7 @@ const Today = () => {
   return (
     <Container maxW={CLIENT_CONTENT_MAX_W} py={8} px={4}>
       <VStack gap={6} align="stretch">
-        <Text fontSize="xl" fontWeight="bold">
+        <Text as="h1" fontSize="xl" fontWeight="bold">
           Bonjour {user?.firstName},
         </Text>
 
@@ -123,10 +123,10 @@ const Today = () => {
                       px={2}
                       py={0.5}
                       borderRadius="full"
-                      bg="session.work/16"
-                      fontSize="2xs"
+                      bg="app.primary/16"
+                      fontSize="xs"
                       fontWeight="bold"
-                      color="session.work.fg"
+                      color="app.primary"
                       textTransform="uppercase"
                       letterSpacing="wider"
                     >

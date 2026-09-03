@@ -67,7 +67,14 @@ export const CompleteSessionModal = ({
               </Text>
             </VStack>
           </Dialog.Header>
-          <Dialog.CloseTrigger aria-label="Fermer">
+          <Dialog.CloseTrigger
+            aria-label="Fermer"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            minW="44px"
+            minH="44px"
+          >
             <LuX size={16} />
           </Dialog.CloseTrigger>
 

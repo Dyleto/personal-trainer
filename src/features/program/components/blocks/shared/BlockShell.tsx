@@ -164,7 +164,7 @@ export const BlockShell = ({
               </IconButton>
             </HStack>
 
-            <Text fontSize="2xs" color="fg.muted" lineHeight="shorter">
+            <Text fontSize="xs" color="fg.muted" lineHeight="shorter">
               {description}
             </Text>
           </VStack>
@@ -180,7 +180,7 @@ export const BlockShell = ({
                 {getBlockLabel(block.type)} {block.label && '·'} {block.label}
               </Text>
               <Text
-                fontSize="2xs"
+                fontSize="xs"
                 color="fg.muted"
                 lineHeight="shorter"
                 mt="2px"

@@ -142,7 +142,7 @@ const Exercises = () => {
           >
             <HStack gap={2} align="center">
               <Text
-                fontSize="2xs"
+                fontSize="xs"
                 fontWeight="bold"
                 color="app.primary"
                 letterSpacing="widest"
@@ -200,7 +200,7 @@ const Exercises = () => {
     <Container maxW="container.xl" py={6}>
       <VStack gap={4} align="stretch">
         <HStack justify="space-between" align="baseline" gap={3}>
-          <Text fontSize="lg" fontWeight="bold">
+          <Text as="h1" fontSize="lg" fontWeight="bold">
             Mes exercices
           </Text>
           <Text fontSize="xs" color="fg.muted" flexShrink={0}>
@@ -301,8 +301,12 @@ const Exercises = () => {
                   backdropFilter="blur(6px)"
                   borderRadius="full"
                   py={2}
-                  px={1.5}
+                  px={1}
                 >
+                  {/* Un index A–Z ne peut pas offrir 44 px par lettre : vingt-six
+                      lettres feraient 1144 px de haut. 28 px est le compromis —
+                      au-dessus du plancher WCAG 2.5.8, et l'index reste un
+                      raccourci qu'on parcourt au pouce. */}
                   <VStack gap={0}>
                     {letters.map((letter) => (
                       <Box
@@ -310,12 +314,20 @@ const Exercises = () => {
                         as="button"
                         aria-label={`Aller à la lettre ${letter}`}
                         onClick={() => scrollToLetter(letter)}
-                        fontSize="9px"
+                        fontSize="2xs"
                         fontWeight="bold"
                         color="whiteAlpha.800"
-                        px={1}
-                        lineHeight="1.6"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        minW="28px"
+                        minH="28px"
                         _hover={{ color: 'app.primary' }}
+                        _focusVisible={{
+                          outline: '2px solid',
+                          outlineColor: 'app.primary',
+                          outlineOffset: '-2px',
+                        }}
                         userSelect="none"
                       >
                         {letter}

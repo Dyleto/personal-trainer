@@ -15,7 +15,9 @@ const ClientLayout = () => {
       <ClientNavRail />
       <Box flex={1} minW={0} pb={{ base: '70px', md: 0 }}>
         <MobileTopBar />
-        <Outlet context={clientSessions} />
+        <Box as="main" id="contenu" minW={0}>
+          <Outlet context={clientSessions} />
+        </Box>
         <ClientTabBar />
       </Box>
     </Flex>

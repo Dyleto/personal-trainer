@@ -23,6 +23,7 @@ import {
   getBlockAccent,
   getBlockLabel,
 } from '@/features/program/constants';
+import { hitArea } from '@/components/hitArea';
 import { InlineText, InlineValue } from './InlineValue';
 import { BlockConfigInline } from './BlockConfigInline';
 import { InlineExercisePicker } from './InlineExercisePicker';
@@ -192,7 +193,7 @@ const ExerciseRow = ({
 
           {supportsSets && (exercise.sets ?? 1) > 1 && (
             <HStack gap={1} pl={2}>
-              <Text as="span" fontSize="2xs" color="fg.muted">
+              <Text as="span" fontSize="xs" color="fg.muted">
                 repos
               </Text>
               <InlineValue
@@ -213,7 +214,7 @@ const ExerciseRow = ({
           au tactile où le survol n'existe pas. */}
       <HStack
         data-row-gutter
-        gap={0}
+        gap={2}
         flexShrink={0}
         opacity={{ base: 1, md: 0 }}
         transition="opacity 0.15s"
@@ -221,6 +222,7 @@ const ExerciseRow = ({
         {!ownMetrics && (
           <IconButton
             aria-label={`Changer l'unité (actuellement : ${KIND_LABEL[kind]}) — ${exercise.exercise.name}`}
+            css={hitArea(32)}
             size="2xs"
             variant="ghost"
             color="fg.muted"
@@ -231,6 +233,7 @@ const ExerciseRow = ({
         )}
         <IconButton
           aria-label={`Retirer ${exercise.exercise.name}`}
+          css={hitArea(32)}
           size="2xs"
           variant="ghost"
           color="fg.muted"
@@ -328,7 +331,7 @@ export const AtelierBlock = ({
 
         <HStack gap={1} flexShrink={0} align="flex-start">
           <HStack
-            gap={0}
+            gap={2}
             opacity={{ base: 1, md: 0 }}
             _groupHover={{ opacity: 1 }}
             _groupFocusWithin={{ opacity: 1 }}
@@ -336,6 +339,7 @@ export const AtelierBlock = ({
           >
             <IconButton
               aria-label={`Réorganiser le bloc ${getBlockLabel(block.type)}`}
+              css={hitArea(32)}
               size="2xs"
               variant="ghost"
               color="fg.muted"
@@ -347,6 +351,7 @@ export const AtelierBlock = ({
             </IconButton>
             <IconButton
               aria-label={`Supprimer le bloc ${getBlockLabel(block.type)}`}
+              css={hitArea(32)}
               size="2xs"
               variant="ghost"
               color="fg.muted"
@@ -392,6 +397,9 @@ export const AtelierBlock = ({
             }
             fontSize="xs"
             color="fg.muted"
+            minH="44px"
+            display="flex"
+            alignItems="center"
             _hover={{ color: 'app.primary' }}
             _focusVisible={{
               outline: '2px solid',

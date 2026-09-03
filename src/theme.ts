@@ -15,9 +15,9 @@ const customConfig = defineConfig({
           },
           // États
           success: {
-            DEFAULT: { value: '#4F8F8A' },
-            hover: { value: '#5FA39D' },
-            active: { value: '#3F726D' },
+            DEFAULT: { value: '#3FA8A0' },
+            hover: { value: '#55BBB3' },
+            active: { value: '#33908A' },
           },
           error: { value: '#E2574C' },
         },
@@ -41,9 +41,14 @@ const customConfig = defineConfig({
             DEFAULT: { value: '#E2574C' },
             fg: { value: '#EC8079' },
           },
+          // Le teal d'origine (#4F8F8A) avait une chroma de 0,067 : sous le
+          // plancher en deçà duquel une couleur se lit comme un gris. La
+          // distinction effort / repos ne reposait donc que sur le rouge.
+          // 0,096 est le maximum atteignable pour un teal à cette clarté —
+          // au-delà on bascule dans le cyan, ce que la DA ne veut pas.
           rest: {
-            DEFAULT: { value: '#4F8F8A' },
-            fg: { value: '#7BB8B2' },
+            DEFAULT: { value: '#3FA8A0' },
+            fg: { value: '#8FCFC8' },
           },
         },
       },
