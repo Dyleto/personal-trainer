@@ -1,12 +1,4 @@
-import {
-  Box,
-  Flex,
-  HStack,
-  IconButton,
-  Input,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, HStack, IconButton, Input, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import {
   LuArrowLeftRight,
@@ -20,19 +12,13 @@ import {
   blockDefinesOwnMetrics,
   blockIndexPrefix,
   blockSupportsSets,
-  getBlockAccent,
   getBlockLabel,
 } from '@/features/program/constants';
+import { BlockFrame } from './BlockFrame';
 import { hitArea } from '@/components/hitArea';
 import { InlineText, InlineValue } from './InlineValue';
 import { BlockConfigInline } from './BlockConfigInline';
 import { InlineExercisePicker } from './InlineExercisePicker';
-
-const ACCENT_COLOR = {
-  work: 'session.work',
-  rest: 'session.rest',
-  neutral: 'whiteAlpha.300',
-} as const;
 
 type MetricKind = 'reps' | 'duration' | 'custom';
 
@@ -286,101 +272,57 @@ export const AtelierBlock = ({
   onOpenExerciseSheet,
 }: AtelierBlockProps) => {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
-  const accentColor = ACCENT_COLOR[getBlockAccent(block.type)];
 
   return (
-    // « group » et non role="group" : en Chakra v3, _groupHover compile vers
-    // « .group:hover & ». Avec role="group" la règle ne s'applique jamais et
-    // la gouttière reste invisible sur desktop.
-    <Box
-      className="group"
-      borderLeftWidth="2px"
-      borderLeftColor={accentColor}
-      pl={3}
-      py={1}
-    >
-      {/* ── En-tête : type · nom libre · réglages ── */}
-      <HStack justify="space-between" align="flex-start" gap={3} pb={1}>
-        {/* Titre et réglages partagent une seule colonne souple. Les réglages
-            passent à la ligne quand ils ne tiennent plus — une pyramide de
-            treize paliers poussait sinon la gouttière hors de l'écran. */}
-        <Flex flex={1} minW={0} wrap="wrap" align="baseline" gap={2} rowGap={1}>
-          <Text
-            fontSize="xs"
-            fontWeight="bold"
-            color="fg"
-            textTransform="uppercase"
-            letterSpacing="wider"
-            flexShrink={0}
+    <BlockFrame
+      block={block}
+      name={
+        /* Ni description du type — l'étiquette la dit déjà — ni placeholder
+           permanent : un bloc sans nom libre ne laisse aucune trace. */
+        <InlineText
+          value={block.label}
+          onChange={(label) => onUpdate({ label })}
+          addLabel="+ nom"
+          ariaLabel={`Nom personnalisé du bloc ${getBlockLabel(block.type)}`}
+          width="160px"
+        />
+      }
+      config={<BlockConfigInline block={block} onUpdate={onUpdate} />}
+      gutter={
+        <HStack
+          gap={2}
+          opacity={{ base: 1, md: 0 }}
+          _groupHover={{ opacity: 1 }}
+          _groupFocusWithin={{ opacity: 1 }}
+          transition="opacity 0.15s"
+        >
+          <IconButton
+            aria-label={`Réorganiser le bloc ${getBlockLabel(block.type)}`}
+            css={hitArea(32)}
+            size="2xs"
+            variant="ghost"
+            color="fg.muted"
+            cursor="grab"
+            touchAction="none"
+            {...dragHandleProps}
           >
-            {getBlockLabel(block.type)}
-          </Text>
-          {/* Ni description du type — l'étiquette la dit déjà — ni placeholder
-              permanent : un bloc sans nom libre ne laisse aucune trace. */}
-          <InlineText
-            value={block.label}
-            onChange={(label) => onUpdate({ label })}
-            addLabel="+ nom"
-            ariaLabel={`Nom personnalisé du bloc ${getBlockLabel(block.type)}`}
-            width="160px"
-          />
-          <Box minW={0}>
-            <BlockConfigInline block={block} onUpdate={onUpdate} />
-          </Box>
-        </Flex>
-
-        <HStack gap={1} flexShrink={0} align="flex-start">
-          <HStack
-            gap={2}
-            opacity={{ base: 1, md: 0 }}
-            _groupHover={{ opacity: 1 }}
-            _groupFocusWithin={{ opacity: 1 }}
-            transition="opacity 0.15s"
+            <LuGripVertical size={12} />
+          </IconButton>
+          <IconButton
+            aria-label={`Supprimer le bloc ${getBlockLabel(block.type)}`}
+            css={hitArea(32)}
+            size="2xs"
+            variant="ghost"
+            color="fg.muted"
+            _hover={{ color: 'app.error' }}
+            onClick={onRemove}
           >
-            <IconButton
-              aria-label={`Réorganiser le bloc ${getBlockLabel(block.type)}`}
-              css={hitArea(32)}
-              size="2xs"
-              variant="ghost"
-              color="fg.muted"
-              cursor="grab"
-              touchAction="none"
-              {...dragHandleProps}
-            >
-              <LuGripVertical size={12} />
-            </IconButton>
-            <IconButton
-              aria-label={`Supprimer le bloc ${getBlockLabel(block.type)}`}
-              css={hitArea(32)}
-              size="2xs"
-              variant="ghost"
-              color="fg.muted"
-              _hover={{ color: 'app.error' }}
-              onClick={onRemove}
-            >
-              <LuTrash2 size={12} />
-            </IconButton>
-          </HStack>
+            <LuTrash2 size={12} />
+          </IconButton>
         </HStack>
-      </HStack>
-
-      {/* ── Exercices ── */}
-      <VStack align="stretch" gap={0}>
-        {block.exercises.map((exercise, index) => (
-          <ExerciseRow
-            key={index}
-            exercise={exercise}
-            block={block}
-            index={index}
-            onUpdate={(updates) => onUpdateExercise(index, updates)}
-            onRemove={() => onRemoveExercise(index)}
-          />
-        ))}
-      </VStack>
-
-      {/* ── Ajout d'exercice, dans le bloc ── */}
-      <Box pt={1.5}>
-        {isPickerOpen && !onRequestExercisePicker ? (
+      }
+      footer={
+        isPickerOpen && !onRequestExercisePicker ? (
           <InlineExercisePicker
             inProgram={inProgram}
             onSelect={onAddExercise}
@@ -413,11 +355,9 @@ export const AtelierBlock = ({
               <Text as="span">exercice</Text>
             </HStack>
           </Box>
-        )}
-      </Box>
-
-      {/* ── Consigne du bloc : absente tant qu'elle n'existe pas ── */}
-      <Box mt={1}>
+        )
+      }
+      notes={
         <InlineText
           value={block.notes}
           onChange={(notes) => onUpdate({ notes })}
@@ -425,7 +365,18 @@ export const AtelierBlock = ({
           ariaLabel={`Consigne du bloc ${getBlockLabel(block.type)}`}
           width="100%"
         />
-      </Box>
-    </Box>
+      }
+    >
+      {block.exercises.map((exercise, index) => (
+        <ExerciseRow
+          key={index}
+          exercise={exercise}
+          block={block}
+          index={index}
+          onUpdate={(updates) => onUpdateExercise(index, updates)}
+          onRemove={() => onRemoveExercise(index)}
+        />
+      ))}
+    </BlockFrame>
   );
 };
