@@ -161,7 +161,13 @@ const ClientRow = ({ client, onSelect }: ClientRowProps) => {
         </HStack>
 
         {/* Un nombre, pas une pastille : « 2 séances à lire » et « 1 séance à
-            lire » ne demandent pas le même temps. */}
+            lire » ne demandent pas le même temps.
+
+            Doré et non rouge : sur la même ligne, le rouge dit déjà que la
+            séance a été dure. Deux significations sans rapport sur une seule
+            couleur, à quelques centimètres l'une de l'autre, ne se lisent
+            plus. Le doré est partout ailleurs la couleur de ce qui appelle
+            une action. */}
         {client.unseenCount > 0 && (
           <Box
             flexShrink={0}
@@ -169,7 +175,7 @@ const ClientRow = ({ client, onSelect }: ClientRowProps) => {
             h="22px"
             px={1.5}
             borderRadius="full"
-            bg="session.work"
+            bg="app.primary"
             color="bg.canvas"
             fontSize="xs"
             fontWeight="bold"

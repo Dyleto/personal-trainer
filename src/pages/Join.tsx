@@ -3,6 +3,7 @@ import { useVerifyInviteToken } from '@/features/auth';
 import {
   Avatar,
   Box,
+  Button,
   Container,
   Heading,
   Spinner,
@@ -12,6 +13,26 @@ import {
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+/**
+ * La sortie d'un lien qui ne marche pas.
+ *
+ * C'est le tout premier écran d'un nouveau client, et son état d'échec ne
+ * proposait rien : ni connexion, ni retour. On ne peut pas réparer le lien à
+ * sa place, mais on peut au moins ne pas le laisser sur une page noire.
+ */
+const DeadEndExit = () => (
+  <Button
+    mt={2}
+    variant="outline"
+    borderColor="whiteAlpha.300"
+    onClick={() => {
+      window.location.href = '/login';
+    }}
+  >
+    Se connecter
+  </Button>
+);
 
 const Join = () => {
   const [searchParams] = useSearchParams();
@@ -62,6 +83,7 @@ const Join = () => {
               <Avatar.Image src={data?.coach.picture} />
             </Avatar.Root>
             <Heading
+              as="h1"
               fontSize="24px"
               fontWeight="800"
               textAlign="center"
@@ -73,6 +95,7 @@ const Join = () => {
               Ce lien n'est plus valide. Demandez à votre coach de vous en
               envoyer un nouveau.
             </Text>
+            <DeadEndExit />
           </VStack>
         );
       }
@@ -83,6 +106,7 @@ const Join = () => {
             ⊘
           </Box>
           <Heading
+            as="h1"
             fontSize="24px"
             fontWeight="800"
             textAlign="center"
@@ -94,6 +118,7 @@ const Join = () => {
             Le lien que vous avez ouvert n'existe pas ou est incorrect.
             Vérifiez-le auprès de votre coach.
           </Text>
+          <DeadEndExit />
         </VStack>
       );
     }
@@ -114,6 +139,7 @@ const Join = () => {
           Invitation coaching
         </Text>
         <Heading
+          as="h1"
           fontSize="24px"
           fontWeight="800"
           textAlign="center"

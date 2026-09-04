@@ -93,7 +93,17 @@ const MonthGrid = ({
         role="grid"
         aria-label={`Séances de ${monthLabel(cursor)}`}
       >
-        <Box aria-hidden />
+        {/* La gouttière comptait les séances de chaque semaine sans dire ce
+            qu'elle comptait : une colonne de « — 1 2 » sans nom. */}
+        <Text
+          fontSize="9px"
+          color="fg.muted"
+          textAlign="center"
+          pb={1}
+          aria-hidden
+        >
+          sem.
+        </Text>
         {WEEKDAYS.map((letter, i) => (
           <Text
             key={`${letter}-${i}`}

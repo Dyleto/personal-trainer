@@ -4,12 +4,20 @@ import { LuCalendar, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 
 interface DateInputProps {
   label?: string;
+  /** Nom du champ pour les technologies d'assistance. */
+  ariaLabel?: string;
   value: string; // YYYY-MM-DD
   max?: string; // YYYY-MM-DD
   onChange: (value: string) => void;
 }
 
-export const DateInput = ({ label, value, max, onChange }: DateInputProps) => {
+export const DateInput = ({
+  label,
+  ariaLabel,
+  value,
+  max,
+  onChange,
+}: DateInputProps) => {
   const dateValue = value ? [parseDate(value)] : [];
   const maxValue = max ? parseDate(max) : today(getLocalTimeZone());
 
@@ -33,9 +41,18 @@ export const DateInput = ({ label, value, max, onChange }: DateInputProps) => {
         </Box>
       )}
       <DatePicker.Control>
-        <DatePicker.Input />
+        {/* Le champ portait une étiquette visible mais reliée à rien : annoncé,
+            il était anonyme. */}
+        <DatePicker.Input aria-label={ariaLabel ?? label} />
         <DatePicker.IndicatorGroup>
-          <DatePicker.Trigger>
+          <DatePicker.Trigger
+            aria-label="Ouvrir le calendrier"
+            minW="44px"
+            minH="44px"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
             <LuCalendar />
           </DatePicker.Trigger>
         </DatePicker.IndicatorGroup>

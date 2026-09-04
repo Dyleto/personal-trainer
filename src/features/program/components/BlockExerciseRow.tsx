@@ -1,7 +1,7 @@
 import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { ReactNode, useState } from 'react';
 import { LuChevronDown, LuVideo } from 'react-icons/lu';
-import { BlockExercise, BlockType } from '@/types';
+import { BlockExercise, BlockType, SessionBlock } from '@/types';
 import {
   blockIndexPrefix,
   blockSupportsSets,
@@ -13,6 +13,8 @@ import { hitArea } from '@/components/hitArea';
 interface BlockExerciseRowProps {
   exercise: BlockExercise;
   blockType: BlockType;
+  /** Le bloc porteur : Tabata et On-Off y définissent l'effort, pas l'exercice. */
+  block?: Pick<SessionBlock, 'workDuration'>;
   index: number;
   /** Glissé sous la ligne : le réalisé, ou le rappel de la dernière fois. */
   extra?: ReactNode;
@@ -29,12 +31,13 @@ interface BlockExerciseRowProps {
 export const BlockExerciseRow = ({
   exercise,
   blockType,
+  block,
   index,
   extra,
 }: BlockExerciseRowProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const metric = formatExerciseMetric(exercise, blockType);
+  const metric = formatExerciseMetric(exercise, blockType, block);
   const rest =
     blockSupportsSets(blockType) &&
     (exercise.sets ?? 1) > 1 &&

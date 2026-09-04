@@ -87,12 +87,17 @@ export const ExerciseRow = ({
         )}
       </VStack>
 
-      {/* Deux marques discrètes, et seulement quand elles existent. */}
+      {/* Deux marques discrètes, et seulement quand elles existent. Le compte
+          est suffixé : « 12 » collé à une icône vidéo se lisait comme douze
+          vidéos. */}
       <HStack gap={2.5} flexShrink={0} color="fg.muted" aria-hidden>
         {exercise.videoUrl && <LuVideo size={12} />}
         {usage > 0 && (
-          <Text as="span" fontSize="xs" fontFamily="mono">
-            {usage}
+          <Text as="span" fontSize="xs" whiteSpace="nowrap">
+            <Text as="span" fontFamily="mono">
+              {usage}
+            </Text>{' '}
+            séance{usage > 1 ? 's' : ''}
           </Text>
         )}
       </HStack>

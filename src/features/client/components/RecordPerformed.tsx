@@ -156,8 +156,13 @@ export const RecordPerformed = ({
                   as="button"
                   aria-label="Fermer"
                   position="absolute"
-                  top={4}
-                  right={4}
+                  top={2}
+                  right={2}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  minW="44px"
+                  minH="44px"
                   color="fg.muted"
                   _hover={{ color: 'fg' }}
                 >

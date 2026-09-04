@@ -61,7 +61,7 @@ export const WeekStrip = ({ history }: WeekStripProps) => {
 
   return (
     <VStack align="stretch" gap={2}>
-      <HStack justify="space-between" align="baseline">
+      <HStack justify="space-between" align="baseline" maxW="420px">
         <Text
           fontSize="xs"
           fontWeight="bold"
@@ -78,7 +78,14 @@ export const WeekStrip = ({ history }: WeekStripProps) => {
         </Text>
       </HStack>
 
-      <HStack gap={1} role="list" aria-label="Séances de la semaine">
+      {/* Plafonnée : sept cases d'une lettre et deux chiffres n'ont pas besoin
+          de 600 px. Au-delà, la bande se lit comme un ruban vide. */}
+      <HStack
+        gap={1}
+        maxW="420px"
+        role="list"
+        aria-label="Séances de la semaine"
+      >
         {days.map(({ date, key, sessions }) => {
           const isToday = key === todayKey;
           const isFuture = key > todayKey;

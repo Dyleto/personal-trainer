@@ -4,6 +4,7 @@ import { useCountdown } from '../useCountdown';
 import { formatLastPerformance, LastPerformance } from '../lastPerformance';
 import { Box, HStack, Button, VStack, Text } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface GuidedSessionProps {
   session: Session;
@@ -159,6 +160,23 @@ export const GuidedSession = ({
     onExit();
   };
 
+  // Le plein écran se superposait à la page sans la neutraliser : quatre
+  // tabulations suffisaient pour en sortir, on se retrouvait dans la barre
+  // d'onglets et sur les boutons de la séance en dessous, et un lecteur
+  // d'écran annonçait toujours toute la page. `inert` retire d'un coup le
+  // focus, le pointeur et l'arbre d'accessibilité de tout ce qui n'est pas
+  // la séance guidée.
+  useEffect(() => {
+    const root = document.getElementById('root');
+    if (!root) return;
+    root.setAttribute('inert', '');
+    return () => root.removeAttribute('inert');
+  }, []);
+
+  // ... ce qui oblige la séance elle-même à sortir de `#root`, sans quoi
+  // elle se neutraliserait avec le reste.
+  const overlay = (node: React.ReactNode) => createPortal(node, document.body);
+
   // Empêche l'écran de s'éteindre pendant toute la séance guidée : sans ça,
   // l'écran s'éteint entre deux exercices et il faut le déverrouiller les
   // mains moites.
@@ -197,7 +215,7 @@ export const GuidedSession = ({
   }, []);
 
   if (steps.length === 0) {
-    return (
+    return overlay(
       <Box
         position="fixed"
         inset={0}
@@ -230,7 +248,7 @@ export const GuidedSession = ({
   }
 
   if (showResume) {
-    return (
+    return overlay(
       <Box
         position="fixed"
         inset={0}
@@ -281,7 +299,7 @@ export const GuidedSession = ({
   }
 
   if (showExitConfirm) {
-    return (
+    return overlay(
       <Box
         position="fixed"
         inset={0}
@@ -341,8 +359,11 @@ export const GuidedSession = ({
     return 'whiteAlpha.200';
   };
 
-  return (
+  return overlay(
     <Box
+      role="dialog"
+      aria-modal="true"
+      aria-label="Séance guidée"
       position="fixed"
       inset={0}
       zIndex={50}

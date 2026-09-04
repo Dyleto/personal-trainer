@@ -243,7 +243,10 @@ const ClientDetails = () => {
               <Avatar.Image src={client.picture} />
             </Avatar.Root>
             <VStack align="start" gap={0} flex={1} minW={0}>
-              <Heading as="h1" size="lg">
+              {/* Le h1 de cet écran est celui de la barre mobile : une seule
+                  des deux en-têtes est affichée à la fois, mais toutes deux
+                  étaient balisées h1. */}
+              <Heading as="p" size="lg" fontWeight="bold">
                 {client.firstName} {client.lastName}
               </Heading>
               <Text fontSize="sm" color="fg.muted">

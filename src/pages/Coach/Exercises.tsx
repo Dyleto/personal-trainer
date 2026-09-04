@@ -314,7 +314,11 @@ const Exercises = () => {
                         as="button"
                         aria-label={`Aller à la lettre ${letter}`}
                         onClick={() => scrollToLetter(letter)}
-                        fontSize="2xs"
+                        // 10 px pour une cible qu'on vise au pouce, c'était
+                        // sous tout seuil de lisibilité. 12 px dans une case
+                        // de 28, soit 24 px réellement atteignables une fois
+                        // les voisines déduites.
+                        fontSize="xs"
                         fontWeight="bold"
                         color="whiteAlpha.800"
                         display="flex"

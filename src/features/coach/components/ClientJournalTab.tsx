@@ -18,7 +18,7 @@ import {
   useBreakpointValue,
   VStack,
 } from '@chakra-ui/react';
-import { LuChevronRight } from 'react-icons/lu';
+import { LuCalendarDays, LuChevronRight } from 'react-icons/lu';
 
 interface Props {
   history: CompletedSession[];
@@ -63,8 +63,9 @@ const JournalEntry = ({ completed, isUnseen, onOpen }: JournalEntryProps) => {
           <Text fontWeight="bold" fontSize="sm">
             Séance {completed.sessionOrder}
           </Text>
+          {/* Doré : le rouge de cette ligne appartient au ressenti. */}
           {isUnseen && (
-            <Box w="6px" h="6px" borderRadius="full" bg="session.work" />
+            <Box w="6px" h="6px" borderRadius="full" bg="app.primary" />
           )}
         </HStack>
         <HStack gap={2}>
@@ -107,6 +108,14 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
   // Une régularité se lit sur huit semaines, pas sur quatre.
   const months = useBreakpointValue<1 | 2>({ base: 1, '2xl': 2 }) ?? 1;
 
+  // Sous 1024 px, le calendrier passe au-dessus de la liste et occupe presque
+  // tout l'écran : les retours du client, ce pour quoi on ouvre le journal,
+  // commençaient sous la ligne de flottaison. Il devient un filtre qu'on
+  // ouvre. Au-delà, les deux sont côte à côte et la question ne se pose pas.
+  const isNarrow = useBreakpointValue({ base: true, lg: false }) ?? false;
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const showCalendar = !isNarrow || isFilterOpen || selectedDay !== null;
+
   const [initialUnseenIds] = useState<Set<string>>(
     () =>
       new Set(history.filter((c) => c.viewedByCoach !== true).map((c) => c._id))
@@ -142,12 +151,44 @@ export const ClientJournalTab = ({ history, clientId }: Props) => {
           position={{ base: 'static', lg: 'sticky' }}
           top={{ lg: '80px' }}
         >
-          <SessionCalendar
-            history={history}
-            selectedDay={selectedDay}
-            onSelectDay={setSelectedDay}
-            months={months}
-          />
+          {isNarrow && (
+            <Box
+              as="button"
+              w="full"
+              aria-expanded={isFilterOpen || selectedDay !== null}
+              onClick={() => {
+                setIsFilterOpen((open) => !open);
+                if (selectedDay !== null) setSelectedDay(null);
+              }}
+              px={3}
+              py={2}
+              mb={showCalendar ? 3 : 0}
+              borderWidth="1px"
+              borderColor="whiteAlpha.200"
+              borderRadius="md"
+              color="fg.muted"
+              _hover={{ color: 'fg', borderColor: 'whiteAlpha.300' }}
+            >
+              <HStack gap={2} justify="center">
+                <LuCalendarDays size={14} />
+                <Text fontSize="sm">
+                  {selectedDay !== null
+                    ? 'Voir tout le journal'
+                    : isFilterOpen
+                      ? 'Masquer le calendrier'
+                      : 'Filtrer par date'}
+                </Text>
+              </HStack>
+            </Box>
+          )}
+          {showCalendar && (
+            <SessionCalendar
+              history={history}
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+              months={months}
+            />
+          )}
         </Box>
 
         <VStack align="stretch" gap={0} minW={0}>

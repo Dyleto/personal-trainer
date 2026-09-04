@@ -14,6 +14,7 @@ import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import { Exercise } from '@/types';
 import { getVideoEmbedUrl } from '@/utils/videoUtils';
 import { useUpdateExercise } from '@/features/exercise/hooks/useExerciseMutations';
+import VideoPlayer from '@/components/VideoPlayer';
 
 type Editable = 'name' | 'description' | 'videoUrl';
 
@@ -222,6 +223,7 @@ export const ExerciseSheet = ({
           {onDelete && (
             <IconButton
               aria-label={`Supprimer ${exercise.name}`}
+              title={usage > 0 ? usageSentence(usage, true) : undefined}
               size="xs"
               variant="ghost"
               color="fg.muted"
@@ -247,12 +249,6 @@ export const ExerciseSheet = ({
         </HStack>
       </HStack>
 
-      {usage > 0 && (
-        <Text fontSize="xs" color="fg.muted" px={1}>
-          {usageSentence(usage, !!onDelete)}
-        </Text>
-      )}
-
       <SheetField
         value={exercise.description}
         onCommit={patch('description')}
@@ -264,27 +260,10 @@ export const ExerciseSheet = ({
       {/* ── Vidéo ── */}
       {embedUrl ? (
         <VStack gap={2} align="stretch">
-          <Box
-            borderRadius="md"
-            overflow="hidden"
-            bg="black"
-            style={{ position: 'relative', paddingBottom: '56.25%' }}
-          >
-            <iframe
-              src={embedUrl}
-              title={`Vidéo — ${exercise.name}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                border: 'none',
-              }}
-            />
-          </Box>
+          {/* Vignette d'abord, lecteur au clic : la fiche n'appelle plus
+              YouTube tant que personne n'a demandé à voir la vidéo, et ne
+              peut plus afficher une dalle blanche dans une app sombre. */}
+          <VideoPlayer url={exercise.videoUrl ?? ''} />
           <HStack gap={2} align="center">
             <Box flex={1} minW={0}>
               <SheetField
@@ -325,6 +304,22 @@ export const ExerciseSheet = ({
             />
           </Box>
         </HStack>
+      )}
+
+      {/* En pied de fiche, pas en chapeau : c'est une note sur l'exercice,
+          pas la première chose à savoir de lui. Elle explique aussi pourquoi
+          la corbeille ne répond pas — un `title` seul serait invisible au
+          doigt. */}
+      {usage > 0 && (
+        <Text
+          fontSize="xs"
+          color="fg.muted"
+          pt={2}
+          borderTopWidth="1px"
+          borderColor="whiteAlpha.100"
+        >
+          {usageSentence(usage, !!onDelete)}
+        </Text>
       )}
     </VStack>
   );

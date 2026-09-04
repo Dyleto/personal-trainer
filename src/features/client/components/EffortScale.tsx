@@ -77,39 +77,36 @@ export const EffortScale = ({ value, onChange }: EffortScaleProps) => {
               }}
               transition="background-color 0.15s, border-color 0.15s"
             >
-              <Text fontSize="lg" fontWeight="800" fontFamily="mono">
-                {level.rank}
-              </Text>
+              <VStack gap={0.5}>
+                <Text fontSize="lg" fontWeight="800" fontFamily="mono">
+                  {level.rank}
+                </Text>
+                {/* Le nom de chaque cran, et pas seulement des deux
+                    extrémités : la cible est « Juste », au milieu, et rien
+                    à l'écran ne disait où elle se trouvait avant d'avoir
+                    tapé. */}
+                <Text
+                  fontSize="10px"
+                  lineHeight="1.2"
+                  textAlign="center"
+                  color={isSelected ? color : 'fg.muted'}
+                >
+                  {level.label}
+                </Text>
+              </VStack>
             </Box>
           );
         })}
       </HStack>
 
-      <HStack justify="space-between">
-        <Text fontSize="xs" color="fg.muted">
-          {EFFORT_SCALE[0].label}
-        </Text>
-        <Text fontSize="xs" color="fg.muted">
-          {EFFORT_SCALE[EFFORT_SCALE.length - 1].label}
-        </Text>
-      </HStack>
-
       {/* Hauteur réservée : le choix d'un niveau ne doit pas faire sauter la
-          fenêtre au moment du tap. */}
-      <Box minH="34px" textAlign="center">
+          fenêtre au moment du tap. Le nom du cran est maintenant sur le cran
+          lui-même — il ne reste ici que ce qu'il ajoute : la description. */}
+      <Box minH="20px" textAlign="center">
         {selected && (
-          <>
-            <Text
-              fontSize="sm"
-              fontWeight="bold"
-              color={EFFORT_ZONE_COLOR[selected.zone]}
-            >
-              {selected.label}
-            </Text>
-            <Text fontSize="xs" color="fg.muted">
-              {selected.description}
-            </Text>
-          </>
+          <Text fontSize="xs" color={EFFORT_ZONE_COLOR[selected.zone]}>
+            {selected.description}
+          </Text>
         )}
       </Box>
     </VStack>

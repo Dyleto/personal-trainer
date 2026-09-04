@@ -63,7 +63,8 @@ export const CompleteSessionModal = ({
             <VStack align="start" gap={1}>
               <Dialog.Title>Cette séance, c'était&nbsp;?</Dialog.Title>
               <Text fontSize="sm" color="fg.muted" fontWeight="normal">
-                Ton ressenti aide ton coach à adapter la suite.
+                Ton ressenti aide ton coach à adapter la suite. C'est la seule
+                chose qu'on te demande.
               </Text>
             </VStack>
           </Dialog.Header>
@@ -96,6 +97,7 @@ export const CompleteSessionModal = ({
                   Commentaire (facultatif)
                 </Text>
                 <AutoResizeTextarea
+                  aria-label="Commentaire sur la séance"
                   placeholder="Ex : bonne séance, un peu difficile sur les derniers rounds..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -114,6 +116,7 @@ export const CompleteSessionModal = ({
                 </Text>
                 <Box w="45%">
                   <DateInput
+                    ariaLabel="Date de réalisation de la séance"
                     value={completedAt}
                     max={toDateInputValue(new Date())}
                     onChange={setCompletedAt}
@@ -124,6 +127,13 @@ export const CompleteSessionModal = ({
           </Dialog.Body>
 
           <Dialog.Footer gap={3}>
+            {/* Un bouton grisé sans explication a l'air cassé. On dit ce qui
+                manque, à côté de ce qui ne part pas. */}
+            {effort === undefined && (
+              <Text fontSize="xs" color="fg.muted" mr="auto">
+                Choisis un cran pour valider.
+              </Text>
+            )}
             <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
               Annuler
             </Button>

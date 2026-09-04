@@ -64,6 +64,7 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
   const lastLabel =
     getEffortLevel(rated[rated.length - 1]?.feedback?.effort)?.label ?? '—';
   const tags = countTags(rated);
+  const unrated = chronological.length - rated.length;
 
   // Aucun passage noté : les bilans d'avant la refonte n'ont jamais porté la
   // question. On le dit, on ne dessine pas une courbe vide.
@@ -118,6 +119,12 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
           {rated.length === 1
             ? `Dernier ressenti : ${lastLabel}`
             : `${rated.length} derniers ressentis, du plus ancien au plus récent — ${lastLabel} en dernier`}
+          {/* Le graphique trace toutes les séances, la phrase n'en comptait
+              que certaines : sans ça, quatre marques pour « 3 ressentis ».
+              Le creux gris n'était expliqué que par un `title`, invisible au
+              doigt. */}
+          {unrated > 0 &&
+            ` · ${unrated} séance${unrated > 1 ? 's' : ''} sans ressenti comparable`}
         </Text>
         {drift && (
           <Text

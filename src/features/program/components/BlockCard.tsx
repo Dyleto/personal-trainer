@@ -53,6 +53,7 @@ export const BlockCard = ({ block, renderExerciseExtra }: BlockCardProps) => {
             key={i}
             exercise={ex}
             blockType={block.type}
+            block={block}
             index={i}
             extra={renderExerciseExtra?.({
               blockOrder: block.order,
