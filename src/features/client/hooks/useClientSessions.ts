@@ -107,6 +107,10 @@ export const useClientSessions = () => {
               title: 'Séance enregistrée',
               description: 'Ton coach la verra.',
               type: 'success',
+              // La durée par défaut tombe sous les deux secondes et demie :
+              // c'est trop court pour un accusé de réception qui arrive en
+              // même temps qu'un changement d'écran.
+              duration: 4500,
             });
             navigate(CLIENT_ROUTES.today);
           },
