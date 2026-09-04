@@ -1,6 +1,8 @@
 import { Box, HStack, Text, VStack, Wrap } from '@chakra-ui/react';
+import { getRelativeDate } from '@/features/client';
 import { CompletedSession, FeedbackTag } from '@/types';
 import {
+  EFFORT_LEVELS,
   EFFORT_ZONE_COLOR,
   FEEDBACK_TAG_LABELS,
   getEffortLevel,
@@ -64,7 +66,6 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
   const lastLabel =
     getEffortLevel(rated[rated.length - 1]?.feedback?.effort)?.label ?? '—';
   const tags = countTags(rated);
-  const unrated = chronological.length - rated.length;
 
   // Aucun passage noté : les bilans d'avant la refonte n'ont jamais porté la
   // question. On le dit, on ne dessine pas une courbe vide.
@@ -80,51 +81,78 @@ export const EffortTrend = ({ history, limit = 5 }: EffortTrendProps) => {
 
   return (
     <VStack align="stretch" gap={2}>
-      <HStack gap={1.5} align="flex-end" h="34px">
-        {chronological.map((completed) => {
-          const level = getEffortLevel(completed.feedback?.effort);
-          if (!level) {
-            // Passage antérieur à la refonte : un creux, jamais une barre
-            // inventée.
-            return (
-              <Box
-                key={completed._id}
-                flex={1}
-                h="3px"
-                borderRadius="full"
-                bg="whiteAlpha.200"
-                title="Ressenti non comparable"
-              />
-            );
-          }
+      {/* L'axe, avec ses propres étiquettes et la cible nommée au milieu.
+          Les barres qu'il remplace encodaient le ressenti deux fois — par la
+          hauteur et par la couleur — sans jamais dire que la hauteur voulait
+          dire quelque chose. Ici la position EST l'échelle, et elle est
+          écrite en dessous : rien à retenir. */}
+      <Box position="relative" h="26px" mx="6px">
+        <Box
+          position="absolute"
+          top="12px"
+          left={0}
+          right={0}
+          h="1px"
+          bg="whiteAlpha.200"
+        />
+        <Box
+          position="absolute"
+          top="6px"
+          left="50%"
+          w="1px"
+          h="13px"
+          bg="app.primary"
+          opacity={0.55}
+        />
+        {rated.map((completed, i) => {
+          const level = getEffortLevel(completed.feedback!.effort)!;
+          const isLast = i === rated.length - 1;
+          // 1 → 0 %, 5 → 100 %. Le point le plus récent est plein, les
+          // précédents en retrait : on lit le sens de la marche.
+          const left = ((level.value - 1) / 4) * 100;
           return (
             <Box
               key={completed._id}
-              flex={1}
-              h={`${level.value * 20}%`}
-              minH="6px"
-              borderRadius="sm"
+              position="absolute"
+              top={isLast ? '8px' : '10px'}
+              left={`${left}%`}
+              transform="translateX(-50%)"
+              w={isLast ? '9px' : '6px'}
+              h={isLast ? '9px' : '6px'}
+              borderRadius="full"
               bg={EFFORT_ZONE_COLOR[level.zone]}
-              opacity={0.85}
-              title={level.label}
+              opacity={isLast ? 1 : 0.42}
+              title={`${level.label} — ${getRelativeDate(completed.completedAt)}`}
             />
           );
         })}
+      </Box>
+
+      {/* Les étiquettes viennent de EFFORT_LEVELS — l'ordre des valeurs
+          stockées — et non de EFFORT_SCALE, qui est l'échelle *d'affichage*
+          du client, renversée pour que « 1 » soit « Trop dure ». Les prendre
+          là plaçait le point rouge sous « Trop facile ». Ici, la position et
+          le mot viennent de la même source, et le plus dur est à droite :
+          c'est le sens qu'annonce déjà la flèche de dérive. */}
+      <HStack justify="space-between" fontSize="10px" color="fg.muted">
+        <Text>{EFFORT_LEVELS[0].label}</Text>
+        <Text color="app.primary">
+          {EFFORT_LEVELS[Math.floor(EFFORT_LEVELS.length / 2)].label}
+        </Text>
+        <Text>{EFFORT_LEVELS[EFFORT_LEVELS.length - 1].label}</Text>
       </HStack>
 
       <HStack gap={2} justify="space-between" align="baseline">
         {/* Le mot, pas le chiffre. La suite « 3 → 4 » se lisait comme un code :
             rien à l'écran ne disait sur quelle échelle, ni dans quel sens. */}
+        {/* L'axe ne porte que les passages notés ; le tableau en dessous
+            montre les autres avec un tiret. On ne les compte donc plus ici. */}
         <Text fontSize="xs" color="fg.muted">
           {rated.length === 1
             ? `Dernier ressenti : ${lastLabel}`
-            : `${rated.length} derniers ressentis, du plus ancien au plus récent — ${lastLabel} en dernier`}
-          {/* Le graphique trace toutes les séances, la phrase n'en comptait
-              que certaines : sans ça, quatre marques pour « 3 ressentis ».
-              Le creux gris n'était expliqué que par un `title`, invisible au
-              doigt. */}
-          {unrated > 0 &&
-            ` · ${unrated} séance${unrated > 1 ? 's' : ''} sans ressenti comparable`}
+            : drift
+              ? `${rated.length} passages notés`
+              : `${rated.length} passages notés — ${lastLabel} en dernier`}
         </Text>
         {drift && (
           <Text

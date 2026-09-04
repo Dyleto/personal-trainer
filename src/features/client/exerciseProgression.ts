@@ -40,7 +40,11 @@ const nameOf = (exercise: Record<string, unknown>): string => {
   return typeof name === 'string' ? name : 'Exercice';
 };
 
-type SessionTotals = { weight?: number; reps?: number; duration?: number };
+export type SessionTotals = {
+  weight?: number;
+  reps?: number;
+  duration?: number;
+};
 
 /**
  * Un exercice fait en plusieurs séries donne un point par séance, pas un par
@@ -48,7 +52,7 @@ type SessionTotals = { weight?: number; reps?: number; duration?: number };
  * ou les secondes cumulées. C'est ce qui répond à « je mets combien la
  * prochaine fois ? ».
  */
-const sessionTotals = (sets: PerformedSet[]): SessionTotals | null => {
+export const sessionTotals = (sets: PerformedSet[]): SessionTotals | null => {
   const kept = truncateAtFirstEmpty(sets);
   if (kept.length === 0) return null;
 
