@@ -20,21 +20,27 @@ import {
   useClientSessions,
 } from '@/features/client';
 import { PerformedEntry, PerformedValues } from '@/types';
+import { truncateAtFirstEmpty } from '@/features/client/performedFormat';
 import { CLIENT_ROUTES } from '@/config/routes';
 import { hitArea } from '@/components/hitArea';
 
 // Le réalisé se saisit exercice par exercice pendant la séance, puis part en
 // une fois avec le bilan. La clé est « ordre du bloc : ordre de l'exercice »,
-// exactement l'adressage attendu par l'API.
+// exactement l'adressage attendu par l'API. Un exercice sans une seule série
+// renseignée n'est pas envoyé du tout : rien à dire n'est pas une valeur.
 const toPerformedEntries = (
   performed: Record<string, PerformedValues>
 ): PerformedEntry[] =>
   Object.entries(performed)
-    .filter(([, v]) => v.weight !== undefined || v.reps !== undefined)
-    .map(([key, v]) => {
+    .map(([key, value]) => {
       const [blockOrder, exerciseOrder] = key.split(':').map(Number);
-      return { blockOrder, exerciseOrder, ...v };
-    });
+      return {
+        blockOrder,
+        exerciseOrder,
+        sets: truncateAtFirstEmpty(value.sets ?? []),
+      };
+    })
+    .filter((entry) => entry.sets.length > 0);
 
 type ClientSessionsData = ReturnType<typeof useClientSessions>;
 

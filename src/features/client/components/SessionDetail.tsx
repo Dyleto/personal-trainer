@@ -8,16 +8,14 @@ import {
   performedKey,
 } from '../lastPerformance';
 
-/** Un exercice mesuré en temps : on ne lui demande pas de répétitions. */
-const isTimedExercise = (
+const findExercise = (
   session: Session,
   blockOrder: number,
   exerciseOrder: number
-) => {
-  const block = session.blocks.find((b) => b.order === blockOrder);
-  const exercise = block?.exercises.find((e) => e.order === exerciseOrder);
-  return exercise?.duration !== undefined;
-};
+) =>
+  session.blocks
+    .find((b) => b.order === blockOrder)
+    ?.exercises.find((e) => e.order === exerciseOrder);
 
 interface SessionDetailProps {
   session: Session;
@@ -76,12 +74,18 @@ export const SessionDetail = ({
 
             if (isRecording) {
               const key = performedKey(blockOrder, exerciseOrder);
+              const prescribed = findExercise(
+                session,
+                blockOrder,
+                exerciseOrder
+              );
               return (
                 <PerformedFields
-                  value={performed[key] ?? {}}
+                  value={performed[key] ?? { sets: [] }}
                   onChange={(next) => onPerformedChange(key, next)}
+                  setCount={prescribed?.sets ?? 1}
                   lastLabel={last}
-                  isTimed={isTimedExercise(session, blockOrder, exerciseOrder)}
+                  isTimed={prescribed?.duration !== undefined}
                 />
               );
             }

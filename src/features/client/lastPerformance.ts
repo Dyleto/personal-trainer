@@ -1,4 +1,5 @@
 import { CompletedSession, PerformedValues } from '@/types';
+import { formatPerformedSets, truncateAtFirstEmpty } from './performedFormat';
 
 export interface LastPerformance extends PerformedValues {
   completedAt: Date;
@@ -18,10 +19,7 @@ const exerciseIdOf = (exercise: Record<string, unknown>): string | null => {
 };
 
 const hasAnyValue = (p: PerformedValues) =>
-  p.weight !== undefined ||
-  p.reps !== undefined ||
-  p.sets !== undefined ||
-  p.duration !== undefined;
+  truncateAtFirstEmpty(p.sets ?? []).length > 0;
 
 /**
  * Le dernier `performed` connu pour chaque exercice, toutes séances confondues.
@@ -62,26 +60,9 @@ export const buildLastPerformanceIndex = (
 };
 
 /**
- * « 24 kg · 4 × 10 » — les seules valeurs réellement renseignées, jamais un
- * zéro de remplissage. `null` s'il n'y a rien à dire.
+ * « 26 kg · 3 × 12 reps » — les seules séries réellement renseignées, jamais
+ * un zéro de remplissage. `null` s'il n'y a rien à dire.
  */
 export const formatLastPerformance = (
   last: LastPerformance | undefined
-): string | null => {
-  if (!last) return null;
-
-  const parts: string[] = [];
-  if (last.weight !== undefined) parts.push(`${last.weight} kg`);
-
-  if (last.sets !== undefined && last.reps !== undefined) {
-    parts.push(`${last.sets} × ${last.reps}`);
-  } else if (last.reps !== undefined) {
-    parts.push(`${last.reps} reps`);
-  } else if (last.sets !== undefined) {
-    parts.push(`${last.sets} séries`);
-  }
-
-  if (last.duration !== undefined) parts.push(`${last.duration}s`);
-
-  return parts.length > 0 ? parts.join(' · ') : null;
-};
+): string | null => (last ? formatPerformedSets(last.sets ?? []) : null);

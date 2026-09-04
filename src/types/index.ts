@@ -185,25 +185,33 @@ export interface SessionMetrics {
 }
 
 /**
- * Une valeur réalisée, adressée par sa position dans l'instantané.
- * `null` demande l'effacement de la valeur, une clé absente n'y touche pas.
+ * Ce que le client a fait sur UNE série.
+ * Une clé absente veut dire « non renseignée » — jamais zéro.
+ */
+export interface PerformedSet {
+  weight?: number;
+  reps?: number;
+  duration?: number;
+}
+
+/**
+ * Ce que le client a réellement fait, série par série.
+ *
+ * La liste s'arrête là où l'exercice s'est arrêté : une série prescrite qui
+ * n'y figure pas n'a pas été faite. « J'ai fait mes quatre séries » et « j'ai
+ * lâché à la deuxième » sont deux informations différentes, et l'ancien
+ * couple poids/reps unique n'en portait aucune des deux.
+ */
+export interface PerformedValues {
+  sets: PerformedSet[];
+}
+
+/**
+ * Le réalisé d'un exercice, adressé par sa position dans l'instantané.
+ * La liste remplace intégralement celle enregistrée ; `[]` l'efface.
  */
 export interface PerformedEntry {
   blockOrder: number;
   exerciseOrder: number;
-  weight?: number | null;
-  reps?: number | null;
-  sets?: number | null;
-  duration?: number | null;
-}
-
-/**
- * Ce que le client a réellement fait, à côté de la prescription.
- * Une clé absente veut dire « non renseignée » — jamais zéro.
- */
-export interface PerformedValues {
-  weight?: number;
-  reps?: number;
-  sets?: number;
-  duration?: number;
+  sets: PerformedSet[];
 }

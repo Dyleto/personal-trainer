@@ -2,7 +2,7 @@ import { Box, HStack, Text, VStack } from '@chakra-ui/react';
 import { CompletedSession } from '@/types';
 import { getRelativeDate } from '@/features/client';
 import { EFFORT_ZONE_COLOR, getEffortLevel } from '@/features/client/constants';
-import { formatLastPerformance } from '@/features/client/lastPerformance';
+import { formatPerformed } from '@/features/client/performedFormat';
 import { EffortTrend } from './EffortTrend';
 
 interface SessionFeedbackStripProps {
@@ -39,11 +39,7 @@ const performedLines = (completed: CompletedSession): PerformedLine[] => {
       [...block.exercises]
         .sort((a, b) => a.order - b.order)
         .forEach((ex) => {
-          if (!ex.performed) return;
-          const value = formatLastPerformance({
-            ...ex.performed,
-            completedAt: new Date(completed.completedAt),
-          });
+          const value = formatPerformed(ex.performed);
           if (!value) return;
           const name = ex.exercise?.name;
           lines.push({
@@ -64,22 +60,20 @@ const PerformedList = ({ completed }: { completed: CompletedSession }) => {
   const rest = lines.length - shown.length;
 
   return (
-    <VStack align="stretch" gap={0.5} mt={1.5}>
+    <VStack align="stretch" gap={1.5} mt={1.5}>
+      {/* Le nom au-dessus, la valeur en dessous : une saisie détaillée fait
+          « 26 kg × 12 · 26 kg × 10 · 24 kg × 8 », qui ne tient sur aucune
+          ligne partagée. Sur la même ligne, c'est le nom qui cédait — et un
+          exercice réduit à « G. » ne se lit plus. */}
       {shown.map((line, i) => (
-        <HStack key={`${line.name}-${i}`} gap={2} align="baseline">
-          <Text fontSize="xs" color="fg.muted" flex={1} minW={0} lineClamp={1}>
+        <Box key={`${line.name}-${i}`}>
+          <Text fontSize="xs" color="fg.muted" lineClamp={1}>
             {line.name}
           </Text>
-          <Text
-            fontSize="xs"
-            fontFamily="mono"
-            color="fg"
-            flexShrink={0}
-            whiteSpace="nowrap"
-          >
+          <Text fontSize="xs" fontFamily="mono" color="fg" lineClamp={2}>
             {line.value}
           </Text>
-        </HStack>
+        </Box>
       ))}
       {rest > 0 && (
         <Text fontSize="xs" color="fg.muted">

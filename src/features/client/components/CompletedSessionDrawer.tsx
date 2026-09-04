@@ -34,6 +34,11 @@ import { EffortScale } from './EffortScale';
 import { FeedbackTags } from './FeedbackTags';
 import { PerformedFields } from './PerformedFields';
 import { performedKey } from '../lastPerformance';
+import {
+  formatPerformed,
+  sameSet,
+  truncateAtFirstEmpty,
+} from '../performedFormat';
 import { useUpdateCompletedSession } from '../hooks/useCompleteSession';
 
 const toSessionBlock = (
@@ -73,35 +78,19 @@ const collectPerformed = (
   completed.blocks.forEach((block) => {
     block.exercises.forEach((ex) => {
       if (ex.performed) {
-        map[performedKey(block.order, ex.order)] = { ...ex.performed };
+        map[performedKey(block.order, ex.order)] = {
+          sets: (ex.performed.sets ?? []).map((set) => ({ ...set })),
+        };
       }
     });
   });
   return map;
 };
 
-/** « 26 kg · 10 reps » — uniquement ce qui a été renseigné. */
-const formatPerformed = (p?: PerformedValues): string | null => {
-  if (!p) return null;
-  const parts: string[] = [];
-  if (p.weight !== undefined) parts.push(`${p.weight} kg`);
-  if (p.sets !== undefined && p.reps !== undefined)
-    parts.push(`${p.sets} × ${p.reps}`);
-  else if (p.reps !== undefined) parts.push(`${p.reps} reps`);
-  else if (p.sets !== undefined) parts.push(`${p.sets} séries`);
-  if (p.duration !== undefined) parts.push(`${p.duration}s`);
-  return parts.length > 0 ? parts.join(' · ') : null;
-};
-
-const PERFORMED_FIELDS: (keyof PerformedValues)[] = [
-  'weight',
-  'reps',
-  'sets',
-  'duration',
-];
-
-// Ne renvoie que ce qui a bougé. Une valeur effacée part en `null` — l'API
-// distingue « efface » d'« n'y touche pas », il ne faut pas perdre l'intention.
+// Ne renvoie que les exercices dont le réalisé a bougé. La liste de séries
+// part entière : elle remplace celle enregistrée, et `[]` l'efface. Plus rien
+// à distinguer entre « efface » et « n'y touche pas » — c'est l'absence de
+// l'exercice dans le corps qui veut dire « n'y touche pas ».
 const diffPerformed = (
   original: Record<string, PerformedValues>,
   edited: Record<string, PerformedValues>
@@ -110,20 +99,16 @@ const diffPerformed = (
   const keys = new Set([...Object.keys(original), ...Object.keys(edited)]);
 
   keys.forEach((key) => {
-    const before = original[key] ?? {};
-    const after = edited[key] ?? {};
-    const changed: Partial<Record<keyof PerformedValues, number | null>> = {};
-    let hasChange = false;
-
-    PERFORMED_FIELDS.forEach((field) => {
-      if (before[field] === after[field]) return;
-      changed[field] = after[field] ?? null;
-      hasChange = true;
-    });
-
-    if (!hasChange) return;
+    const before = truncateAtFirstEmpty(original[key]?.sets ?? []);
+    const after = truncateAtFirstEmpty(edited[key]?.sets ?? []);
+    if (
+      before.length === after.length &&
+      before.every((set, i) => sameSet(set, after[i]))
+    ) {
+      return;
+    }
     const [blockOrder, exerciseOrder] = key.split(':').map(Number);
-    entries.push({ blockOrder, exerciseOrder, ...changed });
+    entries.push({ blockOrder, exerciseOrder, sets: after });
   });
 
   return entries;
@@ -408,13 +393,14 @@ export const CompletedSessionDrawer = ({
                                 );
                                 return (
                                   <PerformedFields
-                                    value={performed[key] ?? {}}
+                                    value={performed[key] ?? { sets: [] }}
                                     onChange={(next) =>
                                       setPerformed((prev) => ({
                                         ...prev,
                                         [key]: next,
                                       }))
                                     }
+                                    setCount={prescribed?.sets ?? 1}
                                     isTimed={prescribed?.duration !== undefined}
                                   />
                                 );

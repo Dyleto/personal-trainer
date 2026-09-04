@@ -1,4 +1,5 @@
-import { CompletedSession } from '@/types';
+import { CompletedSession, PerformedSet } from '@/types';
+import { truncateAtFirstEmpty } from './performedFormat';
 
 export type ProgressionMetric = 'weight' | 'reps' | 'duration';
 
@@ -16,10 +17,12 @@ export interface ExerciseProgression {
   lastAt: Date;
 }
 
+// Les répétitions et les secondes sont cumulées sur la séance : le mot le dit,
+// pour qu'on ne lise pas un total comme la valeur d'une série.
 export const METRIC_UNIT: Record<ProgressionMetric, string> = {
   weight: 'kg',
-  reps: 'reps',
-  duration: 's',
+  reps: 'reps au total',
+  duration: 's au total',
 };
 
 // Une valeur isolée n'est pas une progression, et au-delà de cinq points la
@@ -35,6 +38,37 @@ const exerciseIdOf = (exercise: Record<string, unknown>): string | null => {
 const nameOf = (exercise: Record<string, unknown>): string => {
   const name = exercise?.name;
   return typeof name === 'string' ? name : 'Exercice';
+};
+
+type SessionTotals = { weight?: number; reps?: number; duration?: number };
+
+/**
+ * Un exercice fait en plusieurs séries donne un point par séance, pas un par
+ * série : la charge la plus lourde tenue ce jour-là, et le volume — les reps
+ * ou les secondes cumulées. C'est ce qui répond à « je mets combien la
+ * prochaine fois ? ».
+ */
+const sessionTotals = (sets: PerformedSet[]): SessionTotals | null => {
+  const kept = truncateAtFirstEmpty(sets);
+  if (kept.length === 0) return null;
+
+  const weights = kept
+    .map((s) => s.weight)
+    .filter((w): w is number => w !== undefined);
+  const reps = kept
+    .map((s) => s.reps)
+    .filter((r): r is number => r !== undefined);
+  const durations = kept
+    .map((s) => s.duration)
+    .filter((d): d is number => d !== undefined);
+
+  const totals: SessionTotals = {};
+  if (weights.length > 0) totals.weight = Math.max(...weights);
+  if (reps.length > 0) totals.reps = reps.reduce((a, b) => a + b, 0);
+  if (durations.length > 0)
+    totals.duration = durations.reduce((a, b) => a + b, 0);
+
+  return Object.keys(totals).length > 0 ? totals : null;
 };
 
 /**
@@ -57,15 +91,7 @@ export const buildExerciseProgressions = (
 
   const byExercise = new Map<
     string,
-    {
-      name: string;
-      entries: {
-        at: Date;
-        weight?: number;
-        reps?: number;
-        duration?: number;
-      }[];
-    }
+    { name: string; entries: (SessionTotals & { at: Date })[] }
   >();
 
   chronological.forEach((completed) => {
@@ -73,6 +99,8 @@ export const buildExerciseProgressions = (
     completed.blocks.forEach((block) => {
       block.exercises.forEach((ex) => {
         if (!ex.performed) return;
+        const totals = sessionTotals(ex.performed.sets ?? []);
+        if (!totals) return;
         const id = exerciseIdOf(ex.exercise);
         if (!id) return;
         const bucket = byExercise.get(id) ?? {
@@ -80,7 +108,7 @@ export const buildExerciseProgressions = (
           entries: [],
         };
         bucket.name = nameOf(ex.exercise);
-        bucket.entries.push({ at, ...ex.performed });
+        bucket.entries.push({ at, ...totals });
         byExercise.set(id, bucket);
       });
     });

@@ -1,17 +1,25 @@
-import { Box, HStack, Input, Text } from '@chakra-ui/react';
-import { PerformedValues } from '@/types';
+import { Box, HStack, Input, Text, VStack } from '@chakra-ui/react';
+import { useState } from 'react';
+import { LuChevronRight } from 'react-icons/lu';
+import { PerformedSet, PerformedValues } from '@/types';
+import { hitArea } from '@/components/hitArea';
+import {
+  isEmptySet,
+  truncateAtFirstEmpty,
+  uniformSet,
+} from '../performedFormat';
 
 interface PerformedFieldsProps {
   value: PerformedValues;
   onChange: (next: PerformedValues) => void;
-  /** « la dernière fois : 24 kg · 4 × 10 », ou `null` s'il n'y a rien à dire. */
+  /** Nombre de séries prescrites par le coach. 1 quand il n'en demande pas. */
+  setCount?: number;
+  /** « la dernière fois : 26 kg · 3 × 12 reps », ou `null`. */
   lastLabel?: string | null;
   /** L'exercice se mesure en temps : demander des répétitions n'a pas de
    *  sens, on ne montre alors que la charge. */
   isTimed?: boolean;
 }
-
-type NumericField = 'weight' | 'reps';
 
 // Une chaîne vide efface la clé plutôt que d'écrire 0 : « non renseigné » ne
 // doit jamais ressembler à « zéro », ni ici ni dans ce qu'on envoie à l'API.
@@ -56,14 +64,86 @@ const Field = ({
   </HStack>
 );
 
+const SetInputs = ({
+  set,
+  isTimed,
+  onChange,
+}: {
+  set: PerformedSet;
+  isTimed: boolean;
+  onChange: (next: PerformedSet) => void;
+}) => (
+  <HStack gap={3} align="center" flexWrap="wrap">
+    <Field
+      label="Poids utilisé, en kilos"
+      suffix="kg"
+      value={set.weight}
+      onChange={(v) => onChange({ ...set, weight: v })}
+    />
+    {!isTimed && (
+      <Field
+        label="Répétitions réellement faites"
+        suffix="reps"
+        value={set.reps}
+        onChange={(v) => onChange({ ...set, reps: v })}
+      />
+    )}
+  </HStack>
+);
+
+/**
+ * Noter ce qu'on a fait — un couple poids/reps, ou le détail série par série.
+ *
+ * Le cas courant est une charge tenue du début à la fin : on la saisit une
+ * fois. Mais une série ratée, une charge qu'on baisse au troisième passage,
+ * c'est précisément ce qu'un coach a besoin de lire, et un couple unique ne
+ * pouvait pas le dire. Le détail est donc là, replié, à un geste.
+ *
+ * Une série laissée vide veut dire que l'exercice s'est arrêté là. Les lignes
+ * restent affichées pour qu'on puisse revenir dessus ; ce qui part à l'API
+ * s'arrête au premier vide.
+ */
 export const PerformedFields = ({
   value,
   onChange,
+  setCount = 1,
   lastLabel,
   isTimed = false,
 }: PerformedFieldsProps) => {
-  const set = (field: NumericField, v?: number) =>
-    onChange({ ...value, [field]: v });
+  const rowCount = Math.max(1, setCount);
+
+  // Les lignes vivent ici, à leur longueur pleine : sinon une série qu'on
+  // vide au milieu de la saisie ferait disparaître les suivantes sous les
+  // doigts. La troncature n'a lieu qu'à la sortie.
+  const [rows, setRows] = useState<PerformedSet[]>(() =>
+    Array.from({ length: rowCount }, (_, i) => value.sets?.[i] ?? {})
+  );
+  // Ouvert d'emblée seulement s'il y a déjà des séries qui diffèrent : c'est
+  // une correction qu'on vient faire, la replier cacherait ce qu'on corrige.
+  // Une saisie neuve, elle, commence simple.
+  const [isDetailed, setIsDetailed] = useState(() => {
+    const kept = truncateAtFirstEmpty(value.sets ?? []);
+    return rowCount > 1 && kept.length > 0 && uniformSet(kept) === null;
+  });
+
+  const emit = (next: PerformedSet[]) => {
+    setRows(next);
+    onChange({ sets: truncateAtFirstEmpty(next) });
+  };
+
+  // Replié, on décrit toutes les séries d'un coup : « j'ai tenu 26 kg × 12 du
+  // début à la fin ». Vider le champ efface l'exercice entier, ce qui est
+  // bien ce qu'on veut dire en effaçant la seule valeur affichée.
+  const collapsedSet = uniformSet(rows) ?? rows[0] ?? {};
+  const setAll = (next: PerformedSet) =>
+    emit(
+      isEmptySet(next)
+        ? Array.from({ length: rowCount }, () => ({}))
+        : Array.from({ length: rowCount }, () => ({ ...next }))
+    );
+
+  const setRow = (index: number, next: PerformedSet) =>
+    emit(rows.map((row, i) => (i === index ? next : row)));
 
   return (
     <Box pl={4}>
@@ -71,21 +151,59 @@ export const PerformedFields = ({
         <Text fontSize="xs" color="fg.muted" flexShrink={0}>
           Fait&nbsp;:
         </Text>
-        <Field
-          label="Poids utilisé, en kilos"
-          suffix="kg"
-          value={value.weight}
-          onChange={(v) => set('weight', v)}
-        />
-        {!isTimed && (
-          <Field
-            label="Répétitions réellement faites"
-            suffix="reps"
-            value={value.reps}
-            onChange={(v) => set('reps', v)}
-          />
+        {!isDetailed && (
+          <SetInputs set={collapsedSet} isTimed={isTimed} onChange={setAll} />
+        )}
+        {rowCount > 1 && (
+          <Box
+            as="button"
+            aria-expanded={isDetailed}
+            onClick={() => setIsDetailed((open) => !open)}
+            color="fg.muted"
+            _hover={{ color: 'app.primary' }}
+            css={hitArea(32)}
+          >
+            <HStack gap={1}>
+              <Box
+                display="flex"
+                transform={isDetailed ? 'rotate(90deg)' : 'none'}
+                transition="transform 0.15s"
+              >
+                <LuChevronRight size={12} />
+              </Box>
+              <Text fontSize="xs">
+                {isDetailed ? 'saisie simple' : 'détailler par série'}
+              </Text>
+            </HStack>
+          </Box>
         )}
       </HStack>
+
+      {isDetailed && (
+        <VStack align="stretch" gap={1.5} mt={2}>
+          {rows.map((row, index) => (
+            <HStack key={index} gap={2} align="center">
+              <Text
+                fontSize="xs"
+                fontFamily="mono"
+                color="fg.muted"
+                w="16px"
+                flexShrink={0}
+              >
+                {index + 1}
+              </Text>
+              <SetInputs
+                set={row}
+                isTimed={isTimed}
+                onChange={(next) => setRow(index, next)}
+              />
+            </HStack>
+          ))}
+          <Text fontSize="xs" color="fg.muted" opacity={0.8}>
+            Une série laissée vide arrête l'exercice là.
+          </Text>
+        </VStack>
+      )}
 
       {lastLabel && (
         <Text fontSize="xs" color="fg.muted" mt={1} opacity={0.8}>
