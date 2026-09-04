@@ -50,21 +50,28 @@ export const BlockExerciseRow = ({
   const hasVideo = !!ex.videoUrl?.trim();
   const hasDetail = hasDescription || hasVideo;
 
+  // Toute ligne se déplie, même vide.
+  //
+  // Ne rendre cliquables que les exercices documentés créait un silence
+  // ambigu : on tape sur un nom, rien ne bouge, et rien ne dit si on a mal
+  // visé, si l'écran est cassé, ou s'il n'y a simplement rien à lire. Le
+  // dépliage répond dans les trois cas.
+
   return (
     <Box borderTopWidth="1px" borderColor="whiteAlpha.100">
       <HStack
-        as={hasDetail ? 'button' : undefined}
+        as="button"
         w="full"
         textAlign="left"
-        aria-expanded={hasDetail ? isOpen : undefined}
-        aria-label={hasDetail ? `${ex.name} — voir la consigne` : undefined}
-        onClick={hasDetail ? () => setIsOpen((v) => !v) : undefined}
+        aria-expanded={isOpen}
+        aria-label={`${ex.name} — voir la consigne`}
+        onClick={() => setIsOpen((v) => !v)}
         py={1.5}
-        minH={hasDetail ? '44px' : undefined}
+        minH="44px"
         gap={3}
         align="center"
-        css={hasDetail ? hitArea(44) : undefined}
-        _hover={hasDetail ? { color: 'fg' } : undefined}
+        css={hitArea(44)}
+        _hover={{ color: 'fg' }}
         transition="color 0.12s"
       >
         <HStack gap={1} flex={1} minW={0}>
@@ -105,21 +112,20 @@ export const BlockExerciseRow = ({
           </VStack>
         )}
 
-        {hasDetail && (
-          <Box
-            color="fg.muted"
-            flexShrink={0}
-            transition="transform 0.2s"
-            transform={isOpen ? 'rotate(180deg)' : 'none'}
-          >
-            <LuChevronDown size={13} />
-          </Box>
-        )}
+        <Box
+          color="fg.muted"
+          flexShrink={0}
+          opacity={hasDetail ? 1 : 0.45}
+          transition="transform 0.2s"
+          transform={isOpen ? 'rotate(180deg)' : 'none'}
+        >
+          <LuChevronDown size={13} />
+        </Box>
       </HStack>
 
       {extra && <Box pb={1.5}>{extra}</Box>}
 
-      {isOpen && hasDetail && (
+      {isOpen && (
         <VStack align="stretch" gap={3} pb={3}>
           {hasDescription && (
             <Text
@@ -132,6 +138,11 @@ export const BlockExerciseRow = ({
             </Text>
           )}
           {hasVideo && <VideoPlayer url={ex.videoUrl!} />}
+          {!hasDetail && (
+            <Text fontSize="xs" color="fg.muted" fontStyle="italic">
+              Ton coach n'a pas laissé de consigne pour cet exercice.
+            </Text>
+          )}
         </VStack>
       )}
     </Box>

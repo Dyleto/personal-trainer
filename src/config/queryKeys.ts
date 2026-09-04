@@ -13,6 +13,8 @@ export const queryKeys = {
   coach: {
     all: ['coach'] as const,
 
+    invitation: () => [...queryKeys.coach.all, 'invitation'] as const,
+
     clients: {
       all: () => [...queryKeys.coach.all, 'clients'] as const,
       lists: () => [...queryKeys.coach.clients.all(), 'list'] as const,

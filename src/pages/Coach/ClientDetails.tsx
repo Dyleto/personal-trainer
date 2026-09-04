@@ -28,6 +28,7 @@ import { ClientProgramTab } from '@/features/coach/components/ClientProgramTab';
 import { SessionRail } from '@/features/coach/components/SessionRail';
 import { SessionFeedbackStrip } from '@/features/coach/components/SessionFeedbackStrip';
 import { diffProgram, summarizeChanges } from '@/features/program/diffProgram';
+import { BackLink } from '@/components/BackLink';
 import { Header } from '@/components/Header';
 import { hitArea } from '@/components/hitArea';
 import { COACH_ROUTES } from '@/config/routes';
@@ -221,20 +222,10 @@ const ClientDetails = () => {
           mb={5}
           display={{ base: 'none', md: 'flex' }}
         >
-          <HStack
-            gap={1.5}
-            color="fg.muted"
-            cursor="pointer"
+          <BackLink
+            label="Clients"
             onClick={() => navigate(COACH_ROUTES.clients)}
-            _hover={{ color: 'app.primary' }}
-            transition="color 0.15s"
-            w="fit-content"
-          >
-            <LuArrowLeft size={13} />
-            <Text fontSize="xs" fontWeight="medium">
-              Clients
-            </Text>
-          </HStack>
+          />
           <HStack gap={3} align="center">
             <Avatar.Root size="md">
               <Avatar.Fallback

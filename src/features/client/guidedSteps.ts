@@ -13,6 +13,9 @@ export type GuidedStep =
       blockLabel: string;
       exerciseName: string;
       exerciseId: string;
+      /** La consigne et la vidéo du coach, consultables sans quitter l'étape. */
+      description?: string;
+      videoUrl?: string;
       metric: string;
       /**
        * Durée de l'effort en secondes quand il est chronométré. Le mode guidé
@@ -62,6 +65,8 @@ const pushExerciseSteps = (
       blockLabel,
       exerciseName: ex.exercise.name,
       exerciseId: ex.exercise._id,
+      description: ex.exercise.description,
+      videoUrl: ex.exercise.videoUrl,
       ...effortOf(ex),
     });
   });
@@ -88,6 +93,8 @@ const buildSetBasedSteps = (
         blockLabel,
         exerciseName: ex.exercise.name,
         exerciseId: ex.exercise._id,
+        description: ex.exercise.description,
+        videoUrl: ex.exercise.videoUrl,
         ...effort,
         ...(setCount > 1 ? { setIndex: set, setCount } : {}),
       });

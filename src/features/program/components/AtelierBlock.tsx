@@ -85,6 +85,9 @@ const ExerciseRow = ({
       borderTopWidth="1px"
       borderColor="whiteAlpha.100"
       css={{
+        // Visibles en permanence, en retrait : à zéro, un coach qui découvre
+        // l'atelier ne pouvait pas deviner qu'un bloc se déplace ou se
+        // supprime — la commande n'existait qu'après être passé dessus.
         '&:hover [data-row-gutter], &:focus-within [data-row-gutter]': {
           opacity: 1,
         },
@@ -202,7 +205,7 @@ const ExerciseRow = ({
         data-row-gutter
         gap={2}
         flexShrink={0}
-        opacity={{ base: 1, md: 0 }}
+        opacity={{ base: 1, md: 0.35 }}
         transition="opacity 0.15s"
       >
         {!ownMetrics && (
@@ -291,7 +294,7 @@ export const AtelierBlock = ({
       gutter={
         <HStack
           gap={2}
-          opacity={{ base: 1, md: 0 }}
+          opacity={{ base: 1, md: 0.35 }}
           _groupHover={{ opacity: 1 }}
           _groupFocusWithin={{ opacity: 1 }}
           transition="opacity 0.15s"

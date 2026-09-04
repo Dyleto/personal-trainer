@@ -182,7 +182,22 @@ export const diffProgram = (
       changes.push({ sessionOrder: order, label });
     const previous = beforeById.get(session._id);
     if (!previous) {
-      push('séance ajoutée');
+      // Une séance neuve compte pour un changement — c'est juste au sens du
+      // diff — mais le coach vient d'y poser un bloc et des exercices, et
+      // « 1 modification » ne raconte pas ce qu'il a fait. On dit ce qu'elle
+      // contient plutôt que de la laisser muette.
+      const blocks = session.blocks.length;
+      const exercises = session.blocks.reduce(
+        (sum, b) => sum + b.exercises.length,
+        0
+      );
+      const contenu = [
+        blocks > 0 && `${blocks} bloc${blocks > 1 ? 's' : ''}`,
+        exercises > 0 && `${exercises} exercice${exercises > 1 ? 's' : ''}`,
+      ]
+        .filter(Boolean)
+        .join(', ');
+      push(contenu ? `séance ajoutée — ${contenu}` : 'séance ajoutée');
       return;
     }
     diffSession(previous, session, push);
@@ -214,6 +229,16 @@ export const diffProgram = (
 export const summarizeChanges = (changes: ProgramChange[]): string => {
   const count = changes.length;
   if (count === 0) return '';
+
+  // Une séance qu'on vient de créer : « 1 modification » ne raconte pas les
+  // trois gestes qu'on a faits pour la remplir. Quand c'est le seul
+  // changement, la barre porte directement ce qu'il dit.
+  const single = count === 1 ? changes[0] : null;
+  if (single && single.label.startsWith('séance ajoutée')) {
+    const detail = single.label.slice('séance ajoutée'.length).trim();
+    return `Séance ${single.sessionOrder} ajoutée${detail ? ` ${detail}` : ''}`;
+  }
+
   const noun = `${count} modification${count > 1 ? 's' : ''}`;
 
   const sessions = [...new Set(changes.map((c) => c.sessionOrder))].filter(

@@ -98,7 +98,19 @@ export const useClientSessions = () => {
           completedAt,
           ...(performed && performed.length > 0 ? { performed } : {}),
         },
-        { onSuccess: () => navigate(CLIENT_ROUTES.today) }
+        {
+          onSuccess: () => {
+            // Le seul endroit du parcours client où l'on envoie quelque chose
+            // sans accusé de réception : on retombait sur l'accueil, et rien
+            // ne disait que le bilan était parti.
+            toaster.create({
+              title: 'Séance enregistrée',
+              description: 'Ton coach la verra.',
+              type: 'success',
+            });
+            navigate(CLIENT_ROUTES.today);
+          },
+        }
       );
     },
     [activeSession, completeSession, navigate]

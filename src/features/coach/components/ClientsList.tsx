@@ -210,15 +210,16 @@ export const ClientsList = () => {
     [clients, query, sort]
   );
 
-  const handleSelect = (client: Client) => {
-    // Une séance non vue ouvre directement le journal ; sinon l'atelier
-    // s'ouvre sur la première séance.
-    if (client.unseenCount > 0) {
-      navigate(COACH_ROUTES.clientJournal(client._id));
-    } else {
-      navigate(COACH_ROUTES.clientSession(client._id, 1));
-    }
-  };
+  // Toujours l'atelier, jamais le journal.
+  //
+  // Les séances non vues y menaient : on arrivait sur le bon client et le bon
+  // retour — « trop dure, je n'ai pas pu finir le dernier bloc » — sur un
+  // écran en lecture seule. Le geste que ce retour appelle, alléger la
+  // séance, se joue dans l'atelier, qui affiche déjà ce même retour à côté du
+  // programme qu'il commente. Le journal reste l'historique complet, ouvert
+  // par son propre bouton.
+  const handleSelect = (client: Client) =>
+    navigate(COACH_ROUTES.clientSession(client._id, 1));
 
   if (isLoading) {
     return (

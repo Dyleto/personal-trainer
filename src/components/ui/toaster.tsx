@@ -29,15 +29,40 @@ export const Toaster = () => {
         padding={{ base: '0 0 20px 0', md: '0 20px 20px 0' }}
       >
         {(toast) => (
+          /* Les jetons du thème, pas la palette par défaut de Chakra : un
+             message « Exercice créé » sortait en vert saturé au moment même
+             où le bouton juste à côté virait au teal `app.success`. Deux
+             verts pour le même événement, côte à côte. */
           <Toast.Root
             width={{ base: '90vw', md: 'sm' }}
             style={{ pointerEvents: 'auto', marginBottom: '8px' }}
             onClick={() => toaster.dismiss(toast.id)}
+            bg="surface.card"
+            color="fg"
+            borderWidth="1px"
+            borderColor="whiteAlpha.200"
+            borderLeftWidth="3px"
+            borderLeftColor={
+              toast.type === 'error'
+                ? 'app.error'
+                : toast.type === 'success'
+                  ? 'app.success'
+                  : 'app.primary'
+            }
+            boxShadow="0 8px 24px rgba(0,0,0,0.45)"
           >
             {toast.type === 'loading' ? (
-              <Spinner size="sm" color="blue.solid" />
+              <Spinner size="sm" color="app.primary" />
             ) : (
-              <Toast.Indicator />
+              <Toast.Indicator
+                color={
+                  toast.type === 'error'
+                    ? 'app.error'
+                    : toast.type === 'success'
+                      ? 'app.success'
+                      : 'app.primary'
+                }
+              />
             )}
             <Stack gap="1" flex="1" maxWidth="100%">
               {toast.title && <Toast.Title>{toast.title}</Toast.Title>}

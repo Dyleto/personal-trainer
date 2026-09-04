@@ -3,8 +3,11 @@ import { buildGuidedSteps } from '../guidedSteps';
 import { useCountdown } from '../useCountdown';
 import { formatLastPerformance, LastPerformance } from '../lastPerformance';
 import { Box, HStack, Button, VStack, Text } from '@chakra-ui/react';
+import VideoPlayer from '@/components/VideoPlayer';
+import { hitArea } from '@/components/hitArea';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { LuInfo, LuX } from 'react-icons/lu';
 
 interface GuidedSessionProps {
   session: Session;
@@ -127,6 +130,11 @@ export const GuidedSession = ({
   );
   const [index, setIndex] = useState(0);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  // La consigne du coach est écrite pour ce moment précis — au milieu de
+  // l'effort, mains occupées. Elle était pourtant le seul contenu de la
+  // séance inaccessible depuis le plein écran : il fallait en sortir, donc
+  // perdre sa place, pour aller la lire.
+  const [showDetail, setShowDetail] = useState(false);
   // Proposée, jamais imposée : un client qui veut vraiment recommencer ne doit
   // pas se retrouver piégé au milieu de la séance précédente.
   const [showResume, setShowResume] = useState(() => savedIndex > 0);
@@ -136,6 +144,7 @@ export const GuidedSession = ({
 
   const goTo = (next: number) => {
     setIndex(next);
+    setShowDetail(false);
     writeSavedIndex(session._id, next);
   };
 
@@ -345,6 +354,9 @@ export const GuidedSession = ({
   }
 
   const isRest = step.type === 'rest';
+  const hasDetail =
+    step.type === 'exercise' &&
+    (!!step.description?.trim() || !!step.videoUrl?.trim());
   const lastLabel =
     step.type === 'exercise'
       ? formatLastPerformance(lastPerformance?.get(step.exerciseId))
@@ -384,6 +396,7 @@ export const GuidedSession = ({
         display="flex"
         flexDirection="column"
         overflow="hidden"
+        position="relative"
       >
         <HStack justify="flex-end" p={4}>
           <Button
@@ -428,9 +441,32 @@ export const GuidedSession = ({
               >
                 {step.blockLabel}
               </Text>
-              <Text fontSize="28px" fontWeight="800" maxW="22ch">
-                {step.exerciseName}
-              </Text>
+              {hasDetail ? (
+                <Box
+                  as="button"
+                  aria-label={`Voir la consigne — ${step.exerciseName}`}
+                  onClick={() => setShowDetail(true)}
+                  css={hitArea(44)}
+                  _focusVisible={{
+                    outline: '2px solid',
+                    outlineColor: 'app.primary',
+                    outlineOffset: '4px',
+                  }}
+                >
+                  <HStack gap={2} justify="center" maxW="22ch">
+                    <Text fontSize="28px" fontWeight="800">
+                      {step.exerciseName}
+                    </Text>
+                    <Box color="app.primary" flexShrink={0} pt={1}>
+                      <LuInfo size={18} />
+                    </Box>
+                  </HStack>
+                </Box>
+              ) : (
+                <Text fontSize="28px" fontWeight="800" maxW="22ch">
+                  {step.exerciseName}
+                </Text>
+              )}
               {step.setCount && (
                 <Text fontSize="sm" fontFamily="mono" color="fg.muted" mt={-4}>
                   Série {step.setIndex} / {step.setCount}
@@ -484,6 +520,40 @@ export const GuidedSession = ({
             </>
           )}
         </VStack>
+
+        {showDetail && step.type === 'exercise' && (
+          <Box
+            position="absolute"
+            inset={0}
+            bg="bg.canvas"
+            zIndex={1}
+            overflowY="auto"
+            p={5}
+          >
+            <HStack justify="space-between" align="flex-start" mb={4}>
+              <Text fontSize="xl" fontWeight="800" maxW="20ch">
+                {step.exerciseName}
+              </Text>
+              <Box
+                as="button"
+                aria-label="Revenir à la séance"
+                onClick={() => setShowDetail(false)}
+                color="fg.muted"
+                flexShrink={0}
+                css={hitArea(44)}
+              >
+                <LuX size={20} />
+              </Box>
+            </HStack>
+
+            {step.description?.trim() && (
+              <Text fontSize="sm" color="fg" whiteSpace="pre-wrap" mb={4}>
+                {step.description}
+              </Text>
+            )}
+            {step.videoUrl?.trim() && <VideoPlayer url={step.videoUrl} />}
+          </Box>
+        )}
 
         <HStack p={4} gap={3}>
           <Button

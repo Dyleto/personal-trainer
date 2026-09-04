@@ -3,6 +3,7 @@ import { Box, Button, Dialog, Separator, Text, VStack } from '@chakra-ui/react';
 import { useState } from 'react';
 import { AutoResizeTextarea } from '@/components/AutoResizeTextarea';
 import { DateInput } from '@/components/DateInput';
+import { hitArea } from '@/components/hitArea';
 import { LuX } from 'react-icons/lu';
 import { EffortScale } from './EffortScale';
 import { FeedbackTags } from './FeedbackTags';
@@ -30,12 +31,14 @@ export const CompleteSessionModal = ({
   const [tags, setTags] = useState<FeedbackTag[]>([]);
   const [notes, setNotes] = useState('');
   const [completedAt, setCompletedAt] = useState(toDateInputValue(new Date()));
+  const [isDateOpen, setIsDateOpen] = useState(false);
 
   const handleClose = () => {
     setEffort(undefined);
     setTags([]);
     setNotes('');
     setCompletedAt(toDateInputValue(new Date()));
+    setIsDateOpen(false);
     onClose();
   };
 
@@ -110,18 +113,42 @@ export const CompleteSessionModal = ({
 
               <Separator borderColor="whiteAlpha.100" />
 
-              <VStack align="center" gap={1.5}>
-                <Text fontSize="xs" color="fg.muted" letterSpacing="wide">
-                  Date de réalisation
-                </Text>
-                <Box w="45%">
-                  <DateInput
-                    ariaLabel="Date de réalisation de la séance"
-                    value={completedAt}
-                    max={toDateInputValue(new Date())}
-                    onChange={setCompletedAt}
-                  />
-                </Box>
+              {/* Repliée : neuf fois sur dix la séance a eu lieu aujourd'hui,
+                  et le champ s'intercalait entre le commentaire et le bouton
+                  de validation pour un cas rare. */}
+              <VStack align="center" gap={2}>
+                {isDateOpen ? (
+                  <>
+                    <Text fontSize="xs" color="fg.muted" letterSpacing="wide">
+                      Date de réalisation
+                    </Text>
+                    <Box w="60%" minW="180px">
+                      <DateInput
+                        ariaLabel="Date de réalisation de la séance"
+                        value={completedAt}
+                        max={toDateInputValue(new Date())}
+                        onChange={setCompletedAt}
+                      />
+                    </Box>
+                  </>
+                ) : (
+                  <Box
+                    as="button"
+                    aria-expanded={false}
+                    onClick={() => setIsDateOpen(true)}
+                    fontSize="xs"
+                    color="fg.muted"
+                    _hover={{ color: 'app.primary' }}
+                    _focusVisible={{
+                      outline: '2px solid',
+                      outlineColor: 'app.primary',
+                      outlineOffset: '2px',
+                    }}
+                    css={hitArea(32)}
+                  >
+                    Ce n'était pas aujourd'hui&nbsp;?
+                  </Box>
+                )}
               </VStack>
             </VStack>
           </Dialog.Body>
