@@ -27,13 +27,12 @@ import { useUpdateProgramSessions } from '@/features/program/hooks/useProgramMut
 import { ClientProgramTab } from '@/features/coach/components/ClientProgramTab';
 import { SessionRail } from '@/features/coach/components/SessionRail';
 import { SessionFeedbackStrip } from '@/features/coach/components/SessionFeedbackStrip';
-import { CompletedSessionDrawer } from '@/features/client';
 import { diffProgram, summarizeChanges } from '@/features/program/diffProgram';
 import { BackLink } from '@/components/BackLink';
 import { Header } from '@/components/Header';
 import { hitArea } from '@/components/hitArea';
 import { COACH_ROUTES } from '@/config/routes';
-import { CompletedSession, Exercise } from '@/types';
+import { Exercise } from '@/types';
 
 const ClientDetails = () => {
   const { clientId, sessionIndex } = useParams();
@@ -45,11 +44,6 @@ const ClientDetails = () => {
   const updateProgramMutation = useUpdateProgramSessions(clientId!);
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
   const [isChangeListOpen, setIsChangeListOpen] = useState(false);
-  // Le tableau des passages est un index : une ligne ouvre le bilan complet,
-  // avec toutes les séries notées et le commentaire entier.
-  const [openCompleted, setOpenCompleted] = useState<CompletedSession | null>(
-    null
-  );
 
   useEffect(() => {
     if (client?.program) initialize(client.program);
@@ -353,11 +347,7 @@ const ClientDetails = () => {
 
           {isWide && activeSession && (
             <Box w="320px" flexShrink={0}>
-              <SessionFeedbackStrip
-                history={sessionHistory}
-                variant="panel"
-                onOpen={setOpenCompleted}
-              />
+              <SessionFeedbackStrip history={sessionHistory} variant="panel" />
             </Box>
           )}
         </Stack>
@@ -459,14 +449,6 @@ const ClientDetails = () => {
               </Button>
             </HStack>
           </Box>
-        )}
-
-        {openCompleted && (
-          <CompletedSessionDrawer
-            completed={openCompleted}
-            isOpen={!!openCompleted}
-            onClose={() => setOpenCompleted(null)}
-          />
         )}
 
         <Dialog.Root

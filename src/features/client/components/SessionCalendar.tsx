@@ -8,11 +8,6 @@ import { dayKey } from '../sessionDates';
 
 const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
-// Une colonne étroite à gauche de chaque semaine : combien de séances cette
-// semaine-là. C'est la seule façon de voir un trou dans une grille où toutes
-// les cases vides se ressemblent déjà.
-const GRID_COLUMNS = '20px repeat(7, 1fr)';
-
 const monthLabel = (d: Date) =>
   new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(
     d
@@ -88,22 +83,11 @@ const MonthGrid = ({
 
       <Box
         display="grid"
-        gridTemplateColumns={GRID_COLUMNS}
+        gridTemplateColumns="repeat(7, 1fr)"
         gap={1}
         role="grid"
         aria-label={`Séances de ${monthLabel(cursor)}`}
       >
-        {/* La gouttière comptait les séances de chaque semaine sans dire ce
-            qu'elle comptait : une colonne de « — 1 2 » sans nom. */}
-        <Text
-          fontSize="9px"
-          color="fg.muted"
-          textAlign="center"
-          pb={1}
-          aria-hidden
-        >
-          sem.
-        </Text>
         {WEEKDAYS.map((letter, i) => (
           <Text
             key={`${letter}-${i}`}
@@ -119,49 +103,14 @@ const MonthGrid = ({
       </Box>
 
       {weeks.map((week, weekIndex) => {
-        const weekCount = week.reduce(
-          (sum, date) =>
-            date ? sum + (byDay.get(dayKey(date))?.length ?? 0) : sum,
-          0
-        );
-        // Une semaine entièrement à venir n'est pas un trou : elle n'a pas
-        // encore eu lieu. On ne la marque pas.
-        const isPast = week.some((date) => date && dayKey(date) <= todayKey);
-        const isMarked = isPast && week.some(Boolean);
-
         return (
           <Box
             key={weekIndex}
             display="grid"
-            gridTemplateColumns={GRID_COLUMNS}
+            gridTemplateColumns="repeat(7, 1fr)"
             gap={1}
             role="row"
           >
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              aria-label={
-                !isMarked
-                  ? undefined
-                  : weekCount === 0
-                    ? 'semaine sans séance'
-                    : `${weekCount} séance${weekCount > 1 ? 's' : ''} cette semaine`
-              }
-            >
-              {/* Un trait tracé plutôt qu'un tiret typographique : en mono et
-                  en 12 px, un « — » retombe sur la ligne de base et se lit
-                  comme un souligné. */}
-              {isMarked &&
-                (weekCount === 0 ? (
-                  <Box w="8px" h="1px" bg="whiteAlpha.400" />
-                ) : (
-                  <Text fontSize="xs" fontFamily="mono" color="fg.muted">
-                    {weekCount}
-                  </Text>
-                ))}
-            </Box>
-
             {week.map((date, index) => {
               if (!date) return <Box key={`empty-${weekIndex}-${index}`} />;
 

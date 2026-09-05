@@ -40,11 +40,7 @@ const nameOf = (exercise: Record<string, unknown>): string => {
   return typeof name === 'string' ? name : 'Exercice';
 };
 
-export type SessionTotals = {
-  weight?: number;
-  reps?: number;
-  duration?: number;
-};
+type SessionTotals = { weight?: number; reps?: number; duration?: number };
 
 /**
  * Un exercice fait en plusieurs séries donne un point par séance, pas un par

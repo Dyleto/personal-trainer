@@ -4,7 +4,6 @@ import { getRelativeDate } from '@/features/client';
 import { EFFORT_ZONE_COLOR, getEffortLevel } from '@/features/client/constants';
 import { formatPerformed } from '@/features/client/performedFormat';
 import { EffortTrend } from './EffortTrend';
-import { PassageTable } from './PassageTable';
 
 interface SessionFeedbackStripProps {
   // Déjà filtré par la page appelante sur originalSessionId === session._id
@@ -12,8 +11,6 @@ interface SessionFeedbackStripProps {
   // 'strip' : bandeau au-dessus de la séance (écrans étroits)
   // 'panel' : colonne de contexte à droite (à partir de 2xl)
   variant?: 'strip' | 'panel';
-  /** Ouvre le bilan complet : le tableau est un index, pas toute la vérité. */
-  onOpen?: (completed: CompletedSession) => void;
 }
 
 interface PerformedLine {
@@ -90,13 +87,11 @@ const PerformedList = ({ completed }: { completed: CompletedSession }) => {
 export const SessionFeedbackStrip = ({
   history,
   variant = 'strip',
-  onOpen,
 }: SessionFeedbackStripProps) => {
   const recent = [...history].sort(
     (a, b) =>
       new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
   );
-  const latestComment = recent.find((c) => c.clientNotes?.trim());
 
   if (variant === 'panel') {
     return (
@@ -123,24 +118,40 @@ export const SessionFeedbackStrip = ({
           </Text>
         ) : (
           <VStack align="stretch" gap={4}>
-            {/* L'axe d'abord : « est-ce que ça dérive ? » se lit d'un coup
-                d'œil. Le tableau répond ensuite à « pourquoi ? ». */}
+            {/* L'axe reste : il répond d'un coup d'œil à « est-ce que ça
+                dérive ? ». Le tableau qui l'accompagnait un temps est parti —
+                trop dense pour ce que le coach y cherchait. */}
             <EffortTrend history={recent} />
 
-            <PassageTable history={recent} onOpen={onOpen} />
-
-            {/* Le commentaire le plus récent, quand il y en a un : c'est la
-                seule chose que ni l'axe ni le tableau ne peuvent porter. */}
-            {latestComment && (
-              <Box borderLeftWidth="2px" borderLeftColor="session.rest" pl={3}>
-                <Text fontSize="xs" color="fg.muted">
-                  {getRelativeDate(latestComment.completedAt)}
-                </Text>
-                <Text fontSize="xs" color="fg" fontStyle="italic" mt={0.5}>
-                  "{latestComment.clientNotes}"
-                </Text>
-              </Box>
-            )}
+            <VStack align="stretch" gap={3}>
+              {recent.slice(0, 3).map((completed) => (
+                <Box
+                  key={completed._id}
+                  borderLeftWidth="2px"
+                  borderLeftColor="session.rest"
+                  pl={3}
+                >
+                  <Text fontSize="xs" color="fg.muted">
+                    {getRelativeDate(completed.completedAt)}
+                  </Text>
+                  {completed.clientNotes ? (
+                    <Text fontSize="xs" color="fg" fontStyle="italic" mt={0.5}>
+                      "{completed.clientNotes}"
+                    </Text>
+                  ) : (
+                    <Text
+                      fontSize="xs"
+                      color="fg.muted"
+                      fontStyle="italic"
+                      mt={0.5}
+                    >
+                      Aucun commentaire
+                    </Text>
+                  )}
+                  <PerformedList completed={completed} />
+                </Box>
+              ))}
+            </VStack>
           </VStack>
         )}
       </Box>
