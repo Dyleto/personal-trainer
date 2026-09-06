@@ -159,12 +159,10 @@ export const ClientProgramTab = ({
               sa note : c'est le coach qui le pose, une seule fois, ici. La
               semaine du client s'en déduit à l'affichage — il n'y a pas de
               planning séparé à tenir en cohérence. */}
-          <Box className="group" w="fit-content" maxW="full">
-            <SuggestedDaysPicker
-              value={session.suggestedDays}
-              onChange={onUpdateSessionDays}
-            />
-          </Box>
+          <SuggestedDaysPicker
+            value={session.suggestedDays}
+            onChange={onUpdateSessionDays}
+          />
         </VStack>
 
         <DndContext
