@@ -1,5 +1,6 @@
 import { Box, HStack } from '@chakra-ui/react';
 import { hitArea } from '@/components/hitArea';
+import { dayChipStyle } from '@/components/dayChip';
 import { WEEKDAY_FULL, WEEKDAY_SHORT } from '@/features/client/sessionDates';
 
 interface SuggestedDaysPickerProps {
@@ -47,16 +48,7 @@ export const SuggestedDaysPicker = ({
             aria-pressed={active}
             aria-label={WEEKDAY_FULL[day]}
             onClick={() => toggle(day)}
-            px={2}
-            py={1}
-            minW="34px"
-            borderRadius="md"
-            borderWidth="1px"
-            borderColor={active ? 'app.primary' : 'whiteAlpha.200'}
-            bg={active ? 'app.primary/16' : 'transparent'}
-            color={active ? 'app.primary' : 'fg.muted'}
-            fontSize="xs"
-            fontWeight={active ? 'bold' : 'normal'}
+            {...dayChipStyle(active)}
             css={hitArea(32)}
             _hover={{ borderColor: active ? 'app.primary' : 'whiteAlpha.400' }}
             _focusVisible={{

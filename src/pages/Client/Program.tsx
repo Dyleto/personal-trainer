@@ -7,9 +7,9 @@ import {
   CLIENT_GRID_MAX_W,
   getSessionBlockTypes,
   getSessionSummary,
+  SuggestedDays,
   useClientSessions,
 } from '@/features/client';
-import { formatSuggestedDays } from '@/features/client/sessionDates';
 import { CLIENT_ROUTES } from '@/config/routes';
 
 type ClientSessionsData = ReturnType<typeof useClientSessions>;
@@ -57,7 +57,6 @@ interface SessionRowProps {
 
 const SessionRow = ({ session, status, onSelect }: SessionRowProps) => {
   const config = STATUS_CONFIG[status];
-  const suggested = formatSuggestedDays(session.suggestedDays);
 
   return (
     <Card
@@ -87,13 +86,10 @@ const SessionRow = ({ session, status, onSelect }: SessionRowProps) => {
           </Box>
         </HStack>
         {/* Le jour conseillé se lit ici parce que c'est ici qu'on choisit
-            quoi faire. Une séance sans jour ne dit rien : l'absence de
-            conseil n'est pas une information à afficher. */}
-        {suggested && (
-          <Text fontSize="xs" color="app.primary">
-            Conseillée {suggested}
-          </Text>
-        )}
+            quoi faire — et sous la forme exacte où le coach l'a posé. Une
+            séance sans jour ne rend rien : l'absence de conseil n'est pas
+            une information à afficher. */}
+        <SuggestedDays days={session.suggestedDays} withLabel />
         {session.blocks.length === 0 ? (
           <Text fontSize="xs" color="fg.muted">
             Aucun bloc pour cette séance.

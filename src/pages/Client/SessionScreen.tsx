@@ -16,6 +16,7 @@ import {
   GuidedSession,
   RecordPerformed,
   SessionDetail,
+  SuggestedDays,
   getSessionSummary,
   useClientSessions,
 } from '@/features/client';
@@ -206,9 +207,17 @@ const SessionScreen = () => {
             {pillLabel}
           </Box>
         </HStack>
-        <Text fontSize="xs" color="fg.muted">
-          {summary}
-        </Text>
+        {/* Le rappel du jour, là où l'on décide de commencer ou non : le
+            programme le disait, la fiche le taisait. Avec son libellé — on
+            arrive ici depuis l'accueil sans forcément être passé par le
+            programme, et deux pastilles nues se liraient « tu l'as faite
+            lundi et jeudi ». `wrap` parce qu'une séance peut en porter sept. */}
+        <HStack justify="space-between" align="center" gap={3} wrap="wrap">
+          <Text fontSize="xs" color="fg.muted">
+            {summary}
+          </Text>
+          <SuggestedDays days={activeSession.suggestedDays} withLabel />
+        </HStack>
       </VStack>
 
       {/* En lecture, une séance se lit : pas de champ vide sous chaque
