@@ -8,6 +8,7 @@ import { toaster } from '@/components/ui/toasterInstance';
 import { useCompleteSession } from './useCompleteSession';
 import { PerformedEntry, SessionFeedback } from '@/types';
 import { buildLastPerformanceIndex } from '../lastPerformance';
+import { getSessionForToday } from '../weekPlan';
 
 export const useClientSessions = () => {
   const { sessionId } = useParams<{ sessionId?: string }>();
@@ -41,6 +42,14 @@ export const useClientSessions = () => {
   const nextSession = useMemo(() => {
     const sortedSessions = [...sessions].sort((a, b) => a.order - b.order);
     if (sortedSessions.length === 0) return undefined;
+
+    // Une séance conseillée aujourd'hui passe devant le cycle — c'est tout ce
+    // que le jour conseillé change. Un seul « à faire » pour toute l'app :
+    // l'accueil, le badge du programme et la redirection /client/session
+    // désignent la même séance. Sans jour conseillé nulle part, rien ne
+    // change : `getSessionForToday` ne rend rien et le cycle reprend la main.
+    const suggestedToday = getSessionForToday(sortedSessions, history);
+    if (suggestedToday) return suggestedToday;
 
     const lastCompleted = history[0];
     if (!lastCompleted) return sortedSessions[0];

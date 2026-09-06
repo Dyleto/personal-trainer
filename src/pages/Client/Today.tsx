@@ -1,8 +1,8 @@
 import { useOutletContext, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/useAuth';
 import { Card } from '@/components/Card';
-import { CompletedSession } from '@/types';
+import { CompletedSession, Session } from '@/types';
 import {
   CLIENT_CONTENT_MAX_W,
   CompletedSessionDrawer,
@@ -13,6 +13,8 @@ import {
   useClientSessions,
   WeekStrip,
 } from '@/features/client';
+import { buildWeekPlan } from '@/features/client/weekPlan';
+import { mondayIndex } from '@/features/client/sessionDates';
 import {
   Box,
   Container,
@@ -36,6 +38,19 @@ const Today = () => {
   const totalCount = sessions.length;
   const recentSessions = history.slice(0, 3);
 
+  // La semaine ne vit nulle part en base : on la recompose à chaque rendu à
+  // partir du programme et de l'historique déjà chargés.
+  const weekDays = useMemo(
+    () => buildWeekPlan(sessions, history),
+    [sessions, history]
+  );
+
+  // « À faire maintenant » devient « Aujourd'hui » quand c'est le jour que le
+  // coach a conseillé pour cette séance : la même carte, une raison en plus.
+  const isSuggestedToday =
+    !!nextSession &&
+    (nextSession.suggestedDays ?? []).includes(mondayIndex(new Date()));
+
   const [selectedCompleted, setSelectedCompleted] =
     useState<CompletedSession | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -43,6 +58,10 @@ const Today = () => {
   const openDrawer = (completed: CompletedSession) => {
     setSelectedCompleted(completed);
     setIsDrawerOpen(true);
+  };
+
+  const openSession = (session: Session) => {
+    navigate(CLIENT_ROUTES.sessionById(session._id));
   };
 
   if (isLoading) {
@@ -65,7 +84,13 @@ const Today = () => {
 
         {/* Où en est la semaine, avant ce qu'il reste à faire : c'est le
             contexte dans lequel se lit la séance du jour. */}
-        {history.length > 0 && <WeekStrip history={history} />}
+        {(history.length > 0 || weekDays.some((d) => d.suggested.length > 0)) && (
+          <WeekStrip
+            days={weekDays}
+            onOpenCompleted={openDrawer}
+            onOpenSession={openSession}
+          />
+        )}
 
         {totalCount === 0 ? (
           <Box
@@ -93,7 +118,7 @@ const Today = () => {
                 textTransform="uppercase"
                 letterSpacing="wider"
               >
-                À faire maintenant
+                {isSuggestedToday ? "Aujourd'hui" : 'À faire maintenant'}
               </Text>
               {/* La carte est le bouton. On clique instinctivement sur la
                   séance elle-même ; garder à côté un bouton qui mène au même
@@ -135,7 +160,7 @@ const Today = () => {
                       textTransform="uppercase"
                       letterSpacing="wider"
                     >
-                      À faire
+                      {isSuggestedToday ? 'Conseillée' : 'À faire'}
                     </Box>
                   </HStack>
                   <Text fontSize="xs" color="fg.muted">

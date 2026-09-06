@@ -131,6 +131,23 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
     });
   }, []);
 
+  const updateSessionDays = useCallback(
+    (sessionId: string, suggestedDays: number[]) => {
+      setProgram((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          sessions: prev.sessions.map((s) =>
+            s._id === sessionId
+              ? { ...s, suggestedDays: [...new Set(suggestedDays)].sort((a, b) => a - b) }
+              : s
+          ),
+        };
+      });
+    },
+    []
+  );
+
   // ─── Blocks ────────────────────────────────────────────────────────────────
 
   const addBlock = useCallback((sessionId: string, type: BlockType) => {
@@ -305,6 +322,7 @@ export const useProgramEditor = (initialProgram: ClientProgram | null) => {
       duplicateSession,
       reorderSessions,
       updateSessionNotes,
+      updateSessionDays,
       addBlock,
       removeBlock,
       updateBlock,

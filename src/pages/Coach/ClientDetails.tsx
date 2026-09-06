@@ -298,6 +298,9 @@ const ClientDetails = () => {
                   inProgram={inProgram}
                   onRemoveSession={handleRemoveActiveSession}
                   onDuplicateSession={handleDuplicateActiveSession}
+                  onUpdateSessionDays={(days) =>
+                    actions.updateSessionDays(activeSession._id, days)
+                  }
                   onUpdateSessionNotes={(notes) =>
                     actions.updateSessionNotes(activeSession._id, notes)
                   }

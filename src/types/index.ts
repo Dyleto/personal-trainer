@@ -106,6 +106,11 @@ export interface Session {
   _id: string;
   order: number;
   notes?: string;
+  /**
+   * Jours conseillés par le coach, lundi = 0. Indicatif : un jour manqué ne
+   * crée aucune dette. Absent ou vide = la séance n'est liée à aucun jour.
+   */
+  suggestedDays?: number[];
   blocks: SessionBlock[];
   createdAt: Date;
   updatedAt: Date;

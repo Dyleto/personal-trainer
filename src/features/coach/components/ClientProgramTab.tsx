@@ -23,6 +23,7 @@ import {
   BlockTypeSelector,
   ExerciseSelectorPanel,
   InlineText,
+  SuggestedDaysPicker,
 } from '@/features/program';
 import {
   SortableContext,
@@ -51,6 +52,7 @@ interface Props {
   onRemoveSession: () => void;
   onDuplicateSession: () => void;
   onUpdateSessionNotes: (notes: string) => void;
+  onUpdateSessionDays: (days: number[]) => void;
   onAddBlock: (type: BlockType) => void;
   onRemoveBlock: (blockId: string) => void;
   onUpdateBlock: (blockId: string, updates: Partial<SessionBlock>) => void;
@@ -100,6 +102,7 @@ export const ClientProgramTab = ({
   onRemoveSession,
   onDuplicateSession,
   onUpdateSessionNotes,
+  onUpdateSessionDays,
   onAddBlock,
   onRemoveBlock,
   onUpdateBlock,
@@ -142,15 +145,27 @@ export const ClientProgramTab = ({
   return (
     <>
       <VStack align="stretch" gap={4}>
-        <Box className="group" w="fit-content" maxW="full">
-          <InlineText
-            value={session.notes}
-            onChange={(notes) => onUpdateSessionNotes(notes ?? '')}
-            addLabel="+ note de séance"
-            ariaLabel="Note de la séance"
-            fontSize="sm"
-          />
-        </Box>
+        <VStack align="start" gap={1}>
+          <Box className="group" w="fit-content" maxW="full">
+            <InlineText
+              value={session.notes}
+              onChange={(notes) => onUpdateSessionNotes(notes ?? '')}
+              addLabel="+ note de séance"
+              ariaLabel="Note de la séance"
+              fontSize="sm"
+            />
+          </Box>
+          {/* Le jour conseillé est un attribut de la séance, au même rang que
+              sa note : c'est le coach qui le pose, une seule fois, ici. La
+              semaine du client s'en déduit à l'affichage — il n'y a pas de
+              planning séparé à tenir en cohérence. */}
+          <Box className="group" w="fit-content" maxW="full">
+            <SuggestedDaysPicker
+              value={session.suggestedDays}
+              onChange={onUpdateSessionDays}
+            />
+          </Box>
+        </VStack>
 
         <DndContext
           sensors={sensors}

@@ -8,6 +8,7 @@ import {
 import { LuPlus } from 'react-icons/lu';
 import { Session } from '@/types';
 import { getBlockAccent } from '@/features/program/constants';
+import { WEEKDAY_SHORT } from '@/features/client/sessionDates';
 import {
   DndContext,
   DragEndEvent,
@@ -134,9 +135,18 @@ const RailRow = ({
           </Text>
         )}
       </HStack>
-      <Text fontSize="xs" color="fg.muted">
-        {session.blocks.length} bloc{session.blocks.length > 1 ? 's' : ''}
-      </Text>
+      <HStack gap={1.5} align="baseline">
+        <Text fontSize="xs" color="fg.muted">
+          {session.blocks.length} bloc{session.blocks.length > 1 ? 's' : ''}
+        </Text>
+        {/* Le coach doit relire ce qu'il a posé sans rouvrir chaque séance :
+            c'est là qu'il voit qu'il a mis trois séances le mardi. */}
+        {(session.suggestedDays?.length ?? 0) > 0 && (
+          <Text fontSize="xs" color="app.primary">
+            {session.suggestedDays!.map((d) => WEEKDAY_SHORT[d]).join(' · ')}
+          </Text>
+        )}
+      </HStack>
       <Composition session={session} />
     </Box>
   );

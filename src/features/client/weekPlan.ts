@@ -1,0 +1,101 @@
+import { CompletedSession, Session } from '@/types';
+import { dayKey, mondayIndex, startOfWeek } from './sessionDates';
+
+export interface WeekDayPlan {
+  date: Date;
+  /** « 2026-09-07 », la clé locale du jour. */
+  key: string;
+  /** Lundi = 0. */
+  index: number;
+  /** Ce que le client a réellement fait ce jour-là. */
+  done: CompletedSession[];
+  /** Ce que le coach conseille ce jour-là, ordre du programme. */
+  suggested: Session[];
+}
+
+/**
+ * La semaine en cours, lundi à dimanche, croisant ce qui est conseillé et ce
+ * qui est fait.
+ *
+ * Les jours conseillés sont stockés sur la séance — une séance déclare « je me
+ * fais plutôt le lundi et le jeudi ». La semaine, elle, n'est stockée nulle
+ * part : on la reconstitue ici à l'affichage. Une seule source de vérité, et
+ * supprimer une séance ne laisse jamais un planning à réparer derrière elle.
+ *
+ * Rien ici ne calcule de retard : le jour conseillé est un conseil. Un lundi
+ * manqué ne produit aucun état, il reste simplement un lundi sans séance.
+ */
+export const buildWeekPlan = (
+  sessions: Session[],
+  history: CompletedSession[],
+  today: Date = new Date()
+): WeekDayPlan[] => {
+  const monday = startOfWeek(today);
+
+  const doneByDay = new Map<string, CompletedSession[]>();
+  history.forEach((completed) => {
+    const key = dayKey(new Date(completed.completedAt));
+    const list = doneByDay.get(key);
+    if (list) list.push(completed);
+    else doneByDay.set(key, [completed]);
+  });
+
+  const suggestedByIndex = new Map<number, Session[]>();
+  [...sessions]
+    .sort((a, b) => a.order - b.order)
+    .forEach((session) => {
+      new Set(session.suggestedDays ?? []).forEach((day) => {
+        if (!Number.isInteger(day) || day < 0 || day > 6) return;
+        const list = suggestedByIndex.get(day);
+        if (list) list.push(session);
+        else suggestedByIndex.set(day, [session]);
+      });
+    });
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(
+      monday.getFullYear(),
+      monday.getMonth(),
+      monday.getDate() + index
+    );
+    const key = dayKey(date);
+    return {
+      date,
+      key,
+      index,
+      done: doneByDay.get(key) ?? [],
+      suggested: suggestedByIndex.get(index) ?? [],
+    };
+  });
+};
+
+/** Le programme conseille-t-il au moins un jour ? Sinon la semaine reste muette. */
+export const hasSuggestedDays = (sessions: Session[]): boolean =>
+  sessions.some((s) => (s.suggestedDays?.length ?? 0) > 0);
+
+/**
+ * La séance conseillée pour aujourd'hui et pas encore faite aujourd'hui.
+ *
+ * C'est tout ce que « indicatif » autorise : on met en avant ce qui est prévu
+ * tant que ce n'est pas fait, et on se tait ensuite. Aucune séance manquée
+ * hier ne remonte ici.
+ */
+export const getSessionForToday = (
+  sessions: Session[],
+  history: CompletedSession[],
+  today: Date = new Date()
+): Session | undefined => {
+  const index = mondayIndex(today);
+  const key = dayKey(today);
+  const doneToday = new Set(
+    history
+      .filter((c) => dayKey(new Date(c.completedAt)) === key)
+      .map((c) => c.originalSessionId)
+  );
+
+  return [...sessions]
+    .sort((a, b) => a.order - b.order)
+    .find(
+      (s) => (s.suggestedDays ?? []).includes(index) && !doneToday.has(s._id)
+    );
+};

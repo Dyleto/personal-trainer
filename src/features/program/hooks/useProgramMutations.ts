@@ -13,6 +13,7 @@ export const useUpdateProgramSessions = (clientId: string) => {
         _id: session._id,
         order: si + 1,
         notes: session.notes?.trim(),
+        suggestedDays: session.suggestedDays ?? [],
         blocks: session.blocks.map((block, bi) => ({
           type: block.type,
           label: block.label || undefined,

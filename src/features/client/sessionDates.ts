@@ -17,3 +17,56 @@ export const formatDayLabel = (key: string): string => {
     month: 'long',
   }).format(new Date(year, month - 1, day));
 };
+
+// ─── Vocabulaire de la semaine ──────────────────────────────────────────────
+// Lundi = 0 partout dans l'app : la semaine française ne commence pas le
+// dimanche, et `Date.getDay()` si.
+
+/** Les sept lettres du calendrier — compactes, mais L/M/M et S/D se confondent. */
+export const WEEKDAY_LETTERS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'] as const;
+
+/** Trois lettres : ce qu'il faut dès qu'un jour doit être choisi, pas seulement lu. */
+export const WEEKDAY_SHORT = [
+  'Lun',
+  'Mar',
+  'Mer',
+  'Jeu',
+  'Ven',
+  'Sam',
+  'Dim',
+] as const;
+
+export const WEEKDAY_FULL = [
+  'lundi',
+  'mardi',
+  'mercredi',
+  'jeudi',
+  'vendredi',
+  'samedi',
+  'dimanche',
+] as const;
+
+/** Lundi = 0 : la semaine française ne commence pas le dimanche. */
+export const mondayIndex = (date: Date): number => (date.getDay() + 6) % 7;
+
+/** Le lundi de la semaine qui contient `from`, à minuit local. */
+export const startOfWeek = (from: Date): Date => {
+  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  d.setDate(d.getDate() - mondayIndex(d));
+  return d;
+};
+
+/**
+ * « le lundi », « le lundi et le jeudi », « le lundi, le mercredi et le
+ * vendredi ». Rien du tout quand aucun jour n'est conseillé — l'absence de
+ * conseil ne se signale pas, elle se tait.
+ */
+export const formatSuggestedDays = (days?: number[]): string => {
+  const valid = [...new Set(days ?? [])]
+    .filter((d) => Number.isInteger(d) && d >= 0 && d <= 6)
+    .sort((a, b) => a - b);
+  if (valid.length === 0) return '';
+  const names = valid.map((d) => `le ${WEEKDAY_FULL[d]}`);
+  if (names.length === 1) return names[0];
+  return `${names.slice(0, -1).join(', ')} et ${names[names.length - 1]}`;
+};

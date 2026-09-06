@@ -6,6 +6,7 @@ export { BlockTypeSelector } from './components/BlockTypeSelector';
 export { AtelierBlock } from './components/AtelierBlock';
 export { BlockConfigInline } from './components/BlockConfigInline';
 export { InlineExercisePicker } from './components/InlineExercisePicker';
+export { SuggestedDaysPicker } from './components/SuggestedDaysPicker';
 export {
   InlineValue,
   InlineSequence,
