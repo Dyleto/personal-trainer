@@ -1,7 +1,11 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Box, Grid, Link, Spinner, VStack } from '@chakra-ui/react';
 import { useAuth } from '@/contexts/useAuth';
-import { getDefaultRoleRoute, isPublicRoute } from '@/config/routes';
+import {
+  getDefaultRoleRoute,
+  isPublicRoute,
+  NO_ROLE_ROUTES,
+} from '@/config/routes';
 import { Suspense } from 'react';
 
 const PageLoader = () => {
@@ -26,6 +30,16 @@ const RootLayout: React.FC = () => {
 
   if (user && location.pathname === '/') {
     return <Navigate to={getDefaultRoleRoute(user)} replace />;
+  }
+
+  if (
+    user &&
+    !user?.isAdmin &&
+    !user?.isClient &&
+    !user?.isCoach &&
+    location.pathname !== NO_ROLE_ROUTES.main
+  ) {
+    return <Navigate to={NO_ROLE_ROUTES.main} replace />;
   }
 
   return (

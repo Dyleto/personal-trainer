@@ -10,7 +10,7 @@ import RootLayout from './layouts/RootLayout';
 import React from 'react';
 import { RouteError } from './components/RouteError';
 import { COACH_ROUTES } from './config/routes';
-import NoCoach from './pages/NoCoach';
+const NoRole = React.lazy(() => import('./pages/NoRole'));
 
 const Login = React.lazy(() => import('./pages/Login'));
 const AuthCallback = React.lazy(() => import('./pages/AuthCallback'));
@@ -52,7 +52,7 @@ const router = createBrowserRouter(
       <Route path="login" element={<Login />} />
       <Route path="auth/callback" element={<AuthCallback />} />
       <Route path="join" element={<Join />} />
-      <Route path="no-coach" element={<NoCoach />} />
+      <Route path="no-role" element={<NoRole />} />
 
       {/* Routes Coach */}
       <Route path="coach" element={<CoachLayout />}>

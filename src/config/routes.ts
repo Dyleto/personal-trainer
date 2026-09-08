@@ -11,7 +11,7 @@ export const getDefaultRoleRoute = (user: User | null): string => {
   if (user.isAdmin) return '/admin';
   if (user.isCoach) return '/coach';
   if (user.isClient) return '/client';
-  return '/no-coach';
+  return '/no-role';
 };
 
 export const CLIENT_ROUTES = {
@@ -30,4 +30,8 @@ export const COACH_ROUTES = {
   clientJournal: (clientId: string) => `/coach/clients/${clientId}/journal`,
   exercises: '/coach/exercises',
   exerciseDetails: (exerciseId: string) => `/coach/exercises/${exerciseId}`,
+};
+
+export const NO_ROLE_ROUTES = {
+  main: '/no-role',
 };
