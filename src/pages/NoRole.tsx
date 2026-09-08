@@ -1,5 +1,4 @@
 import { useAuth } from '@/contexts/useAuth';
-import { useNavigate } from 'react-router-dom';
 import {
   Box,
   VStack,
@@ -11,11 +10,9 @@ import {
 
 const NoRole = () => {
   const { logout } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login', { replace: true });
   };
 
   return (
@@ -31,6 +28,7 @@ const NoRole = () => {
         <VStack w="100%" maxW="380px">
           <VStack gap={1} textAlign="center">
             <Heading
+              as="h1"
               fontSize="42px"
               fontWeight="800"
               letterSpacing="9px"
@@ -47,23 +45,23 @@ const NoRole = () => {
           </VStack>
 
           <VStack gap={2.5} w="100%" mt={8} textAlign="center">
-            <Heading size="2xl" mb="8" as="h1">
-              Ton compte est créé, mais tu n'as pas encore l'accès à
+            <Heading size="2xl" mb="8" as="h2">
+              Votre compte est créé, mais vous n'avez pas encore l'accès à
               l'application.
             </Heading>
 
             <Text>
               Vous êtes{' '}
               <Text as="span" fontWeight="bold" color="app.primary">
-                client{' '}
-              </Text>
+                client
+              </Text>{' '}
               ? Contactez votre coach.
             </Text>
             <Text>
               Vous êtes{' '}
               <Text as="span" fontWeight="bold" color="app.primary">
-                coach{' '}
-              </Text>
+                coach
+              </Text>{' '}
               ? Contactez un administrateur.
             </Text>
           </VStack>

@@ -34,9 +34,10 @@ const RootLayout: React.FC = () => {
 
   if (
     user &&
-    !user?.isAdmin &&
-    !user?.isClient &&
-    !user?.isCoach &&
+    !isPublicRoute(location.pathname) &&
+    !user.isAdmin &&
+    !user.isClient &&
+    !user.isCoach &&
     location.pathname !== NO_ROLE_ROUTES.main
   ) {
     return <Navigate to={NO_ROLE_ROUTES.main} replace />;
