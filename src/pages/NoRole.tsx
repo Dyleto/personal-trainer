@@ -27,25 +27,18 @@ const NoRole = () => {
       <Container centerContent py={12}>
         <VStack w="100%" maxW="380px">
           <VStack gap={1} textAlign="center">
-            <Heading
-              as="h1"
-              fontSize="42px"
+            <Text
+              fontSize="13px"
               fontWeight="800"
-              letterSpacing="9px"
-              style={{
-                background:
-                  'linear-gradient(180deg, #fff, rgba(255,255,255,0.72))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
+              letterSpacing="4px"
+              color="fg.muted"
             >
               KETTLE
-            </Heading>
+            </Text>
           </VStack>
 
           <VStack gap={2.5} w="100%" mt={8} textAlign="center">
-            <Heading size="2xl" mb="8" as="h2">
+            <Heading size="2xl" mb="8" as="h1">
               Votre compte est créé, mais vous n'avez pas encore l'accès à
               l'application.
             </Heading>
